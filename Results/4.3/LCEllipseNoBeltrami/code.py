@@ -13,7 +13,7 @@ from IPython import embed
 import matplotlib.pyplot as plt
 import scipy
 import yaml # For reading configuration files
-from DeliverableShapeptimizationLCsMethods import *
+from DeliverableShapeOptimizationLCsMethods import *
 set_log_level(LogLevel.WARNING)
     
 # Load configuration from YAML file
