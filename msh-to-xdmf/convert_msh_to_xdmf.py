@@ -1,14 +1,15 @@
+import sys
 import meshio
 import numpy as np
 import os
 
 geom_folder = "Geometries/"
-subfolder = "Ellipse3D/"
-mesh_name = "Ellipse3D"
-msh = meshio.read("msh-to-xdmf/Ellipse3D.msh")
+subfolder = sys.argv[2] + "/"
+mesh_name = sys.argv[2]
+msh = meshio.read("msh-to-xdmf/"+sys.argv[1]+".msh")
 os.system("mkdir "+" "+ geom_folder+subfolder)
-
-dimension = 3
+os.system("mkdir "+" "+ geom_folder+subfolder)
+dimension = int(sys.argv[3])
 if dimension == 2:
     body_element_tag = "triangle"
     TwoDpoints= msh.points
