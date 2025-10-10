@@ -34,7 +34,7 @@ os.system("mkdir "+" "+save_dir + "/Figures")
 # Save the configuration file in the save directory
 os.system("cp config.yaml " + save_dir + "/config.yaml")
 os.system("cp "+ __file__ + " " + save_dir + "/code.py")
-os.system("cp "+ 'DeliverableShapeptimizationLCsMethods.py' + " " + save_dir + "/methods.py")
+os.system("cp "+ 'DeliverableShapeOptimizationLCsMethods.py' + " " + save_dir + "/methods.py")
 
 # Folder for initial mesh files
 subfolder = config['subfolder']
@@ -180,6 +180,23 @@ elif d == 2 and target_geometry == "circle_planar":
     q_target_proj = project(q_target, W)
     q_target0, q_target1 = q_target_proj.split()
 
+elif d == 2 and target_geometry == "defect":
+    q_target = Expression(('0', '0'), degree = 1)
+    for i, q in enumerate(config['top_charge']):
+        position_defect = config['position_defect'][i]
+        # create a subdomain of radius 0.5 around the defect with label i
+        tol = 1E-12
+        class Charged(SubDomain):
+            def inside(self, x, on_boundary):
+                r = ((x[0]-position_defect[0])**2 + (x[1]-position_defect[1])**2)**0.5
+                return r <= 0.5 + tol
+        Charged_Domain = Charged()
+        Charged_Domain.mark(domains, i)
+        theta = Expression('q*atan2((x[1]-y0),(x[0]-x0))', degree = 1, q = q, x0 = position_defect[0], y0 = position_defect[1])
+        q_target += Expression(('sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*(cos(theta)*cos(theta)-0.5) : 0', 'sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*sin(theta)*cos(theta):0'), theta = theta, S0 = S0, x0 = position_defect[0], y0 = position_defect[1], degree = 1)
+        q_target_proj = project(q_target, W)
+        q_target0, q_target1 = q_target_proj.split()
+
 File(save_dir + '/target.pvd') << q_target_proj # Save the target Q
 target_orientation, target_S = compute_orientation(q_target, mesh, d)
 File(save_dir + '/target_director.pvd') << target_orientation # Save the target director field
@@ -190,11 +207,11 @@ File(save_dir + '/target_director.pvd') << target_orientation # Save the target 
 # the volume constraint, the center of mass constraints 
 # and a regularization term for the mesh quality.
 # TODO Subtract forms
-objective_main = ((q_[0]-q_target0)**2 + (q_[1]-q_target1)**2)*dx 
+objective_main = ((q_[0]-q_target0)**2 + (q_[1]-q_target1)**2)*dx((0,1))  
 if d == 3:
     objective_main += ((q_[2]-q_target2)**2 + (q_[3]-q_target3)**2 + (q_[4]-q_target4)**2)*dx
 objective_volume = ((current_volume - Vol0)**2)/current_volume*dx
-objective_center_of_mass = ((assemble(x*dx)/current_volume-c_x0)**2 + (assemble(y*dx)/current_volume-c_y0)**2)/current_volume*dx
+objective_center_of_mass = ((assemble(x*dx)-c_x0)**2 + (assemble(y*dx)-c_y0)**2)*dx
 objective_boundary_length = (current_boundary_length - Boundary0)**2 /current_volume*dx
 objective_mesh_quality = (1/(CellVolume(mesh)+Constant(eps_meshquality))**2)/current_volume*dx
 objective_max_cell_edge_length = (MaxCellEdgeLength(mesh)**2)/current_volume*dx
@@ -233,6 +250,15 @@ if config['tangential_smoothing']:
     displacementInnerProduct += delta_beltrami*inner(tang_grad(TrialFunction(S), normals), tang_grad(TestFunction(S), normals)) * ds
 
 objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, volumes, variances_radius = [], [], [], [], [], [], []
+# # Plot the subdomains
+# import matplotlib.pyplot as plt
+# plt.figure()
+# plot(domains, title="Subdomains")
+# plt.savefig(save_dir + "/subdomains.png")
+# plt.close()
+
+# asd = assemble(1*dx((0,1)))
+# print(asd)
 
 # Run a shape gradient loop.
 iteration = 0
@@ -257,7 +283,8 @@ while iteration < maxIter:
 
     # Evaluate the shape derivative. 
     nh = compute_normals(mesh)
-    dJds_main = derivative(objective_main + Dv_Energy, X, TestFunction(S))  
+    dJds_main = derivative(objective + Dv_Energy, X, TestFunction(S))  
+    dJdS_com = derivative(objective_center_of_mass, X, TestFunction(S))
     dJdS_meshquality = (div(TestFunction(S)) / (CellVolume(mesh) + Constant(eps_meshquality))) / current_volume * dx
 
     #  Warning: Check for correct implementation!!!
@@ -265,7 +292,7 @@ while iteration < maxIter:
     dJds_boundary_length = 2*(current_boundary_length - Boundary0)*inner(TestFunction(S),normals)*div(nh)/current_volume*ds
     dJdS_max_cell_edge_length = (div(TestFunction(S)) * MaxCellEdgeLength(mesh))/current_volume * dx
 
-    dJds = dJds_main + k_meshquality * dJdS_meshquality + k_vol * dJds_volume + k_boundarylength * dJds_boundary_length + k_edge * dJdS_max_cell_edge_length
+    dJds = dJds_main
 
     # Riesz representation on the boundary: find dJds_1 in S s.t.
     # ∫_∂Ω <dJds_1, v> ds = dJds(v) for all v in S
@@ -311,7 +338,7 @@ while iteration < maxIter:
     # Printing information
     terms = [
     ("objective_main", objective_main, dJds_main, 1.0),
-    ("objective_mesh_quality", objective_mesh_quality, dJdS_meshquality, float(k_meshquality.values()[0])),
+    ("objective_com", objective_center_of_mass, dJdS_com, float(k_com.values()[0])),
     # Add more terms as needed
         ]
     print(f'Iteration {iteration}')
@@ -420,3 +447,15 @@ plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, objec
 # Paper: https://arxiv.org/abs/2303.15070
 # Paper: https://arxiv.org/pdf/2411.19421
 # Paper: https://arxiv.org/abs/2307.12444
+
+
+
+# Projective gradient descent
+
+# For DG0, inculde Jump terms? Over the skeleton dS int over jump(u) jump(u)
+
+# Lowlevel test, MWE
+# Inhomogenous mesh, finer mesh in center
+# Adaptive scheme, a posteriori refine mesh
+
+# Custom evaluation routine; Userdefined evaluation (search online), slow. Start with interpolation (maybe to higher (second) order)?
