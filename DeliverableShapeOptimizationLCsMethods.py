@@ -130,9 +130,10 @@ def eigenstate3_legacy(A):
 
 def compute_orientation(q, mesh, d):
     if d == 2:
+        eps = 1e-10
         Q = as_tensor(((q[0],q[1]),(q[1],-q[0])))
         lmbda1 = sqrt(-1*det(Q))
-        M = as_vector(( q[0] + lmbda1, 1* q[1]))/((q[0] + lmbda1)**2 + q[1]**2)** 0.5
+        M = as_vector(( q[0] + lmbda1, 1* q[1]))/((q[0] + lmbda1)**2 + q[1]**2 + eps)** 0.5
         return project(M, VectorFunctionSpace(mesh, 'CG', 1)), project(lmbda1/2, FunctionSpace(mesh, 'DG', 0))
     elif d == 3:
         λ, E = eigenstate3_legacy(as_tensor([[q[0], q[1], q[2]],

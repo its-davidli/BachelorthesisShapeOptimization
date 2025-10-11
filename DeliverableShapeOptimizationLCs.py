@@ -189,18 +189,18 @@ elif d == 2 and target_geometry == "defect":
         class Charged(SubDomain):
             def inside(self, x, on_boundary):
                 r = ((x[0]-position_defect[0])**2 + (x[1]-position_defect[1])**2)**0.5
-                return r <= 0.5 + tol
+                return r <= 0.45 + tol
         Charged_Domain = Charged()
         Charged_Domain.mark(domains, i)
         theta = Expression('q*atan2((x[1]-y0),(x[0]-x0))', degree = 1, q = q, x0 = position_defect[0], y0 = position_defect[1])
         q_target += Expression(('sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*(cos(theta)*cos(theta)-0.5) : 0', 'sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*sin(theta)*cos(theta):0'), theta = theta, S0 = S0, x0 = position_defect[0], y0 = position_defect[1], degree = 1)
-        q_target_proj = project(q_target, W)
-        q_target0, q_target1 = q_target_proj.split()
+    q_target_proj = project(q_target, W)
+    q_target0, q_target1 = q_target_proj.split()
 
 File(save_dir + '/target.pvd') << q_target_proj # Save the target Q
 target_orientation, target_S = compute_orientation(q_target, mesh, d)
 File(save_dir + '/target_director.pvd') << target_orientation # Save the target director field
-
+File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order parameter field
 # Define the objective function
 
 # The objective function is the sum of the squared difference between the state variable q_ and the target q_target,

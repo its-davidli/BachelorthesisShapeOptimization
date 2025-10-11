@@ -1,14 +1,14 @@
-mesh_name: Ellipse
-subfolder: Ellipse
+mesh_name: RoundedRectangle5to1EvenFinerMesh
+subfolder: RoundedRectangle5to1EvenFinerMesh
 save_fold: Results
 geom_folder: ./Geometries/
-surf_markers: [10]
+surf_markers: [9]
 maxIter: 1000
 rel_change_stopping_value: 1e-2
 finite_element: "CG"
 finite_element_degree: 1
 target_geometry: "defect"
-top_charge: [-0.5, 0.5]
+top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
 inner_product: "elasticity"
 anchoring: "vertical"
