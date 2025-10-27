@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import scipy
 import yaml # For reading configuration files
 from DeliverableShapeOptimizationLCsMethods import *
-set_log_level(LogLevel.WARNING)
+# set_log_level(LogLevel.WARNING)
     
 # Load configuration from YAML file
 with open("config.yaml", 'r') as stream:
@@ -53,13 +53,21 @@ mesh = Mesh()
 
 mvc_subdomain = MeshValueCollection("size_t", mesh, mesh.topology().dim())
 mvc_boundaries = MeshValueCollection("size_t", mesh, mesh.topology().dim()-1)
+if config['dimensions'] == 2:
+    with XDMFFile(MPI.comm_world, geom_folder+subfolder+"/"+mesh_name+"_2D.xdmf") as xdmf_infile:
+        xdmf_infile.read(mesh)
+        xdmf_infile.read(mvc_subdomain, "")
 
-with XDMFFile(MPI.comm_world, geom_folder+subfolder+"/"+mesh_name+"_2D.xdmf") as xdmf_infile:
-    xdmf_infile.read(mesh)
-    xdmf_infile.read(mvc_subdomain, "")
+    with XDMFFile(MPI.comm_world, geom_folder+subfolder+"/"+mesh_name+"_1D.xdmf") as xdmf_infile:
+        xdmf_infile.read(mvc_boundaries, "")
 
-with XDMFFile(MPI.comm_world, geom_folder+subfolder+"/"+mesh_name+"_1D.xdmf") as xdmf_infile:
-    xdmf_infile.read(mvc_boundaries, "")
+elif config['dimensions'] == 3:
+    with XDMFFile(MPI.comm_world, geom_folder+subfolder+"/"+mesh_name+"_3D.xdmf") as xdmf_infile:
+        xdmf_infile.read(mesh)
+        xdmf_infile.read(mvc_subdomain, "")
+
+    with XDMFFile(MPI.comm_world, geom_folder+subfolder+"/"+mesh_name+"_2D.xdmf") as xdmf_infile:
+        xdmf_infile.read(mvc_boundaries, "")
 
 domains = cpp.mesh.MeshFunctionSizet(mesh, mvc_subdomain)
 boundaries = cpp.mesh.MeshFunctionSizet(mesh, mvc_boundaries)
@@ -67,7 +75,8 @@ boundaries = cpp.mesh.MeshFunctionSizet(mesh, mvc_boundaries)
 dx = Measure('dx', domain=mesh, subdomain_data=domains)
 q_degree = 5
 dx = dx(metadata={'quadrature_degree': q_degree}) 
-ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+ds_controlvariable = Measure('ds', domain=mesh, subdomain_data=boundaries)
+ds_anchoring = Measure('ds', domain=mesh, subdomain_data=boundaries, subdomain_id=surf_markers[0])
 d = mesh.topology().dim()
 target_geometry = config['target_geometry']
 
@@ -112,7 +121,7 @@ if d==3: z = Expression('x[2]', degree = 1)
 Vol0 = Constant(assemble(1.0*dx)) # Initial/Target volume of the domain
 c_x0 = Constant(assemble(x*dx)/Vol0) # Initial/Target center of mass x coordinate
 c_y0 = Constant(assemble(y*dx)/Vol0) # Initial/Target center of mass y coordinate
-Boundary0 = Constant(assemble(1.0*ds)) # Initial/Target boundary length of the domain
+Boundary0 = Constant(assemble(1.0*ds_controlvariable)) # Initial/Target boundary length of the domain
 
 
 parameters["form_compiler"]["cpp_optimize"] = True
@@ -127,7 +136,7 @@ S = VectorFunctionSpace(mesh, "CG", 2)
 s = Function(S)
 
 current_volume = Constant(assemble(1.0*dx))
-current_boundary_length = Constant(assemble(1.0*ds))
+current_boundary_length = Constant(assemble(1.0*ds_controlvariable))
 
 # Define the function space for the state variable q
 Lagrange = FiniteElement(finite_element, mesh.ufl_cell(), finite_element_degree) 
@@ -151,7 +160,7 @@ elif config['anchoring'] == 'planar':
     else:
         raise NotImplementedError("Tangential vector computation is only implemented for 2D meshes.")
 
-Energy = (LG_energy(q_,a_B,L_c,β,x0, d))*dx + LG_boundaryPenalty(q_,Q_b,k_bc, d) * ds
+Energy = (LG_energy(q_,a_B,L_c,β,x0, d))*dx + LG_boundaryPenalty(q_,Q_b,k_bc, d) * ds_anchoring
 Dv_Energy= derivative(Energy, q_, p_)
 
 
@@ -197,7 +206,26 @@ elif d == 2 and target_geometry == "defect":
     q_target_proj = project(q_target, W)
     q_target0, q_target1 = q_target_proj.split()
 
-File(save_dir + '/target.pvd') << q_target_proj # Save the target Q
+elif d == 3 and target_geometry == "pseudoChiral":
+    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', '0', 'S0*sin(phi)*sin(phi) - 1/3', '0'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, degree = 1)
+    q_target_proj = project(q_target, W)
+    q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
+else:
+    q_target = Expression(('0', '0'), degree = 1)
+    if d == 3:
+        q_target = Expression(('0', '0', '0', '0', '0'), degree = 1)
+    q_target_proj = project(q_target, W)
+    if d == 2:
+        q_target0, q_target1 = q_target_proj.split()
+    else:
+        q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split() 
+if d == 2:
+    File(save_dir + '/target.pvd') << q_target_proj # Save the target Q
+else: 
+    xdmffile_target = XDMFFile(save_dir + '/target.xdmf')
+    xdmffile_target.write(q_target_proj,0)
+
+
 target_orientation, target_S = compute_orientation(q_target, mesh, d)
 File(save_dir + '/target_director.pvd') << target_orientation # Save the target director field
 File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order parameter field
@@ -228,8 +256,14 @@ adjointJacobian = derivative(adjointPDE, p_)
 initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
 assign(q_, initial_guess)
 assign(p_, initial_guess)
-File(save_dir + '/initialguess.pvd') << q_
-
+if d == 2:
+    File(save_dir + '/initialguess.pvd') << q_
+else: 
+    xdmffile_initialguess = XDMFFile(save_dir + '/initialguess.xdmf')
+    xdmffile_initialguess.write(q_,0)
+initial_orientation, initial_S = compute_orientation(q_, mesh, d)
+File(save_dir + '/initial_director.pvd') << initial_orientation # Save the initial director field
+File(save_dir + '/initial_S.pvd') << initial_S
 
 # Define functions which are going to hold the solution of the shape gradient,
 # as well as a scaled version of the negative shape gradient.
@@ -247,7 +281,7 @@ else:
     raise ValueError("Inner product not supported")
 
 if config['tangential_smoothing']:
-    displacementInnerProduct += delta_beltrami*inner(tang_grad(TrialFunction(S), normals), tang_grad(TestFunction(S), normals)) * ds
+    displacementInnerProduct += delta_beltrami*inner(tang_grad(TrialFunction(S), normals), tang_grad(TestFunction(S), normals)) * ds_controlvariable
 
 objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, volumes, variances_radius = [], [], [], [], [], [], []
 # # Plot the subdomains
@@ -263,11 +297,15 @@ objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives
 # Run a shape gradient loop.
 iteration = 0
 alpha = alphaInit
+if d == 3:
+    xdmffile_results = XDMFFile(save_dir + '/results.xdmf')
+    xdmffile_adjoints = XDMFFile(save_dir + '/adjoints.xdmf')
+
 while iteration < maxIter:
     X = SpatialCoordinate(mesh)
     # Compute the current volume and boundary length of the mesh.
     current_volume.assign(assemble(1.0*dx))
-    current_boundary_length.assign(assemble(1.0*ds))
+    current_boundary_length.assign(assemble(1.0*ds_controlvariable))
     # Solve the forward PDE.
     # compute initial guess
     initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
@@ -288,8 +326,8 @@ while iteration < maxIter:
     dJdS_meshquality = (div(TestFunction(S)) / (CellVolume(mesh) + Constant(eps_meshquality))) / current_volume * dx
 
     #  Warning: Check for correct implementation!!!
-    dJds_volume = 2*(current_volume - Vol0)*inner(TestFunction(S), normals)/current_volume*ds
-    dJds_boundary_length = 2*(current_boundary_length - Boundary0)*inner(TestFunction(S),normals)*div(nh)/current_volume*ds
+    dJds_volume = 2*(current_volume - Vol0)*inner(TestFunction(S), normals)/current_volume*ds_controlvariable
+    dJds_boundary_length = 2*(current_boundary_length - Boundary0)*inner(TestFunction(S),normals)*div(nh)/current_volume*ds_controlvariable
     dJdS_max_cell_edge_length = (div(TestFunction(S)) * MaxCellEdgeLength(mesh))/current_volume * dx
 
     dJds = dJds_main
@@ -298,7 +336,7 @@ while iteration < maxIter:
     # ∫_∂Ω <dJds_1, v> ds = dJds(v) for all v in S
     u_b = TrialFunction(S)
     v_b = TestFunction(S)
-    a_b = inner(u_b, v_b) * ds
+    a_b = inner(u_b, v_b) * ds_controlvariable
     L_b = dJds
     A_b = assemble(a_b, keep_diagonal=True)
     b_b = assemble(L_b)
@@ -326,11 +364,16 @@ while iteration < maxIter:
     normShapeGradient2 = sum(shapeGradient.vector() * shapeGradient.vector())
 
     # Export results
-    File(save_dir + '/forwardSol-{0:03d}.pvd'.format(iteration)) << q_
+    if d == 2:
+        File(save_dir + '/forwardSol-{0:03d}.pvd'.format(iteration)) << q_
+        File(save_dir + '/adjointSol-{0:03d}.pvd'.format(iteration)) << p_    
+    else: 
+        xdmffile_results.write(q_,iteration)
+        xdmffile_adjoints.write(p_,iteration)
+    
     M, S_param = compute_orientation(q_, mesh, d)
     File(save_dir + '/directorfield-{0:03d}.pvd'.format(iteration)) << M
     File(save_dir + '/scalarorderparameter-{0:03d}.pvd'.format(iteration)) << S_param
-    File(save_dir + '/adjointSol-{0:03d}.pvd'.format(iteration)) << p_    
     neg_shape_gradient = Function(S)
     neg_shape_gradient.assign(-shapeGradient)
     File(save_dir + f"/neg_shape_gradient_{iteration}.pvd") << neg_shape_gradient
@@ -347,7 +390,7 @@ while iteration < maxIter:
     shape_gradient_norms.append(normShapeGradient2)
     objectives_main.append(assemble(objective_main))
     objectives_meshquality.append(assemble(objective_mesh_quality))
-    variances_radius.append(variance_radius(mesh, surf_markers, boundaries, dx))
+    # variances_radius.append(variance_radius(mesh, surf_markers, boundaries, dx))
     volumes.append(current_volume.values()[0])
     # Store the mesh associated with the current iterate, as well as its objective value.
     referenceMeshCoordinates = mesh.coordinates().copy()
@@ -370,7 +413,7 @@ while iteration < maxIter:
         File(save_dir + f"/mesh_iter{iteration}_sub{sub_iteration}.pvd") << mesh
         # Update the current volume and boundary length of the mesh.
         current_volume.assign(assemble(1.0*dx))
-        current_boundary_length.assign(assemble(1.0*ds))
+        current_boundary_length.assign(assemble(1.0*ds_controlvariable))
 
         # Solve the forward PDE.
         assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))

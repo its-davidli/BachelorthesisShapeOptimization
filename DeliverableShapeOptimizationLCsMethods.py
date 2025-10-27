@@ -139,10 +139,10 @@ def compute_orientation(q, mesh, d):
         λ, E = eigenstate3_legacy(as_tensor([[q[0], q[1], q[2]],
                                                        [q[1], q[3], q[4]],
                                                        [q[2], q[4], -q[0]-q[3]]]))
-    
+
     v = E[2] * as_vector([0, 0, 1]) 
     v = v / sqrt(inner(v, v))  # Normalize the eigenvector 
-    return project(v, VectorFunctionSpace(mesh, 'CG', 1)),  project(λ[2]/2, FunctionSpace(mesh, 'DG', 0))  # Return the principal eigenvector (v0 corresponds to the largest eigenvalue λ0)
+    return project(v, VectorFunctionSpace(mesh, 'CG', 1), form_compiler_parameters={'quadrature_degree': 2}),  project(λ[2]/2, FunctionSpace(mesh, 'DG', 0),form_compiler_parameters={'quadrature_degree': 2})  # Return the principal eigenvector (v0 corresponds to the largest eigenvalue λ0)
 
 def compute_normals(mesh):
     n = FacetNormal(mesh)
