@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import scipy
 import yaml # For reading configuration files
 from DeliverableShapeOptimizationLCsMethods import *
-# set_log_level(LogLevel.WARNING)
+set_log_level(LogLevel.WARNING)
     
 # Load configuration from YAML file
 with open("config.yaml", 'r') as stream:
@@ -79,6 +79,17 @@ ds_controlvariable = Measure('ds', domain=mesh, subdomain_data=boundaries)
 ds_anchoring = Measure('ds', domain=mesh, subdomain_data=boundaries, subdomain_id=surf_markers[0])
 d = mesh.topology().dim()
 target_geometry = config['target_geometry']
+
+# Visualize boundary subdomain with subdomain_ids=surf_markers
+boundary_marked = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
+boundary_marked.set_all(0)
+for marker in surf_markers:
+    for facet in facets(mesh):
+        if boundaries[facet.index()] == marker:
+            boundary_marked[facet.index()] = 1
+File(save_dir + "/boundary_subdomain.pvd") << boundary_marked
+
+
 
 n_indep_comp = int(d*(d+1)/2 - 1) #Number of independent components for a symmetric traceless tensor)
 L_c = float(config["L_c"])
@@ -207,7 +218,7 @@ elif d == 2 and target_geometry == "defect":
     q_target0, q_target1 = q_target_proj.split()
 
 elif d == 3 and target_geometry == "pseudoChiral":
-    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', '0', 'S0*sin(phi)*sin(phi) - 1/3', '0'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, degree = 1)
+    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 0), degree = 1)
     q_target_proj = project(q_target, W)
     q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
 else:
@@ -336,7 +347,7 @@ while iteration < maxIter:
     # ∫_∂Ω <dJds_1, v> ds = dJds(v) for all v in S
     u_b = TrialFunction(S)
     v_b = TestFunction(S)
-    a_b = inner(u_b, v_b) * ds_controlvariable
+    a_b = inner(u_b, v_b) * ds_anchoring
     L_b = dJds
     A_b = assemble(a_b, keep_diagonal=True)
     b_b = assemble(L_b)

@@ -3,16 +3,19 @@
 ## Goals
 
 - Control position of topological defects in 2D
+- Get Chiral LC director
 
-## Questions
+## Questions (to Roland and Stephan)
 
 - Behavior of derivatives of DG Elements, see 2nd point 10th october 
+- Behavior of defect location? (see last point in Saturday, 11th October 2025)
+- Spikes at the 3D Boundary
 
 ## Log book
 
 ### Thursday, 9th October 2025
 
-- Read *LangtangenFEM2019* chapter 4,5,6 for solid understanding of FEM
+- Read *LangtangenFEM2019* chapter 4,5,6 for better understanding of FEM
 
 
 ### Friday, 10th October 2025
@@ -35,7 +38,7 @@
     - Making the mesh anisotropic changes the location of the defects, they locate at the edge of the fine mesh --> Indicate unphysical reason for the location of the defects? (see *Results/TestAnisotropicBig*, *Results/TestAnisotropicSmall*)
     - Different Meshsizes change the position of the defect --> Indicate unphysical reason for the location of the defects? (see *Results/Test5to1EvenFinerMesh*, *Results/Test5to1FinerMesh*,*Results/Test5to1*)
 
-### Tuesday 14th October 2025 / Wednesday, 22th October 2025
+### Tuesday, 14th October 2025 / Wednesday, 22th October 2025
 
 - Generalized saving of results to 3D
 - Fixed a bug in compute_orientation() using high quadrature degree *form_compiler_parameters={'quadrature_degree': 2}*
@@ -43,3 +46,12 @@
 - Bug: center of mass calculation only 2D
 - **TODO**: Rewrite all objective Functions 
 - Added distinguished *ds* measures for boundary surfaces and movable surfaces
+
+The first test does not yield good results. The shape derivative looks fine, but the resulting deformation is not as expected. --> New approach instead of only using one anchoring wall, also prescribe the opposite wall
+
+### Monday 27th October 2025
+- Added the opposite wall as an anchoring surface
+- Getting different results, with combinations of using *H1* or Elasticity inner product, tangential smoothing or normal projections
+- Best result is found with the elasticity inner product, no tangential smoothing, with normal projection. (see Results/TestChiral)
+- **Issue:** Spikes at the boundary of the mesh, which is bad, tangentual smoothing does not do much
+- Next goal is to go back to look at the defects in 2d, try some cases to control the defect. Perspectivly also fix 2 boundaries and see what the other 2 boundaries do
