@@ -10,6 +10,7 @@
 - Behavior of derivatives of DG Elements, see 2nd point 10th october 
 - Behavior of defect location? (see last point in Saturday, 11th October 2025)
 - Spikes at the 3D Boundary
+- How to shape optimize for only a local objective
 
 ## Log book
 
@@ -49,9 +50,13 @@
 
 The first test does not yield good results. The shape derivative looks fine, but the resulting deformation is not as expected. --> New approach instead of only using one anchoring wall, also prescribe the opposite wall
 
-### Monday 27th October 2025
+### Monday, 27th October 2025
 - Added the opposite wall as an anchoring surface
 - Getting different results, with combinations of using *H1* or Elasticity inner product, tangential smoothing or normal projections
 - Best result is found with the elasticity inner product, no tangential smoothing, with normal projection. (see Results/TestChiral)
 - **Issue:** Spikes at the boundary of the mesh, which is bad, tangentual smoothing does not do much
 - Next goal is to go back to look at the defects in 2d, try some cases to control the defect. Perspectivly also fix 2 boundaries and see what the other 2 boundaries do
+
+### Tuesday, 28th October 2025
+
+- **Problem**: How to prescribe the Q-Tensor for defects? We only have a local description of the defects.

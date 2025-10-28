@@ -212,7 +212,7 @@ elif d == 2 and target_geometry == "defect":
                 return r <= 0.45 + tol
         Charged_Domain = Charged()
         Charged_Domain.mark(domains, i)
-        theta = Expression('q*atan2((x[1]-y0),(x[0]-x0))', degree = 1, q = q, x0 = position_defect[0], y0 = position_defect[1])
+        theta = Expression('q*(atan2((x[1]-y0),(x[0]-x0)+ (-ind + 1)* pi))', degree = 1, ind = i, q = q, x0 = position_defect[0], y0 = position_defect[1])
         q_target += Expression(('sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*(cos(theta)*cos(theta)-0.5) : 0', 'sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*sin(theta)*cos(theta):0'), theta = theta, S0 = S0, x0 = position_defect[0], y0 = position_defect[1], degree = 1)
     q_target_proj = project(q_target, W)
     q_target0, q_target1 = q_target_proj.split()
