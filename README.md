@@ -5,3 +5,14 @@ To reproduce the results, one can find the code file *code.py* in the single res
 
 For future work, the starting point should be the code DeliverableShapeOptimizationLCs.py with the dependencies DeliverableShapeOptimizationLCsMethods.py
  
+
+*library versions:*  
+pip list --format=columns | grep -E "fenics|dolfin|dolfin-adjoint|numpy"
+
+dolfin-adjoint       2023.3.0  
+fenics-dijitso       2019.2.0.dev0  
+fenics-dolfin        2019.2.0.dev0  
+fenics-ffc           2019.2.0.dev0  
+fenics-fiat          2019.2.0.dev0  
+fenics-ufl-legacy    2022.3.0  
+numpy                1.21.5
