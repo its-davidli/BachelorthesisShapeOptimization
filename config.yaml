@@ -1,23 +1,24 @@
-mesh_name: RoundedRectangle5to1FinerMesh
-subfolder: RoundedRectangle5to1FinerMesh
+mesh_name: OneSidedWallBox
+subfolder: OneSidedWallBox
 save_fold: Results
 geom_folder: ./Geometries/
-surf_markers: [9]
-dimensions: 2
+surf_markers: [1]
+dimensions: 3
 maxIter: 1000
-rel_change_stopping_value: 5e-1
+rel_change_stopping_value: 1e-4
 finite_element: "CG"
 finite_element_degree: 1
-target_geometry: "defect"
+target_geometry: "pseudoChiral"
 top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
 inner_product: "H1"
 anchoring: "vertical"
 tangential_smoothing: True
 use_normal_dJds_projection: True 
+boundary_conditions_shapegradient: "fixed_bottom"
 sigma: 1e-4
 beta: 0.5
-alphaInit: 2e4
+alphaInit: 5e1
 alphaMin: 1e-8
 k_vol: 0.0
 k_com: 0.0
@@ -34,4 +35,4 @@ L_c: 2e-6
 beta_param: 5.0
 x0: 1.5
 delta: 0.8
-delta_beltrami: 2
+delta_beltrami: 1

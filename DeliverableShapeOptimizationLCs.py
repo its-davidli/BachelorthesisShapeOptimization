@@ -79,6 +79,7 @@ ds_controlvariable = Measure('ds', domain=mesh, subdomain_data=boundaries)
 ds_anchoring = Measure('ds', domain=mesh, subdomain_data=boundaries, subdomain_id=surf_markers[0])
 d = mesh.topology().dim()
 target_geometry = config['target_geometry']
+tol = 1E-12
 
 # Visualize boundary subdomain with subdomain_ids=surf_markers
 boundary_marked = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
@@ -205,7 +206,6 @@ elif d == 2 and target_geometry == "defect":
     for i, q in enumerate(config['top_charge']):
         position_defect = config['position_defect'][i]
         # create a subdomain of radius 0.5 around the defect with label i
-        tol = 1E-12
         class Charged(SubDomain):
             def inside(self, x, on_boundary):
                 r = ((x[0]-position_defect[0])**2 + (x[1]-position_defect[1])**2)**0.5
@@ -295,16 +295,14 @@ if config['tangential_smoothing']:
     displacementInnerProduct += delta_beltrami*inner(tang_grad(TrialFunction(S), normals), tang_grad(TestFunction(S), normals)) * ds_controlvariable
 
 objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, volumes, variances_radius = [], [], [], [], [], [], []
-# # Plot the subdomains
-# import matplotlib.pyplot as plt
-# plt.figure()
-# plot(domains, title="Subdomains")
-# plt.savefig(save_dir + "/subdomains.png")
-# plt.close()
 
-# asd = assemble(1*dx((0,1)))
-# print(asd)
-
+bc_shapegradient = []
+if config['boundary_conditions_shapegradient'] == 'None':
+    pass
+elif config['boundary_conditions_shapegradient'] == 'fixed_bottom':
+    def boundary(x):
+        return near(x[2], 0, tol)
+    bc_shapegradient = DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)
 # Run a shape gradient loop.
 iteration = 0
 alpha = alphaInit
@@ -365,9 +363,9 @@ while iteration < maxIter:
     # bc_outer = DirichletBC(S, dJds_1_n, 'on_boundary')
 
     if config['use_normal_dJds_projection']:
-        solve(displacementInnerProduct == inner(dJds_1_n,TestFunction(S))*dx, shapeGradient)
+        solve(displacementInnerProduct == inner(dJds_1_n,TestFunction(S))*dx, shapeGradient, [bc_shapegradient])
     else:
-        solve(displacementInnerProduct == dJds, shapeGradient)
+        solve(displacementInnerProduct == dJds_1, shapeGradient, [bc_shapegradient])
 
 
     # Evaluate the squared norm of the shape gradient induced by the (regularized)

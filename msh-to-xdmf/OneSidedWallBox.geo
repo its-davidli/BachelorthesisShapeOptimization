@@ -8,4 +8,4 @@ Physical Surface(1) = {1,2};
 Physical Surface(2) = {1,2,3,4,5,6};
 Physical Volume(1) = {1};
 //+
-MeshSize { PointsOf{ Volume{1}; } } = 0.2;
+MeshSize { PointsOf{ Volume{1}; } } = 0.15;

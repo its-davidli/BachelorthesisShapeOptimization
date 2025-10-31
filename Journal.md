@@ -8,8 +8,8 @@
 ## Questions (to Roland and Stephan)
 
 - Behavior of derivatives of DG Elements, see 2nd point 10th october 
-- Behavior of defect location? (see last point in Saturday, 11th October 2025)
 - Spikes at the 3D Boundary
+- Behavior of defect location? (see last point in Saturday, 11th October 2025)
 - How to shape optimize for only a local objective
 
 ## Log book
@@ -60,3 +60,17 @@ The first test does not yield good results. The shape derivative looks fine, but
 ### Tuesday, 28th October 2025
 
 - **Problem**: How to prescribe the Q-Tensor for defects? We only have a local description of the defects.
+
+
+### Meeting, 30th October 2025
+- Look at absolute error in sol of State equ
+- Target funtion is not a background mesh, but attached to the mesh
+    - Solution: Project after every mesh movement
+    - **Declare the target function with spatial coordinates as an UFL expression**
+        - X= SpatialCoordinate(mesh) *Declareing its dependant on the mesh*
+        - UFL Expression
+- Revisit the 2D case
+- project cuts of the dependency
+- First track a spatial constant field
+
+- Create the geometry, which is a solution. -> 
