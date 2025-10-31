@@ -51,6 +51,7 @@
 The first test does not yield good results. The shape derivative looks fine, but the resulting deformation is not as expected. --> New approach instead of only using one anchoring wall, also prescribe the opposite wall
 
 ### Monday, 27th October 2025
+
 - Added the opposite wall as an anchoring surface
 - Getting different results, with combinations of using *H1* or Elasticity inner product, tangential smoothing or normal projections
 - Best result is found with the elasticity inner product, no tangential smoothing, with normal projection. (see Results/TestChiral)
@@ -63,6 +64,7 @@ The first test does not yield good results. The shape derivative looks fine, but
 
 
 ### Meeting, 30th October 2025
+
 - Look at absolute error in sol of State equ
 - Target funtion is not a background mesh, but attached to the mesh
     - Solution: Project after every mesh movement
@@ -74,3 +76,14 @@ The first test does not yield good results. The shape derivative looks fine, but
 - First track a spatial constant field
 
 - Create the geometry, which is a solution. -> 
+
+### Friday, 31st October 2025
+
+- Removed the projection() from the definition of the target functions
+    - In 2D this results in a much better solution, see *Results/TestEllipseOptimal*, almost a perfect circle
+- Created a twisted box to analyze the intuitive solution to the chiral problem see *Results/TestIrreg*
+    - There are a few numerical issues with the forward solution, first some unregular directors are visible and also the solution does not seem to be consistent, as you can see in the debugging file from the 0th to first iteration.
+- Tried an easier testcase of a homogenous director field, with an azimuthal angle, trying to achieve rotation of the box (prelim result *Results/TestRotateBox*), good beginning but many numerical issues.
+- **TODO:** Check all instances of the different *ds*
+- **TODO:** Implment inital alpha from HerzogMeshQuality
+- **TODO:** Run the programm to rotate with really small initialstepsize for 100 iterations.

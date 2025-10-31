@@ -8,17 +8,17 @@ maxIter: 1000
 rel_change_stopping_value: 1e-4
 finite_element: "CG"
 finite_element_degree: 1
-target_geometry: "pseudoChiral"
+target_geometry: "uniform_horizontal"
 top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
-inner_product: "H1"
+inner_product: "elasticity"
 anchoring: "vertical"
 tangential_smoothing: True
 use_normal_dJds_projection: True 
-boundary_conditions_shapegradient: "fixed_bottom"
-sigma: 1e-4
+boundary_conditions_shapegradient: "None"
+sigma: 5e-3
 beta: 0.5
-alphaInit: 5e1
+alphaInit: 2e2
 alphaMin: 1e-8
 k_vol: 0.0
 k_com: 0.0

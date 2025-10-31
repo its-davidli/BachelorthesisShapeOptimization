@@ -178,10 +178,11 @@ Dv_Energy= derivative(Energy, q_, p_)
 
 # Define the target state variable q_target
 if d == 2 and target_geometry == "circle":
+    X = SpatialCoordinate(mesh)
     theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
     q_target = Expression(('S0*(cos(theta)*cos(theta)-0.5)', 'S0*sin(theta)*cos(theta)'), theta = theta, S0 = S0, degree = 1)
     q_target_proj = project(q_target, W)
-    q_target0, q_target1 = q_target_proj.split()
+    # q_target0, q_target1 = q_target.split()
 
 elif d == 2 and target_geometry == "uniform_vertical":
     q_target = Expression(('-S0*(0.5)', '0'), S0 = S0, degree = 1)
@@ -218,9 +219,17 @@ elif d == 2 and target_geometry == "defect":
     q_target0, q_target1 = q_target_proj.split()
 
 elif d == 3 and target_geometry == "pseudoChiral":
+    X = SpatialCoordinate(mesh)
+
     q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 0), degree = 1)
     q_target_proj = project(q_target, W)
-    q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
+    # q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
+
+elif d == 3 and target_geometry == "uniform_horizontal":
+    X = SpatialCoordinate(mesh)
+    azimuth_angle = Constant(np.pi/6)
+    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = azimuth_angle , S0 = S0, eps= tol, degree = 1)
+    q_target_proj = project(q_target, W)
 else:
     q_target = Expression(('0', '0'), degree = 1)
     if d == 3:
@@ -246,9 +255,7 @@ File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order para
 # the volume constraint, the center of mass constraints 
 # and a regularization term for the mesh quality.
 # TODO Subtract forms
-objective_main = ((q_[0]-q_target0)**2 + (q_[1]-q_target1)**2)*dx((0,1))  
-if d == 3:
-    objective_main += ((q_[2]-q_target2)**2 + (q_[3]-q_target3)**2 + (q_[4]-q_target4)**2)*dx
+objective_main = (dot(q_ - q_target, q_ - q_target))*dx
 objective_volume = ((current_volume - Vol0)**2)/current_volume*dx
 objective_center_of_mass = ((assemble(x*dx)-c_x0)**2 + (assemble(y*dx)-c_y0)**2)*dx
 objective_boundary_length = (current_boundary_length - Boundary0)**2 /current_volume*dx
@@ -302,7 +309,7 @@ if config['boundary_conditions_shapegradient'] == 'None':
 elif config['boundary_conditions_shapegradient'] == 'fixed_bottom':
     def boundary(x):
         return near(x[2], 0, tol)
-    bc_shapegradient = DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
 # Run a shape gradient loop.
 iteration = 0
 alpha = alphaInit
@@ -321,7 +328,7 @@ while iteration < maxIter:
     assign(q_, initial_guess)
     assign(p_, initial_guess)
 
-    solveMultRelaxation([[0.3,1e-3],[0.4,1.0e-5], [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+    solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
     
     J = assemble(objective)
 
@@ -363,9 +370,9 @@ while iteration < maxIter:
     # bc_outer = DirichletBC(S, dJds_1_n, 'on_boundary')
 
     if config['use_normal_dJds_projection']:
-        solve(displacementInnerProduct == inner(dJds_1_n,TestFunction(S))*dx, shapeGradient, [bc_shapegradient])
+        solve(displacementInnerProduct == inner(dJds_1_n,TestFunction(S))*dx, shapeGradient, bc_shapegradient)
     else:
-        solve(displacementInnerProduct == dJds_1, shapeGradient, [bc_shapegradient])
+        solve(displacementInnerProduct == dJds, shapeGradient, bc_shapegradient)
 
 
     # Evaluate the squared norm of the shape gradient induced by the (regularized)
@@ -435,9 +442,7 @@ while iteration < maxIter:
         # Evaluate the Armijo condition and reduce the step size if necessary.
         if (trialJ <= J - sigma * alpha * normShapeGradient2):
             lineSearchSuccessful = True
-        else:
-            alpha = beta * alpha
-
+        
         # Write debugging information to a file
         with open(save_dir + '/debugging.txt', 'a') as debug_file:
             debug_file.write(f"It.: {iteration}\t")
@@ -447,6 +452,8 @@ while iteration < maxIter:
             debug_file.write(f"Norm of Shape Gradient squared: {normShapeGradient2:12.2e}\t")
             debug_file.write(f"Armijo Condition: {lineSearchSuccessful}\n")
             debug_file.write("-" * 40 + "\n")
+
+        alpha = beta * alpha
 
         # Increment the sub-iteration counter.
         sub_iteration += 1
@@ -465,7 +472,7 @@ while iteration < maxIter:
     # Increment the iteration counter.
     iteration += 1
 
-write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'objectives_main': objectives_main, 'objectives_meshquality': objectives_meshquality, 'volumes': volumes, 'variance radii': variances_radius})
+write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'objectives_main': objectives_main, 'objectives_meshquality': objectives_meshquality})
 plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, k_meshquality)
 
 
