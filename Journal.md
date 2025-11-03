@@ -11,6 +11,7 @@
 - Spikes at the 3D Boundary
 - Behavior of defect location? (see last point in Saturday, 11th October 2025)
 - How to shape optimize for only a local objective
+- Initial Stepsize determination
 
 ## Log book
 
@@ -84,6 +85,13 @@ The first test does not yield good results. The shape derivative looks fine, but
 - Created a twisted box to analyze the intuitive solution to the chiral problem see *Results/TestIrreg*
     - There are a few numerical issues with the forward solution, first some unregular directors are visible and also the solution does not seem to be consistent, as you can see in the debugging file from the 0th to first iteration.
 - Tried an easier testcase of a homogenous director field, with an azimuthal angle, trying to achieve rotation of the box (prelim result *Results/TestRotateBox*), good beginning but many numerical issues.
-- **TODO:** Check all instances of the different *ds*
+- Done **TODO:** Check all instances of the different *ds* 
 - **TODO:** Implment inital alpha from HerzogMeshQuality
 - **TODO:** Run the programm to rotate with really small initialstepsize for 100 iterations.
+
+### Monday, 3rd November 2025
+
+- Implemented the initial stepsize calculation method proposed in *HerzogMeshQuality*
+    - The stepsizes are too small
+- Problem: There are many rigid movements it seems
+    - Tuning the delta parameter higher somehow adds rigid movements

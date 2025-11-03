@@ -18,8 +18,9 @@ use_normal_dJds_projection: True
 boundary_conditions_shapegradient: "None"
 sigma: 5e-3
 beta: 0.5
-alphaInit: 2e2
-alphaMin: 1e-8
+stepsize_method: "constant"
+alphaInit: 1e2
+alphaMin: 1e-4
 k_vol: 0.0
 k_com: 0.0
 k_boundary: 0
@@ -34,5 +35,5 @@ a_B: 0.1
 L_c: 2e-6
 beta_param: 5.0
 x0: 1.5
-delta: 0.8
+delta: 2
 delta_beltrami: 1

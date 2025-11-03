@@ -312,7 +312,8 @@ elif config['boundary_conditions_shapegradient'] == 'fixed_bottom':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
 # Run a shape gradient loop.
 iteration = 0
-alpha = alphaInit
+
+
 if d == 3:
     xdmffile_results = XDMFFile(save_dir + '/results.xdmf')
     xdmffile_adjoints = XDMFFile(save_dir + '/adjoints.xdmf')
@@ -414,11 +415,19 @@ while iteration < maxIter:
     # Begin Armijo line search.
     lineSearchSuccessful = False
     sub_iteration = 0
-    # if iteration == 0:
-    #     alpha = 1/sqrt(normShapeGradient2)
-    # else:
-    #     alpha = alpha*shape_gradient_norms[-2]/shape_gradient_norms[-1]
-    
+    if iteration == 0:
+        if config['stepsize_method'] == "herzog_meshquality":
+            alpha = 1/sqrt(normShapeGradient2)
+        if config['stepsize_method'] == "constant":
+            alpha = alphaInit
+    else:
+        if config['stepsize_method'] == "herzog_meshquality":
+            alpha = alpha*sqrt(shape_gradient_norms[-2]/normShapeGradient2)
+            if alpha * sqrt(normShapeGradient2) < 1e-4:
+                alpha = 1/sqrt(normShapeGradient2)
+        if config['stepsize_method'] == "constant":
+            alpha = min(alphaInit, 1000* alpha / beta)
+
     while (lineSearchSuccessful == False) and (alpha > alphaMin):
         # Assign the mesh displacement vector field.
         mesh.coordinates()[:] = referenceMeshCoordinates
@@ -434,7 +443,7 @@ while iteration < maxIter:
         # Solve the forward PDE.
         assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
         # Solve the forward PDE with the updated mesh.
-        solveMultRelaxation([[0.3,1e-3],[0.4,1.0e-5], [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+        solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
         trialJ = assemble(objective)
 
@@ -459,9 +468,7 @@ while iteration < maxIter:
         sub_iteration += 1
     # Occasionally display some information.
 
-    # Reset the step size for the next iteration.
-    alpha = min(alphaInit, 1000* alpha / beta)
-    # Set the initial step size.
+
     if iteration > 0:
         rel_change = abs(objective_values[-1] - objective_values[-2]) / (abs(objective_values[-2]) + 1e-12)
         rel_changes.append(rel_change)
