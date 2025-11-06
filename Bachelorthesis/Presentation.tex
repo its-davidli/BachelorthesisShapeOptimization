@@ -1,0 +1,644 @@
+% ===============================================================================================
+% LaTeX Presentation Template by Lorenz Vogel (version 2022-03), adapted by Bjoern Malte Schaefer
+% ===============================================================================================
+
+\documentclass[aspectratio=169, xcolor=dvipsnames, 12pt, t]{beamer}
+
+% packages
+\usepackage{adjustbox}
+\usepackage{ifthen}
+\usepackage{pgfplots}
+\usepackage{algorithm} 
+\usepackage{multimedia}
+\usepackage{media9}
+
+\usepgfplotslibrary{patchplots}
+\usetikzlibrary{patterns, positioning, arrows}
+
+% inputs
+\input{settings/settings-presentation.tex} 	% load customized packages and settings
+\input{settings/settings-beamer.tex} 		% load customized beamer settings
+\input{settings/shortcuts.tex} 				% load pre-defined shortcuts
+\graphicspath{{./figures/}}
+
+%\setbeameroption{show notes on second screen=right}
+\setstretch{0.96}
+
+% definitions
+\newcommand{\dang}{d_\mathrm{A}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\sun}{\odot}
+\newcommand{\vecj}{\vec{\jmath}}
+\newcommand{\trace}{\mathrm{tr}}
+\newcommand{\likelihood}{\mathcal{L}}
+\newcommand{\ci}{\mathrm{i}}
+\renewcommand{\tensor}[1]{\hat{#1}}
+\DeclareMathOperator{\Div}{div}
+\newcommand{\D}{\mathcal{D}}
+
+
+
+
+\newcommand{\const}{\text{const.}}
+\renewcommand{\d}{\text{d}}
+\newcommand{\ddt}{\dfrac{\d}{\d t}}
+\newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt \hbox{\scriptsize.}\hbox{\scriptsize.}}}=} % Macht ein schönes :=
+%Zahlenkörper
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathcal{F}}
+\renewcommand{\H}{\mathcal{H}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\D}{\mathcal{D}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\K}{\mathbb{K}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\e}{\textrm{e}}
+\newcommand{\seminorm}[1]{\left\lvert\hspace{-1 pt}\left\lvert\hspace{-1 pt}\left\lvert {#1}
+
+\right\lvert\hspace{-1 pt}\right\lvert\hspace{-1 pt}\right\lvert}
+% title
+\title[]{Controlling electric and nematic fields through shape optimization}
+\author{David Li}
+\date{29th of September 2025}
+
+\institute[Heidelberg University]{
+	Heidelberg University, Germany\\
+    Department of Physics and Astronomy, Institute for Theoretical Physics
+    \\ \\
+	\textit{Bachelor Thesis supervised by Prof. Ulrich Schwarz and Santiago Gomez Melo}\\\\\\
+}
+
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}
+
+\begin{document}
+
+%% title page
+\begin{frame}[noframenumbering, plain]
+	\begin{spacing}{0.95}
+		\titlepage
+	\end{spacing}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Shape Optimization}
+	\begin{itemize}
+		\item Achieve optimal physical properties  by tailoring the geometry, e.g.:
+		\begin{itemize}
+			\item Minimize drag in fluid dynamics
+			\item Maximize structural strength
+		\end{itemize}
+		\item Enables scalable inverse design of shapes 
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.5\textwidth]{AcousticHorn.png}
+		\caption{Example of shape optimization of an acoustic horn maximizing transmission efficiency, left initial shape, right optimized shape (from \textit{Schmidt} et al.\textit{ SIAM Journal on Scientific Computing}, 2016)}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Metamaterials}
+	\begin{itemize}
+		\item Metamaterials: engineered materials with structure-driven properties.
+		\item Metamaterials can be engineered to have tunable properties via external stimuli.
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.4\textwidth]{Optomechanical.png}
+		\caption{Examples of metamaterials with tunable properties (from \textit{Münchinger} et al. \textit{Materials Today} 2022)}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Liquid Crystals and Nematic Phase}
+	\begin{itemize}
+		\item Liquid crystals: fluid-like materials with orientational order.
+		\item Liquid crystal elastomers: liquid crystals + polymer elasticity, enable large, reversible deformations.
+		% \item Q-order tensor: describes how the liquid crystal molecules deviate from isotropy
+		% \begin{equation*}
+		% 	Q = S\left(n \otimes n - \frac{1}{3}\mathrm{Id}\right)
+		% \end{equation*}
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{LcPhases.jpg}
+		\caption{Different phases of liquid crystals. (from \textit{Zang} et al. \textit{Science Advances} 2025)}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\textwidth]{PictureZoom.png}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Liquid Crystal Elastomers (LCEs)}
+		\begin{figure}[h]
+				\centering
+				\includegraphics[width=\textwidth]{Thermalresponse.jpg}
+			\caption{Left: Schematic of LCEs in the nematic phase. Right: Thermal response of an LCE/LCN showing deformation across the nematic-isotropic transition. (From \textit{Zang} et al. \textit{Advanced Materials} 2025)}
+		\end{figure}
+\end{frame}
+% \begin{frame}
+% 	\begin{center}
+% 	\begin{tikzpicture}[every node/.style={font=\large}]
+% 		% Draw circles
+% 		\node[draw, circle, minimum size=4cm, inner sep=0pt] (A) at (-7,2) {};
+% 		\node[draw, circle, minimum size=4cm, inner sep=0pt] (B) at (-2,0) {};
+% 		\node[draw, circle, minimum size=4cm, inner sep=0pt] (C) at (3,-2) {};
+
+% 		% Connect circles
+% 		\draw[very thick, -{Latex}] (A) -- (B);
+% 		\draw[very thick, -{Latex}] (B) -- (C);
+
+% 		% Place images inside circles
+% 		\node[anchor=center] at (A) {\includegraphics[width=3cm]{Optomechanical.png}};
+% 		\node[anchor=center] at (B) {\includegraphics[width=3cm]{OptomechanicalCloseUp.png}};
+% 		\node[anchor=center] at (C) {\includegraphics[width=3cm]{LCEs.png}};
+
+% 		% Optional: labels
+% 		% \node at ($(A)+(0,1.5)$) {Metamaterial};
+% 		% \node at ($(B)+(1.2,0)$) {Microstructure};
+% 		% \node at ($(C)+(1.2,-0.5)$) {LCE detail};
+% 	\end{tikzpicture}
+% 	\end{center}
+% \end{frame}
+% -------------------------------------------------------- %
+
+
+
+% \begin{frame}
+% 	\frametitle{Nematic Liquid Crystals}
+% 	Landau-de Gennes free energy
+% 	\begin{align}
+%     E_{\textrm{LdG}}(\tensor{Q}) = \frac{1}{2}\int_{\Omega} W_{\textrm{el}}(\nabla \tensor{Q})\, \d x + \frac{1}{\eta_\mathrm{B} }\int_{\Omega} \psi_{\mathrm{bulk}}(\tensor{Q})\, \d x,
+% \end{align}
+% where the elastic energy density is given by
+% \begin{align}
+%     W_{\textrm{el}}(\nabla \tensor{Q}) = L|\nabla \tensor{Q}|^2
+% \end{align}
+% and the bulk energy density
+% \begin{align}\label{eq:bulk-free-energy}
+%     \psi_{\mathrm{bulk}}(\tensor{Q}) = U_0 + \frac{A}{2} \tr(\tensor{Q}^2) + \frac{B}{3} \tr(\tensor{Q}^3) + \frac{C}{4} (\tr(\tensor{Q}^2))^2.
+% \end{align}
+% \end{frame}
+
+
+% -------------------------------------------------------- %
+\begin{frame}
+	\frametitle{Alignment of Liquid Crystals}
+	\begin{itemize}
+		\item LC alignment: surface anchoring or external fields
+		\item 3D-printed PDMS microscaffolds enable complex alignment, \textit{Hsu} et al.\cite{MeloAlignment2024}
+		\item LC molecules align perpendicular to scaffold surface
+	\end{itemize}
+	\(\rightarrow\) Goal: optimize scaffold shape for desired LC alignment
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.5\textwidth]{MeloAlignment.png}
+		\caption{3D-printed PDMS microscaffold for LC alignment (from \textit{Hsu} et al. \textit{Advanced Materials}, 2024)}
+	\end{figure}
+\end{frame}
+
+% -------------------------------------------------------- %
+\begin{frame}
+	\frametitle{Shape Optimization}
+	\begin{itemize}
+		\item Shape optimization seeks the domain shape \(\Omega\) that optimizes an objective \(J(\Omega)\) under constraints (often PDEs).
+		\item The shape derivative quantifies how \(J\) changes under a domain deformation \(\theta\):
+		\[
+		dJ(\Omega)[\theta] = \lim_{t \to 0} \frac{J(\Omega + t\theta(\Omega)) - J(\Omega)}{t}.
+		\]
+		% \item To infer descent directions for the optimization, we use shape gradients
+	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.35\textwidth]{deformation.png}
+		\caption{Illustration of a domain deformation $\Omega \mapsto \Omega + t\theta(\Omega)$ (from \textit{Allaire} et al. \textit{Handbook of Numerical Analysis}, 2021)}
+	\end{figure}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Algorithm}
+	\subsection{Algorithmic Overview}
+\begin{center}
+\begin{tikzpicture}[node distance=2.5cm, every node/.style={font=\small}, >=stealth]
+	% Nodes
+		\node[draw, rectangle, rounded corners, fill=blue!10, minimum width=3.5cm, minimum height=1cm, align=center] (init) {Initialize shape \\ $\Omega^0$};
+		\node[draw, rectangle, rounded corners, fill=green!10, right=1cm of init, minimum width=3.5cm, minimum height=1cm, align=center] (state) {Solve state equation \\ for $u_{\Omega^n}$ via Finite Elements};
+		\node[draw, rectangle, rounded corners, fill=yellow!10, right=1cm of state, minimum width=3.5cm, minimum height=1cm, align=center] (obj) {Evaluate objective \\ $J(\Omega^n)$};
+		\node[draw, rectangle, rounded corners, fill=orange!10, below=0.7cm of obj, minimum width=3.5cm, minimum height=1cm, align=center] (grad) {Compute shape derivative \\ and gradient $\theta^n$ with an \\ elasticity inner product};
+		\node[draw, rectangle, rounded corners, fill=red!10, below=0.7cm of grad, minimum width=3.5cm, minimum height=1cm, align=center] (step) {Line search \\ (Armijo) for $\alpha^n$};
+		\node[draw, rectangle, rounded corners, fill=purple!10, left=1cm of step, minimum width=3.5cm, minimum height=1cm, align=center] (update) {Update shape: \\ $\Omega^{n+1} = (\mathrm{Id} + \alpha^n \theta^n)(\Omega^n)$};
+		\node[draw, rectangle, rounded corners, fill=gray!20, below=0.7cm of update, minimum width=3.5cm, minimum height=1cm, align=center] (finish) {Finished};
+
+		% Arrows
+		\draw[->, thick] (init) -- (state);
+		\draw[->, thick] (state) -- (obj);
+		\draw[->, thick] (obj) -- (grad);
+		\draw[->, thick] (grad) -- (step);
+		\draw[->, thick] (step) -- (update);
+
+		% Arrow from update to state (loop) with label
+		\draw[->, thick] (update.north) -- ++(0,0.8) -| node[left, pos=0.75]{no convergence} (state.south);
+
+		% Arrow from update to finish (converged)
+		\draw[->, thick] (update) -- node[right]{converged} (finish);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Algorithm: Implementation}
+	\begin{itemize}
+		\item Implemented in Python with (legacy) FEniCS and dolfin-adjoint in the Unified Form Language (UFL)
+		\item Shape derivative: automatic shape differentiation
+	\end{itemize}
+\end{frame}
+
+% \begin{frame}
+% 	\frametitle{Results: Electric Field}
+% 		We want to optimize the shape of a charged subdomain \(\Omega \subset \D\) to achieve a desired electric potential \(u^*\) inside the computational domain \(\D\)
+% 	\begin{figure}
+% 		\centering
+% 		\includegraphics[width=0.5\textwidth]{EFieldStartingCharge.png}
+% 		\caption{Initial computational domain \(\D\) with charged subdomain \(\Omega\) (in red).}
+% 	\end{figure}
+% \end{frame}
+
+\begin{frame}
+	\frametitle{Results: Electric Field}
+		The objective functional is given by
+		\begin{align}
+			J(\Omega) = \int_\D (u(x) - u^*(x))^2 \, \d x,
+		\end{align}
+		where \(u^*\) is the target electric potential (of an ellipse) and \(u\) is subject to the Poisson equation
+		\begin{align}
+			-\Delta u(x) = f(x) \quad \text{in } \mathcal{D}, \\
+			u(x) = 0 \quad \text{on } \partial \mathcal{D},
+		\end{align}
+		with the source term and charge \(Q\)
+		\begin{align}
+			f(x) = \begin{cases}
+				Q, & x \in \Omega, \\
+				0, & x \notin \Omega.
+			\end{cases}
+		\end{align}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Electric Field}
+	We calculated the target potential \(u^*\) by solving the Poisson equation with a elliptical charged domain \(\Omega^*\) 
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.5\textwidth]{EFieldTargetCharge.png}
+		\caption{Computational domain \(\D\) with charged (target) subdomain \(\Omega^*\) (in red).}
+	\end{figure}
+\end{frame}
+
+
+% \begin{frame}
+% 	\frametitle{Results: Electric Field}
+% 	\begin{figure}[ht]
+% 		\centering
+% 		\begin{minipage}{0.48\textwidth}
+% 			\centering
+% 			\includegraphics[width=\textwidth]{Example3It6.png}
+% 			\caption*{Final shape using $H^1$ shape gradient with mesh penalty}
+% 		\end{minipage}\hfill
+% 		\begin{minipage}{0.48\textwidth}
+% 			\centering
+% 			\includegraphics[width=\textwidth]{Example4It25.png}
+% 			\caption*{Final shape using elasticity shape gradient}
+% 		\end{minipage}
+% 		\caption{Comparison of optimized shapes after the final iteration for both approaches.}
+% 	\end{figure}
+% \end{frame}
+
+
+\begin{frame}
+	\frametitle{Results: Electric Field}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.5\textwidth]{Example4Meshquality.png}
+		\caption{Final shape using elasticity inner product with mesh quality issues displayed}
+	\end{figure}
+\end{frame}
+
+% \begin{frame}
+% 	\frametitle{Results: Electric Field}
+% 	We see mesh quality issues that are two-fold:
+% 	\begin{enumerate}
+% 		\item Intersecting mesh cells
+% 		\item Distorted mesh cells
+% 	\end{enumerate}
+% 	Stategies to counter that include
+% 	\begin{itemize}
+% 		\item Smoothing the shape derivative in an extra step
+% 		\item Filtering unphysical shape derivative contributions out
+% 		\item Remeshing
+% 		\item Mesh smoothing
+% 		\item Using Riemannian metrics to induce geodesics on the manifold of admissible meshes
+% 	\end{itemize}
+% \end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	Given a starting shape \(\Omega_0\), we want to find a shape \(\Omega\) that minimizes the objective functional 
+\begin{align}
+    J(\Omega) = \int_{\Omega} |Q(x) - Q^*(x)|^2 \, \d x,
+\end{align}
+where \(Q^*\) is a target Q-tensor field.
+
+Q-order tensor: describes how the liquid crystal molecules deviate from isotropy
+	\begin{equation*}
+		Q = S\left(\vec{n}(x) \otimes \vec{n}(x) - \frac{1}{3}\mathrm{Id}\right),
+	\end{equation*}
+	where \(S\) is the scalar order parameter and \(\vec{n}(x)\) the director field.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	The Q-tensor field \(Q\) is constrained to be a minimizer of the Landau-de Gennes free energy functional
+	\begin{align}
+	E_{\textrm{LdG}}(Q) &= \int_{\Omega} \frac{l}{2} |\nabla Q|^2 \, \d x + \int_{\Omega} \left[ - \frac{a_B}{2} \operatorname{tr}(Q^2) - \frac{1}{3} \operatorname{tr}(Q^3) + \frac{1}{4} (\operatorname{tr}(Q^2))^2 \right] \, \d x \\
+	&+ \frac{1}{2} \eta_{\partial \Omega} \int_{\partial \Omega} |Q - Q_{\partial \Omega}|^2 \, \mathrm{d}s.
+	\end{align}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+
+	The target Q-tensor field \(Q^*\) is prescribed analytically:
+\begin{align}
+    Q^*(x) = S(r) \left( \vec{e}_r \otimes \vec{e}_r - \frac{1}{2}\mathrm{Id} \right) = S(r)\begin{pmatrix}
+        \cos^2(\phi) - \frac{1}{2} &  \cos(\phi) \sin(\phi) \\
+        \cos(\phi) \sin(\phi) & \sin^2(\phi) - \frac{1}{2}
+\end{pmatrix}.
+\end{align}
+This is the minimizer for circle boundary conditions. We approximate \(S(r) = S_0\).
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	We start with an elliptical domain \(\Omega_0\):
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{LCEllipseInitial.png}
+		\caption{Initial elliptical domain \(\Omega_0\).}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+\begin{figure}[h]
+    \centering
+	\includegraphics[width=0.95\textwidth]{LCEllipseIt08.png}
+    \caption{Shape optimization result}
+    \label{fig:LC-Ellipse-iterations}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	\begin{figure}
+		\centering
+		\begin{subfigure}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{LCEllipseShapeDerivative.png}
+			\caption{Unmodified Shape derivative }
+			\label{fig:LC-shape-gradient-unmodified}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{LCEllipseShapeDerivativeProjNormal.png}
+			\caption{Shape derivative projected onto normal}
+			\label{fig:LC-shape-gradient-normal-proj}
+		\end{subfigure}
+		\caption{Visualization of the shape derivative for the liquid crystal shape optimization problem. Shown is the computed shape derivative \(j(x)\), with \(dJ(\Omega)[\theta] = \int_{\Omega} j(x) \cdot \theta(x) \, \d x\)}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	Mesh quality can be improved by smoothing the shape derivative. Add a boundary smoothing term computing the shape gradient:
+	\begin{align}
+	a_\text{smooth}(u, v) = \delta_\Gamma \int_{\partial \Omega} \nabla_{\Gamma} u \cdot \nabla_{\Gamma} v \, \d s,
+\end{align}
+where \(\delta_\Gamma\) controls boundary smoothing and \(\nabla_{\Gamma}\) is the tangential gradient:
+\begin{align}
+	\nabla_{\Gamma} = \nabla - (\nabla \cdot n) n,
+\end{align}
+with \(n\) the unit normal.
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[t]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{LCEllipseProjIt04.png}
+			\caption{Final shape using normal projection}
+			\label{fig:LC-shape-gradient-unmodified}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[t]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{LCEllipseBeltramiIt06.png}
+			\caption{Final shape using normal projection\\and additional smoothing}
+			\label{fig:LC-shape-gradient-normal-proj}
+		\end{subfigure}
+		\caption{Comparison of optimized shapes after the final iteration for both approaches.}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	As a second test case, we start with a rounded rectangle domain \(\Omega_0\):
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{LCRetctangleInitial.png}
+		\caption*{Initial rounded rectangle domain \(\Omega_0\).}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Results: Liquid Crystals}
+	\begin{figure}
+		\centering
+		\begin{subfigure}[t]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{LCRectangleVerticalFinalDirector.png}
+			\caption{Final shape with director field (vertical anchoring)}
+			\label{fig:LC-shape-gradient-unmodified}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[t]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{LCRectangleParallelItFinalDirector.png}
+			\caption{Final shape with director field (parallel anchoring)}
+			\label{fig:LC-shape-gradient-normal-proj}
+		\end{subfigure}
+		\caption{Comparison of optimized shapes after the final iteration for both anchoring conditions.}
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Conclusion and Outlook}
+\begin{itemize}
+    \item \textbf{Framework developed:} Flexible shape optimization using FEniCS and automated differentiation
+    \item \textbf{Novel application:} Shape optimization for liquid crystals (Landau-de Gennes theory)
+    \item \textbf{Key contributions:}
+    \begin{itemize}
+        \item Effective mesh quality maintenance techniques
+        \item First step towards inverse design of LCE-based micro actuators
+    \end{itemize}
+    \item \textbf{Future directions:}
+    \begin{itemize}
+        \item Complex LC patterns (topological defects, 3D problems)
+        \item Topology optimization (create/remove surfaces)
+        \item More advanced mesh quality techniques
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{References}
+    
+\bibliographystyle{unsrt}
+\bibliography{refs} 
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{Implementation}
+	\begin{itemize}
+		\item We implemented the shape optimization algorithm in Python using (legacy) FEniCS and the library dolfin-adjoint
+		\item The state equations are solved using the finite element method (FEM) with a Lagrange P1 finite element space and a mesh of triangular elements representing the domain \(\Omega\)
+		\item The shape derivative is calculated using the automated shape differentiation provided by dolfin-adjoint and the adjoint method, which involves solving an additional adjoint equation
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{Nematic Liquid Crystals}
+	Landau-de Gennes free energy
+	\begin{align}
+    E_{\textrm{LdG}}(\tensor{Q}) = \frac{1}{2}\int_{\Omega} W_{\textrm{el}}(\nabla \tensor{Q})\, \d x + \frac{1}{\eta_\mathrm{B} }\int_{\Omega} \psi_{\mathrm{bulk}}(\tensor{Q})\, \d x,
+\end{align}
+where the elastic energy density is given by
+\begin{align}
+    W_{\textrm{el}}(\nabla \tensor{Q}) = L|\Div \tensor{Q}|^2 + L_2 (\nabla \cdot \tensor{Q})^2 + L_3 \nabla \tensor{Q} : \nabla \tensor{Q}^T
+\end{align}
+and the bulk energy density
+\begin{align}\label{eq:bulk-free-energy}
+    \psi_{\mathrm{bulk}}(\tensor{Q}) = U_0 + \frac{A}{2} \tr(\tensor{Q}^2) + \frac{B}{3} \tr(\tensor{Q}^3) + \frac{C}{4} (\tr(\tensor{Q}^2))^2.
+\end{align}
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{Results: Liquid Crystals}
+	\begin{figure}
+		\centering
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=0.95\textwidth]{LCEllipseMeshQualIt01.png}
+			\caption*{Iteration 1}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=0.95\textwidth]{LCEllipseMeshQualIt02.png}
+			\caption*{Iteration 2 (final)}
+		\end{minipage}
+		\caption{Shape optimization iterations using the elasticity inner product with added mesh quality penalty term}
+		\label{fig:LC-Ellipse-MeshQuality-iterations}
+	\end{figure}
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{Shape Gradients}
+	\begin{itemize}
+		\item Given a general Hilbert space \(H\) with inner product \(a_H(\cdot, \cdot)\), we can define the shape gradient \(g_\Omega\) of our functional \(J\) as the unique element in \(H\) such that
+		\begin{align}
+			a_H(g_\Omega, \nu) = - dJ(\Omega)[\nu] \quad \forall \nu \in H.
+		\end{align}
+		\pause
+		\item \(\theta = g_\Omega \) is then a descent direction for the optimization, since for a sufficiently small step size \(\alpha\) we have
+		\begin{align}
+			J(\Omega + \alpha g_\Omega(\Omega)) &= J(\Omega) + \alpha dJ(\Omega)[g_\Omega] + o(\alpha)\\
+			&= J(\Omega) - \alpha a_H(g_\Omega, g_\Omega) + o(\alpha) < J(\Omega).
+		\end{align}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{Shape Gradients}
+	We can choose different Hilbert spaces \(H\) to obtain different types of shape gradients:
+	\begin{itemize}
+		\item \(H = L^2(\Omega, \R^d)\) with \(a_H(u, v) = \int_\Omega uv \, \d x\)\pause
+		\item \(H = H^1(\Omega, \R^d)\) with \(a_H(u, v) = \int_\Omega \nabla u : \nabla v + uv \, \d x\)\pause
+		\item  \(H = H^1(\Omega, \R^d)\) with \(a_H(u, v) = \int_\Omega \sigma(u) : \epsilon(v) \, \d x\), where \(\epsilon(u) = \frac{1}{2}(\nabla u + (\nabla u)^T)\) is the linearized strain tensor and \(\sigma(u) = 2\mu \epsilon(u) + \lambda \trace(\epsilon(u))\mathrm{Id}\) is the stress tensor with Lamé parameters \(\mu, \lambda > 0\)
+	\end{itemize}
+\end{frame}
+\end{document}
+
+
+\begin{frame}[noframenumbering]
+	\frametitle{Results: Liquid Crystals}
+	\begin{figure}
+		\centering
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{Presmesh_quality_comparison.png}
+			\caption{Mesh quality comparison, lower values indicate better mesh quality}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{Presmain_objective_comparison.png}
+			\caption{Objective value evolution}
+		\end{minipage}
+	\end{figure}
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{Results: Liquid Crystals}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.6\textwidth]{Presvariance_radius_comparison.png}
+		\caption*{Comparison of the variance of the boundary radius, lower values indicate shapes closer to a perfect circle.}
+		\label{fig:LC-Ellipse-MeshQuality-Comparison}
+	\end{figure}
+\end{frame}
+
+
+% Alignment needs an image, dont mention name
+
+
+%  Wording Propose algorithm
+
+
+%  Less text/words
+
+% Add the target shape
+
+
+%  LC put it in a flow charty thing

@@ -1,0 +1,1858 @@
+\documentclass[a4paper,DIV=12,parskip=full, citecolor=black]{scrartcl} % Parskip=full macht dass eine leere Zeile keinen Tab produziert, sondern wirklich eine leere Zeile
+
+\usepackage[utf8]{inputenc} % Deutsche Umlaute etc.
+
+\usepackage[english]{babel} % Sprachpakete
+
+\usepackage{helvet}% Schriftart Helvetica kompatibel machen
+
+\usepackage{amsmath}% SEHR WICHTIG!: Mathematikumgebung
+
+\usepackage{amssymb}% SEHR WICHTIG!: Mathematiksymbole
+
+\usepackage{mathtools}
+
+\usepackage{siunitx}% SEHR WICHTIG!: SI-Einheiten https://ftp.rrzn.uni-hannover.de/pub/mirror/tex-archive/macros/latex/contrib/siunitx/siunitx.pdf
+
+\usepackage{physics}% Nice-to Have: Coole Commands für Physiksachen http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf
+
+\usepackage{hyperref} % Nice-to have: URLs verlinken https://www.namsu.de/Extra/pakete/Hyperref.html
+\usepackage{lastpage} % Falls man die letzte Seite bspw. in der Fußzeile anzeigen lassen will (Seite 4/8) https://ctan.kako-dev.de/macros/latex/contrib/lastpage/lastpage.pdf
+
+\usepackage{array} %Verbessert tabular und array Umgebung https://ctan.joethei.xyz/macros/latex/required/tools/array.pdf
+
+\usepackage{graphicx}%Sehr cooles Paket, macht Bilder einfacher zum Einfügen, besonders wegen des Draft-Modus werden Ladezeiten schneller(siehe folgende Website): https://www.namsu.de/Extra/pakete/Graphicx.html
+
+\usepackage{wrapfig}%Damit kann man Text um ein Bild laufen lassen https://www.namsu.de/Extra/pakete/Wrapfig.html
+
+\usepackage{wasysym}% Ein paar zusätzliche Symbole https://ctan.space-pro.be/tex-archive/macros/latex/contrib/wasysym/wasysym.pdf
+
+\usepackage{enumitem} % Damit kann man die Nummerierungszeichen bei Listen etc. einfach ändern https://www.namsu.de/Extra/pakete/Enumitem.html
+
+\usepackage{scrlayer-scrpage} % Fuß- und Kopfzeile https://esc-now.de/_/latex-individuelle-kopf--und-fusszeilen-update/?lang=de
+
+\usepackage{amsthm} % Spezifizierung Theoremumgebungen
+
+\usepackage{xcolor} % Farbenmachen
+
+\usepackage{framed} %Graue Kästen
+
+\usepackage{setspace} %Zeilenabstand
+
+\usepackage{pdfpages} %Including PDFs "\includepdf[pages=-]{pdfname.pdf}"
+\usepackage{mathrsfs}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{algorithm} 
+\usepackage{algpseudocode}
+\usepackage{makecell}
+\usepackage{nameref}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\pdfcompresslevel=0
+\pdfobjcompresslevel=0
+
+\title{Controlling electric and nematic fields through shape optimization}
+\subtitle{Bachelor Thesis supervised by Prof. Ulrich Schwarz}
+\author{David Li}
+\date{\today}
+
+
+%Set Path for figures
+\graphicspath{{./figures/}}
+
+%Nützliche Commands
+\numberwithin{equation}{section} %equation numbering after what hierachy
+\newcommand{\const}{\text{const.}}
+\renewcommand{\d}{\text{d}}
+\newcommand{\ddt}{\dfrac{\d}{\d t}}
+\newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt \hbox{\scriptsize.}\hbox{\scriptsize.}}}=} % Macht ein schönes :=
+%Zahlenkörper
+\DeclareMathOperator{\Div}{div}
+\DeclareMathOperator{\Curl}{curl}
+\DeclareMathOperator{\Vol}{Vol}
+\DeclareMathOperator{\Per}{Per}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathcal{F}}
+\renewcommand{\H}{\mathcal{H}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\K}{\mathbb{K}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathrm{Id}}
+\newcommand{\e}{\textrm{e}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\tensor}[1]{\hat{#1}}
+\newcommand{\seminorm}[1]{\left\lvert\hspace{-1 pt}\left\lvert\hspace{-1 pt}\left\lvert {#1}\right\lvert\hspace{-1 pt}\right\lvert\hspace{-1 pt}\right\lvert}
+
+%Hässliges zu zeigen (Habe gerade noch kein Besseres gefunden)
+\newcommand{\zz}{\mathrm{Z\kern-.3em\raise-0.5ex\hbox{Z}}}
+
+%Aufzählungszeichen ändern (Die Zahl gibt die Ebene an). Die anderen Optionen habe ich auskommentiert
+\setlist[enumerate,1]{label=(\roman*)}
+%\setlist[enumerate,1]{label=\arabic*.}
+%\setlist[enumerate,1]{Label=\alph*.}
+
+%Section-Zeichen
+\def\thesection{\arabic{section}}
+\def\thesubsection{\arabic{section}.\arabic{subsection}}
+
+%Paar Einstellungen falls man URLs einbindet
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,
+    urlcolor=blue,
+    pdftitle={},
+    bookmarksopen=true}
+
+
+
+%Kopf- und Fußzeile
+\KOMAoptions{headsepline=true}
+\KOMAoptions{footsepline=true}
+\recalctypearea %Berechnet nach Kopf- und Fußzeile den Dokumentenplatz neu
+
+%Kopf- und Fußzeile
+\makeatletter %Technischer Befehl
+\ihead{\@author}
+\ohead{\@title}
+\ifoot[]{}
+\cfoot[]{\thepage}
+\ofoot*{}
+\makeatother%Technischer Befehl
+
+%Theoreme
+\def\thm@headpunct{}
+
+%newthoremstyle definiert ein neues Preset an Theoremeinstellungen
+% \itshape definiert Sachen kursiv, \bfseries macht Sachen fett
+\newtheoremstyle{SatzOhnePunkt}% name
+{0}%        Space above, empty = `usual value'
+{}%         Space below
+{\itshape}  %Body font
+{}%         Indent amount (empty = no indent, \parindent = para indent)
+{\bfseries} % Thm head font
+{.}%         Punctuation after thm head
+{.5em}      % Space after thm head: \newline = linebreak
+{}%         Thm head spec
+
+\newtheoremstyle{Bemerkung}% name
+{0}%         Space above, empty = `usual value'
+{}%         Space below
+{}%         Body font
+{}%         Indent amount (empty = no indent, \parindent = para indent)
+{\itshape}% Thm head font
+{.}%        Punctuation after thm head
+{2em}%      Space after thm head: \newline = linebreak
+{}%         Thm head spec
+
+%Genereller Kommentar: Die definierten Umgebung ruft man mit \begin{satz} bwspw. auf
+%Genereller Kommentar: \newtheorem{}{} funktioniert so, dass in der ersten Klammer der Name steht, den man zum Aufrufen nennen muss, der Name in der zweiten Klammer ist der Anzeige Name in der PDF
+
+
+\definecolor{shadecolor}{rgb}{.9,.9,.9}
+\newtheorem{definition1}{Definition}
+\newenvironment{definition}{\begin{definition1}% 
+            }{\end{definition1}}
+
+
+\theoremstyle{SatzOhnePunkt} %Ruft das Preset, das vorher definiert wurde, wieder auf und wendet das auf das nächste definierte Theorem an.
+\newtheorem{theorem}{Theorem}%Hilfstheorem
+
+\theoremstyle{SatzOhnePunkt}
+\newtheorem{proposition}[theorem]{Proposition}
+
+
+\theoremstyle{SatzOhnePunkt}
+\newtheorem{lemma}[theorem]{Lemma}
+
+
+
+\theoremstyle{SatzOhnePunkt}
+\newtheorem{korollar}{Korollar}
+
+\theoremstyle{Bemerkung}
+\newtheorem*{remark}{Remark}
+
+\theoremstyle{Bemerkung}
+\newtheorem{claim}{Claim}[theorem]
+\renewcommand\theclaim{\arabic{claim}}
+
+\theoremstyle{Bemerkung}
+\newtheorem{example}{Example}
+
+
+\theoremstyle{Bemerkung}
+\newtheorem*{problem}{Problem}
+
+\begin{document}
+\begin{titlepage}
+    \begin{center}
+		\textsc{Heidelberg University}
+		\\[0.5em]
+        Department of Physics and Astronomy
+		\\[7em]
+        \rule{15cm}{0.5pt}
+        
+		\Large\textbf{Controlling electric and nematic fields \\ through shape optimization}
+
+        \rule{15cm}{0.5pt}
+		\\[3em]
+		\large BACHELOR THESIS
+		\\[1em]
+        for the degree of
+        \\[1em]
+		\large{BACHELOR OF SCIENCE} 
+		\\[1em]		
+        in Physics 
+		\\[4em]
+		on the
+		\\
+		18th of September 2025
+		\\[1em]
+		submitted by
+		\\
+		\textsc{David Li}
+        \\
+        born in Heilbronn (Germany)
+		\vfill
+        at the Institute for Theoretical Physics, Heidelberg\\
+		supervised by \\ 
+		Prof. Dr. Ulrich Schwarz \\
+        and\\
+        Santiago Gomez Melo
+	\end{center}
+\thispagestyle{empty}
+\end{titlepage}
+\thispagestyle{empty} \
+\newpage
+\begin{abstract}
+    \textbf{Abstract. } 
+        Shape optimization provides a powerful framework for determining domain geometries that minimize a cost function dependent on solutions to Partial Differential Equations (PDEs) in that domain. In this work, we apply shape optimization to tailor nematic and electrostatic fields by minimizing the \(L^2\)-difference to a desired target field with regard to the shape of the domain, of which the boundary conditions control the solution of the fields equation of motion (Maxwell's equations and the equations of Landau-de Gennes theory).
+        We find, that our algorithm, enhanced with Laplace-Beltrami smoothing of the shape derivative, successfully converges to optimal shapes for liquid crystal systems.
+        This builds on the previous experimental and theoretical work in \cite{MeloAlignment2024}, which presented a method to print complex anchoring surfaces for liquid crystals. This novel application of Shape Optimization opens up the door to programming specific alignment of liquid crystals, which can be used to create complex thermal actuator patterns via liquid crystal elastomers.
+\end{abstract}
+\vspace{2cm}
+\thispagestyle{empty} 
+\begin{abstract}
+    \textbf{Zusammenfassung. } 
+        Die Formoptimierung bietet einen umfassenden Rahmen für die Bestimmung von Geometrien, die eine Kostenfunktion minimieren, die von Lösungen partieller Differentialgleichungen (PDEs) abhängt. In dieser Arbeit wenden wir die Formoptimierung an, um nematische und elektrostatische Felder unter Verwendung der Randbedingungen der Bewegungsgleichungen der Domäne, d. h. der Maxwell-Gleichungen und der Gleichungen der Landau-de-Gennes-Theorie, anzupassen, indem wir die \(L^2\)-Differenz zu einem bestimmten Zielfeld minimieren.
+        Wir stellen fest, dass unser Algorithmus, der durch Laplace-Beltrami-Glättung der Formableitung verbessert wurde, erfolgreich zu optimalen Formen für Flüssigkristallsysteme konvergiert.
+        Dies baut auf früheren experimentellen und theoretischen Arbeiten in \cite{MeloAlignment2024} auf, in denen eine Methode zum Drucken komplexer Verankerungsflächen für Flüssigkristalle vorgestellt wurde. Diese neuartige Anwendung der Formoptimierung eröffnet die Möglichkeit, die Ausrichtung von Flüssigkristallen gezielt zu programmieren, was zur Erzeugung komplexer thermischer Aktormuster mittels Flüssigkristall-Elastomeren genutzt werden kann.
+\end{abstract}
+
+\newpage
+\thispagestyle{empty} \
+\newpage
+\thispagestyle{empty}
+{
+    \hypersetup{linkcolor=black}
+    \tableofcontents
+    \thispagestyle{empty}
+}
+\newpage
+\setcounter{page}{1}
+
+\section{Introduction}
+In recent years, the study of smart and responsive materials has received significant attention due to their potential applications in various fields, including drug delivery, nano motors and molecular sensing 
+\cite{ZengBioActuators2025},\cite{FischerNanomotors2025}. Among these materials, liquid crystal (LC) elastomers have emerged as a particularly promising class due to their unique combination of the anisotropic properties of liquid crystals and the elasticity of polymer networks. LC elastomers (LCEs) are weakly cross-linked polymer networks which have the ability to perform reversible actuation with substantial magnitudes in response to temperature changes (or other stimuli like electric fields, light or solvents) \cite{ChenLCEs2022}. The actuation is driven by the reorientation of the LC mesogens embedded in the polymer network during the phase transition from the ordered nematic phase to the disordered isotropic phase.
+
+A big challenge in the practical application of LCEs is the design of the material's shape and internal structure to achieve desired preprogrammed actuation behaviors. Various types of fields have been used to control the alignment of the LC molecules during the fabrication process, for example magnetic fields \cite{FischerAlignment2024} or electric fields \cite{WegenerElectricFields2021}. Moreover, recent advances in 3D printing and additive manufacturing have enabled the fabrication of complex micro- and nanostructures with high precision, opening new possibilities for the design of metamaterials and programmable matter. This technology allows for the realization of metamaterials with mechanical or optical properties that can be tuned by external stimuli, such as temperature, light or electric fields \cite{WegnerReview2013}. For example, 3D laser printing has been used to create LCE structures with complex geometries and stimuli-responsive behaviors \cite{WegenerMetamaterials2022}.
+
+Recently, Hsu, Gomez and coworkers \cite{MeloAlignment2024} have reported a novel method to create polydimethylsiloxane (PDMS) microscaffolds via two-photon laser printing (2PLP), which can control the nematic alignment of LC monomers in three dimensions, since the PDMS surfaces induce a vertical anchoring of the LC molecules.
+This is a significant advancement, as it allows for the fabrication of complex 3D LC structures with precise control over the molecular alignment. This is crucial for achieving specific actuation behaviors, since the induced alignment field is preserved during the fabrication process of the LCEs and influences the final actuation behavior \cite{ZengLCEs2014}.
+However, there has been no systematic study on how to achieve a desired complex actuation behavior. The challenge is twofold: first, one needs to find a suitable shape of the PDMS scaffold that induces the desired alignment field. Second, one needs to ensure that the resulting LCE structure can achieve the desired actuation behavior upon stimulation. For the second part, there are already some studies analyzing this inverse design problem, e.g. \cite{HillelLCEProgramming2014}, \cite{HillelLCEProgramming2018}, \cite{FuhrmannShapeProgramming2024}.
+
+In this work, we will focus on the first part i.e., finding a suitable shape of the PDMS scaffold that induces a desired alignment field.
+This can be formulated as an optimal control problem, where the goal is to find the shape of the PDMS scaffold that minimizes a certain objective functional, which measures the difference between the induced alignment field and the desired alignment field.
+Since the control variable is the shape of the PDMS scaffold, this leads to a shape optimization problem.
+
+Shape optimization is an established and ubiquitous field in applied and numerical mathematics, with important applications in various fields such as fluid dynamics \cite{WalkerShapeOptimizationFLuidDynamics2024}, structural mechanics \cite{MontoyaBridgeShapeOptimization2024} and image processing \cite{DoganShapeCalculus2013}. The choice of an optimal shape is a crucial aspect and a task for which shape optimization was invented.
+In the remainder of this section, we will give a brief introduction to liquid crystals and the field of shape optimization.
+
+\subsection{Liquid Crystals}
+Liquid crystals (LCs) are in a state of matter that exhibits properties between those of conventional isotropic liquids and solid crystals, a so-called \textit{mesomorphic} phase. They combine the long-range molecular orientational order of crystals with the fluidity, i.e., the positional disorder, of liquids, mainly due to their anisotropic molecular structure having a rod-like or disk-like shape with a high aspect ratio \cite{deGennesLCs1993}.
+LCs are classified according to their order (nematic, smectic, cholesteric) and to the control parameter that determines such order/disorder (thermotropic, lyotropic, metallotropic).
+LCs in the nematic phase, are oriented along a preferred direction, called the director, but do not exhibit any positional order. In the smectic phase, LC molecules are arranged in layers, and in the cholesteric phase, LC molecules exhibit a helical structure.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{LcPhases.jpg} 
+    \caption{Different phases of liquid crystals. In the smectic phases, the LC molecules are arranged in layers, where in the A phase the molecules are aligned along the layer normal and in the C phase they are tilted away. In the nematic phase there is high orientational order, but no positional order and in the cholesteric phase the LC molecules exhibit a helical structure. Figure taken from \cite{ZengBioActuators2025}}
+    \label{fig:lc-phases}
+\end{figure}
+
+In thermotropic LCs, the phase transitions between the isotropic phase, where there is no order, and nematic phases are driven by temperature changes, whereas lyotropic LCs exhibit phase transitions depending on the concentration of the LC molecules in a solvent. Here, we will focus on the nematic phase with thermotropic behavior, since it is most relevant for our application of LCEs.
+
+An example of thermotropic LCs are rod-like molecules. Typical examples are \(p\)-azoxyanisole (PAA) or \(N\)-(\(p\)-methoxybenzylidene)-\(p\)-butylaniline (MMBA). PAA for example can be modeled as a rigid rod of length \(\SI{20}{\angstrom}\) and width \(\SI{5}{\angstrom}\) \cite{deGennesLCs1993}.
+
+There are many approaches for modelling the behavior of LCs. For thermotropic LCs, there are two main approaches, the statistical approach and the continuum approach: The Onsager theory uses a statistical approach based on the concept of excluded volume \cite{OnsagerTheory1949}, the Maier-Saupe model uses a mean-field theory to describe the orientational order of the LC molecules \cite{MaierSaupe1958},  whereas the Landau-de Gennes theory uses a continuum description based on an order parameter tensor to describe the LC phase transitions \cite{deGennesLCs1993}. For us, the continuum approach is more useful, since it is more suitable for numerical simulations and shape optimization and will be explained in more detail in section \ref{sec:theory-lc}.
+
+LCs have interesting optical properties, such as birefringence, i.e., they have different refractive indices along different directions. This property is exploited in applications, such as liquid crystal displays (LCDs), where the orientation of the LC molecules can be controlled by an electric field to modulate the light passing through the LC layer.
+
+\subsection{Liquid Crystal Elastomers}
+Liquid crystal elastomers (LCEs) are a class of materials that combine the properties of liquid crystals with the elasticity of elastomers. They can undergo large deformations in response to external stimuli, such as temperature changes or electric fields, making them promising candidates for actuators and other applications.
+More generally, there are also liquid crystal polymers (LCPs), which are polymerized liquid crystals in main-chain or side-chain configurations and there are also liquid crystal networks, which are highly cross-linked LCPs. LCEs are weakly cross-linked LCPs, which means that they have a low cross-link density. This gives them an elasticity, while still retaining the anisotropic properties of the LC phase. To fabricate LCEs one can start with a mixture of LC monomers and a cross-linker and then polymerize the mixture, e.g. via Two-Photon Laser microprinting (2PLP) \cite{MeloAlignment2024}. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{LCPolymers.jpg} 
+    \caption{Schematic representation of liquid crystal polymers (LCPs), liquid crystal elastomers (LCEs) and liquid crystal networks (LCNs) in the nematic phase. The light blue oval rods represent the LC molecules, the black lines represent the polymerization links, and the purple lines the cross-links. The LCEs and LCNs differ in their cross-linking density. Figure taken from \cite{ZengBioActuators2025}}
+    \label{fig:lce}
+\end{figure}
+
+When a LCE, which was polymerized and crosslinked in an aligned state, is heated above the nematic-isotropic transition temperature, the LC molecules lose their orientational order and the LCE polymers change to a spherical random coil configuration, resulting in a macroscopic contraction along the director and an expansion in the perpendicular direction, which is reversible upon cooling, since the cross-links remember the alignment \cite{ChenLCEs2022}. This phenomenon is the basis for the thermal actuation of LCEs.  
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Thermalresponse.jpg} 
+    \caption{Schematic representation of the thermal response of a liquid crystal elastomer/network (LCE/LCN) with \(T_{\text{LC-iso}}\) being the transition temperature from the nematic to isotropic phase. In the ordered phase, they realign into their nematic order. The light blue oval rods represent the LC molecules, the black lines represent the polymer network, and the purple lines the cross-links. Figure taken from \cite{ZengBioActuators2025}}
+    \label{fig:lce}
+\end{figure}
+% Plot? % ReviewLCEs2022 https://doi.org/10.3390/molecules27144330
+
+\subsection{Shape Optimization}
+The main goal of shape optimization is to find the shape of a domain that minimizes a certain objective functional. Concretely, we are looking at an \textit{objective function} or \textit{cost function} of the type
+\begin{align}
+    J(\Omega) = \int_{\Omega} j(\Omega, u, \nabla u,\dots) \, \d x,
+\end{align}
+where \( j \) is a given function, $\Omega$ the current shape, and \( u \) the \textit{state}, which normally satisfies a certain partial differential equation (PDE) in the domain \( \Omega \). We are searching for the shape \( \Omega^* \) that solves 
+\begin{align}\label{eq:minimization-problem}
+    \min_{\Omega \in \mathcal{U}} J(\Omega),
+\end{align}
+where \(\mathcal{U}\) is a suitable set of admissible shapes, depending on the application. This is a very general setting, and the specific form of the objective function \( J \) and the PDE that the state \( u \) satisfies can vary widely depending on the application. Shape optimization problems are generally not analytically solvable, which is why we need to rely on numerical methods. For now, we do not want to focus on a specific problem, but only give a few example problems in addition to the problems being treated later to demonstrate the various applications:
+\begin{itemize}
+    \item \textbf{Drag minimization \cite{SchulzSiebenbornDragMinimization2016}:} In fluid dynamics, one might want to minimize the drag force acting on a body in $\R^d$ by optimizing its shape. Then the state \( u \) could represent the velocity field of the fluid, subject to the Stokes equations, and the objective function \( J \) could be the drag force computed from the velocity field, i.e.,
+    \begin{align}
+        J(\Omega) = \int_{\Omega}  \sum_{i,j=1}^{d} \left(\frac{\partial u_i}{\partial x_j}^{2}\right)\, \d x.
+    \end{align} 
+
+    \item \textbf{Nanophotonic Devices \cite{LebbeNanophotonic2019}:} In photonic integrated circuits, one might want to optimize the shape of waveguides to achieve better light confinement and propagation properties. The state \( u \) could represent the electromagnetic field, subject to Maxwell's equations, and the objective function \( J \) could be the power of the output waveguide, defined in the terms of the Poynting vector i.e.,
+    \begin{align}
+        J(\Omega) = \int_{\Gamma_\textnormal{out}} \frac{1}{2} \text{Re}{(E_\Omega \times H_\Omega) \cdot \vec{n}} \, \d s.
+    \end{align}
+    Here, \( E_\Omega \) and \( H_\Omega \) are the electric and magnetic fields depending on the domain \( \Omega \), respectively, and \( \vec{n} \) is the outward normal vector on the boundary \( \Gamma_\textnormal{out} \). Note that instead of the volume integral as in the previous example, we are now dealing with a surface integral over the boundary of the domain in the objective formulation.
+
+    \item \textbf{Tumor Localization/Inverse Problems \cite{RabagoTumorLocalization2025}:} Highly vascularized tumors can influence the heat production, so that through temperature measurements, one can potentially identify the location and shape of the tumor. In this case, the state \( u \) could represent the temperature distribution in the tissue, subject to a bioheat transfer model, which depends on a subdomain \( \Omega_t \) representing the tumor region. Given a temperature measurement $h$ on the skin surface, by minimizing the difference between the measured temperature and the temperature predicted by the model on the surface, one could potentially identify the tumor's shape and location. A typical objective function is a least-squares functional of the form
+    \begin{align}
+        J(\Omega_t) = \int_{\Gamma_\textnormal{skin}} \left( u_{\Omega_t} - h \right)^2 \, \d s,
+    \end{align} 
+\end{itemize} 
+
+Often, the optimization problems involve some type of physical constraints, to ensure that the optimized shape remains physically meaningful and to rule out pathological solutions. These constraints can be of various types, such as fixing the volume of the domain, imposing a maximal curvature or a maximal thinness constraint on the shape. In this work, we will not need to enforce those types of constraints. Nevertheless, we are interested in the constrained optimization problem, since the PDE itself is also a constraint.
+\subsection{Related Work}
+There have been many studies on the alignment of LCs in confined geometries, both experimentally and theoretically. Here we want to mention a few recent developments. In \cite{FischerAlignment2024} Gulati and colleagues proposed a new fabrication method, achieving the alignment of (cross-linked) LCs using small magnetic fields. They found that even small magnetic fields can induce spatially varying director fields.  
+In \cite{SurowiecOptimalControl2023} Surowiec and Walker presented a theoretical analysis and numerical study of an optimal control problem for the Landau–de Gennes (LdG) model of nematic liquid crystals (LCs), using the external electric field and the type of anchoring as control variables. They proved the existence of optimal controls and showed configurations that lead to the formation of topological defects.
+
+Other recent studies have focused on shape optimization of LCs, but not with the goal of achieving a desired alignment field. In \cite{GiacominiShapeOptimizationLCs2025} Giacomini and Paparini investigated a shape optimization problem for nematic liquid crystals drops, with the goal of finding the shape of drops of LCs in an immiscible fluid, i.e., the objective function was the (Frank) energy itself. They proved the existence of an optimal shape, i.e., minimizers for the Frank energy, allowing for topological defects.
+On a similar topic, Adler and colleagues \cite{AdlerShapeOptimizationLCs2024} did a numerical study on the shape of LC tactoids and proposed a novel shape optimization algorithm. In this study again, the objective function was the (Landau-de Gennes) free energy itself.
+
+The main contribution of this work is the introduction of a shape optimization framework specifically for achieving desired alignment fields in liquid crystals and its testing on simple examples. To the best of our knowledge, there has been no study on shape optimization of LCs with the goal of achieving a desired alignment of the LCs.
+
+\subsection{Outline}
+This thesis is structured as follows.
+
+Section 2 introduces the theoretical background of shape optimization and liquid crystals. In the first part, the concept of shape derivatives is introduced, to develop a shape optimization algorithm. In the second part, the Frank-Oseen and Landau-de Gennes theory for nematic liquid crystals is presented, which is the theoretical framework we will use to model the liquid crystal behavior. 
+In section 3, we present the numerical basics of our implementation, including the finite element method (FEM) for solving the PDEs and the numerical implementation of the shape optimization algorithm.
+In section 4, we present the results of our numerical experiments, where we test the shape optimization algorithm first on scenarios without liquid crystals, to validate the implementation, and then on simple scenarios with liquid crystals. Throughout this section, we will discuss the results and the performance of the algorithm, also making improvements where necessary.
+Finally, in section 5, we conclude with a summary of our findings and an outlook on future work.
+\newpage
+\section{Theory}
+\subsection{Shape Optimization}
+There are many different approaches to solve shape optimization problems both from a theoretical and numerical standpoint. On a theoretical level, the main method is the method of Hadamard, which defines the concept of variations of a shape, by considering small perturbations/deformations of the shape via a vector field \(\theta\). This leads to the concept of a shape derivative, which is a generalization of the classical derivative to the case where the variable of interest is a shape or domain and gives an easy way to use classical optimization methods, such as gradient descent. This is the approach we will follow in this work. Given a numerical representation of the shape based on Euclidean coordinates, this can also be implemented numerically in a straightforward way. In the following, we will briefly introduce the numerical algorithm we will use as a basis for the discussion and then explain the concept of shape derivatives (and shape gradients) in more detail.
+
+\subsubsection{A basic shape optimization algorithm}
+In order to find a local minimum of the objective function \( J \), we can use a classical iterative gradient descent algorithm. The basic idea is to update the shape \( \Omega \) in the direction of a suitable descent direction, in our case a displacement field, defined on the current shape, until we reach a local minimum. Let us first formulate the basic idea.
+
+\begin{algorithm}[H] % or [t] if you don't load "float"
+\caption{Basic shape optimization idea}
+\label{alg:basic-shape-gradient}
+\textbf{Initialization:} Initial shape $\Omega^0$.\\[0.25em]
+\textbf{for} $n = 0, \dots$ \textbf{until convergence do}
+\begin{enumerate}
+  \item Calculate the state $u_{\Omega^n}$ (resp. $p_{\Omega^n}$) to the state equation in $\Omega^n$.
+  \item Find a suitable deformation vector field / descent direction $\theta^n$, i.e., a vector field $\theta^n:\mathbb{R}^d \to \mathbb{R}^d$.
+  \item Deform $\Omega^n$ along $\theta^n$ for a short descent step $\alpha^n > 0$, so that the new shape
+  \[
+    \Omega^{n+1} := (\mathrm{Id} + \alpha^n \theta^n)(\Omega^n)
+  \]
+  is better than the previous one, i.e., $J(\Omega^{n+1}) < J(\Omega^n)$.
+\end{enumerate}
+\textbf{end for}\\
+\textbf{return} $\Omega^n$
+\end{algorithm}
+
+Now, here a few conceptual questions arise, if we want to do a standard gradient descent approach:
+
+\begin{itemize}
+    \item \textbf{Descent direction:} In step (ii) of algorithm (\ref{alg:basic-shape-gradient}) what does 'suitable' mean? And how do we find such a descent direction? In a classical optimization one would take the derivative of the objective function \( J \) with respect to the optimization variable. In our case that is the shape \( \Omega \), which is why we have to introduce the idea of a \textit{shape derivative}. 
+    \item \textbf{Numerical Representation of the Shape:} The shape \( \Omega \) needs to be represented in a way that is suitable for numerical optimization. Throughout the algorithm iterations, how do we ensure that the shape and the underlying representation remains well-defined and does not become pathological (e.g., self-intersecting)?  
+    \item \textbf{Local minima:} The algorithm is only guaranteed to find a local minimum, not necessarily the global minimum. Depending on the initialization, the algorithm may converge to different local minima.
+\end{itemize}
+Let us address the first issue, which is the most fundamental one in this type of optimization problem.
+
+\subsubsection{Shape Derivatives}
+The concept of a shape derivative is a generalization of the classical derivative to the case where the variable of interest is a shape or domain and was first introduced by Hadamard in 1908 (\cite{Hadamard1908}). The treatment here follows \cite{AllaireShapeOptimization2021} and \cite{MuratIntroShapeOptimization1976}. For rigorous proofs we refer to the original literature.
+
+As with classical derivatives, we want to look at small variations of the differentiation variable. Let \(\Omega \subset \R^d\) be a bounded domain with Lipschitz boundary \(\Gamma = \partial \Omega\). We will consider variations of the special form 
+\begin{align}
+    \Omega_\theta := (\mathrm{Id} + \theta) (\Omega) = \{ x + \theta(x) \mid x \in \Omega \},
+\end{align}
+where \(\mathrm{Id}\) is the identity map and \(\theta\) is a vector field in \(\R^d\) in the Sobolev space \(W^{1,\infty}(\mathbb{R}^d, \mathbb{R}^d)\) with
+\begin{align}
+W^{1,\infty}(\mathbb{R}^d, \mathbb{R}^d) := \left\{ \theta \in L^{p}(\mathbb{R}^d)^d, \; D^\alpha \theta \in L^{p}(\mathbb{R}^d)^{d \times d} \forall \alpha \in \N^d, |\alpha| < k \right\},
+\end{align}
+where \( D^\alpha\) is the derivative in the weak sense and \(\norm{\theta}_W^{1,\infty} \leq 1\). In other words $\theta$ is a 'small' deformation which is Lipschitz continuous and has bounded (weak) derivatives. This regularity is needed to ensure that $\Omega$ and $\Omega_\theta$ share the same topology, e.g., there are no extra holes introduced \cite[Chapter 5]{HenrotShapeDerivative2018}. Given this setup, we can define the shape derivative. 
+
+\begin{definition}[Shape Derivative]\label{def:shape-derivative}
+    A function \(J(\Omega)\) is shape differentiable at \(\Omega\) if the mapping
+    \[
+        \theta \mapsto J(\Omega_\theta)
+    \]
+    is Fréchet differentiable at \(\theta = 0\), i. e. there exists a linear functional \(\d J(\Omega)(\theta)\) such that
+    \begin{align}\label{eq:frechet-derivative}
+        \lim_{\norm{\theta}_W^{1,\infty} \to 0} \frac{J(\Omega_\theta) - J(\Omega) - \d J(\Omega)(\theta)}{\norm{\theta}_W^{1,\infty}} = 0
+    \end{align}
+    or in other words with the Landau symbol \(o\)
+    \begin{align}\label{eq:frechet-derivative-landau}
+        J(\Omega_\theta) = J(\Omega) + \d J(\Omega)(\theta) + o(\theta).
+    \end{align}
+\end{definition}
+
+Here we used the notion of a Fréchet derivative. Instead one could also use a Gâteaux derivative, which is defined if for every $\theta$ the limit 
+\begin{align}
+    \d J(\Omega)(\theta) = \lim_{t \to 0^+} \frac{J(\Omega_{t \theta}) - J(\Omega)}{t} = \lim_{t \to 0^+} \frac{J((\I + t\theta)(\Omega)) - J(\Omega)}{t}
+\end{align}
+exists and if the map  \(\theta \mapsto dJ(\Omega)(\theta)\) is linear and continuous.
+
+To get a better understanding of the shape derivative and how they look like, we will consider functionals $J$ which only depend on the domain $\Omega$ directly and not on the state $u(\Omega)$ subject to a PDE.
+
+\begin{example}\label{ex:shape-derivative-example1}
+    Let \(f \in W^{1,1}(\R^d, \R)\) be a given function, i.e., \(f\) is weak differentiable where \(f\) and its weak derivative \(\nabla f\) are in \(L^1(\R^d)\). Then for any measurable \(\Omega \in \R^{d}\) we can define the functional
+    \begin{align}    
+        J(\Omega) = \int_{\Omega} f(x) \, \d x.
+    \end{align}
+    To calculate the shape derivative, we need to consider the Fréchet derivative of the function \(\theta \mapsto J(\Omega_\theta)\) at \(\theta = 0\). (For a detailed proof, see \cite[Chapter 5.2.3, Theorem 5.2.2 and Chapter 5.2.4]{HenrotShapeDerivative2018})
+    
+    First, by a change of variables (\(x \rightarrow x + \theta\)), we can rewrite \(J(\Omega_\theta)\) as
+    \begin{align}\label{eq:shape-derivative-pullback}
+        J(\Omega_\theta) = \int_{\Omega_\theta} f(x) \, \d x = \int_{(\I + \theta)(\Omega)} f(x) \, \d x = \int_{\Omega} |\det(\nabla (x + \theta(x)))|(f(x + \theta(x))) \, \d x.
+    \end{align}
+    \begin{itemize}
+        \item \(\theta \mapsto |\det(\nabla (x + \theta))|\) is Fréchet differentiable at \(\theta = 0\) and with multiple power series expansions we can express it as
+        \begin{align}
+            |\det(\nabla (\I + t\theta))| &=|\det(E + t\nabla \theta)| = \exp(\Tr\log(E + t\nabla \theta))\\
+            &= \exp(t \Tr(\nabla \theta) - \frac{t^2}{2} \Tr(\nabla \theta)^2 + \ldots)\\
+            &= 1 + t \Tr(\nabla \theta) + \frac{t^2}{2} \Tr(\nabla \theta)^2 + \ldots,
+        \end{align}
+        with \(E\) given by the identity matrix. Setting \(t = 1\) and \(\Tr(\nabla \theta) = \Div(\theta) \) gives
+        \begin{align}
+            |\det(\nabla (\I + \theta))| &= 1 + \Div(\theta) + o(\theta) .
+        \end{align}
+
+        \item \(\theta \mapsto (f(x + \theta))\) is Fréchet differentiable at \(\theta = 0\) and with a Taylor expansion we can express it as
+        \begin{align}
+            f(x + \theta) &= f + \nabla f \cdot \theta + o(\theta).
+        \end{align}
+    \end{itemize}
+    By the product rule the integrand is differentiable and by interchanging integral and derivative, since they are with respect to different variables, we can now compute:
+    \begin{align}
+        J(\Omega_\theta) &= \int_{\Omega} |\det(\nabla (x + \theta(x)))| (f(x + \theta(x))) \, \d x\\
+        &= \int_{\Omega} (1 + \Div(\theta) + o(\theta))(f + \nabla f \cdot \theta + o(\theta)) \, \d x\\
+        &= \int_{\Omega} (f + \nabla f \cdot \theta + \Div(\theta) f + o(\theta)) \, \d x. 
+    \end{align}
+    Inserting this into the definition (\ref{eq:frechet-derivative}), we can see that the shape derivative \(dJ(\Omega)(\theta)\) is given by
+    \begin{align}
+        \d J(\Omega)(\theta) &= \int_\Omega \nabla f \cdot \theta + \Div(\theta) f \, \d x = \int_\Omega \Div(f\theta) \, \d x.
+    \end{align}
+    Because \(\Omega\) is bounded with Lipschitz boundary, we can apply the divergence theorem to get
+    \begin{align}\label{eq:shape-derivative-example1}
+        \d J(\Omega)(\theta) &= \int_{\partial \Omega} f\theta \cdot n \, \d s,
+    \end{align}
+    where \(n\) is the outward normal vector on the boundary \(\partial \Omega\).
+\end{example}
+
+\begin{example}\label{ex:shape-derivative-example2}
+    Let \(g \in W^{2,1}(\R^d, \R)\) be a given function. Let \(\Omega \in \R^{d}\) be bounded with $\partial \Omega \in C^2$, we can define the functional
+    \begin{align}    
+        J(\Omega) = \int_{\partial \Omega} g(x) \, \d s(x).
+    \end{align}
+    The shape derivative exists and can be computed similarly to the previous example. For $\theta \in C^1(\R^d, \R^d)$ the shape derivative is given by
+    \begin{align}
+        \d J(\Omega)(\theta) &= \int_{\partial \Omega} \left(\frac{\partial g}{\partial n} + \kappa g\right) \theta \cdot n \, \d s,
+    \end{align}
+    where \(n\) again is the outward normal vector on the boundary \(\partial \Omega\) and \(\kappa\) is the mean curvature \(\kappa = \Div n\) of the boundary.
+\end{example}
+
+Our initial goal was to find a a suitable descent direction. Now, given the concept of the shape derivative, we can search for a deformation \(\theta\) such that
+\begin{align}
+    \d J(\Omega)(\theta) < 0,
+\end{align}
+since for a sufficient small step size \(\alpha > 0\) we then have a decrease in the objective function \(J\) 
+\begin{align}\label{eq:descent-direction-condition}
+    J(\Omega_{\alpha\theta}) = J(\Omega) + \alpha \, \d J(\Omega)(\theta) + o(\alpha) < J(\Omega),
+\end{align}
+following (\ref{eq:frechet-derivative}).
+
+In our two simple examples, we can give a concrete deformation vector field \(\theta\) that satisfies the condition above. In the example \ref{ex:shape-derivative-example1}, we can choose
+\begin{align}
+    \theta(x) = -f(x) n.
+\end{align}
+This choice of \(\theta\) will ensure that the shape derivative \(\d J(\Omega)(\theta)\)(\ref{eq:shape-derivative-example1}) is negative, leading to a decrease in the objective function \(J\). One can also understand this geometrically: the deformation \(\theta\) pushes the boundary away from the region where \(f\) is positive, effectively reducing the value of the integral. This intuition becomes even clearer if we consider the concrete case where \(f = 1\), then we have 
+\begin{align}
+    J = \int_{\Omega} 1\, \d x = \Vol(\Omega),
+\end{align} 
+with shape derivative
+\begin{align}
+    \d J(\Omega)(\theta) = \d \Vol(\Omega)(\theta) = \int_{\partial \Omega} \theta \cdot n \, \d s
+\end{align}
+and thus a suitable descent direction is given by 
+\begin{align}
+    \theta = -n.
+\end{align}
+Geometrically, this means that we are pushing the boundary of the domain inwards until there is no more volume to decrease.
+
+Considering example \ref{ex:shape-derivative-example2}, we can do the same with \(g(x) = 1\), resulting in the objective being the perimeter of the domain
+\begin{align}
+    J(\Omega) = \int_{\partial \Omega} 1 \, \d s = \Per(\Omega).
+\end{align}
+Here, a suitable deformation vector field \(\theta\) is given by
+\begin{align}
+    \theta = -\kappa n.
+\end{align}
+That agrees with the geometric intuition and the well known fact that zero mean curvature surfaces corresponds to minimal surfaces, since for zero mean curvature, the deformation will be zero, indicating that we are already on a local minimum.
+
+While those simple examples illustrate the concept, most of the times the physically interesting objective functionals involve the state \(u\) that satisfies a PDE in the domain \(\Omega\), as introduced in the applications in the beginning of this section. In this case the shape derivative is not as straightforward to compute, since the variation of the objective functional involves the solution of a PDE on the deformed domain;
+First, a theoretical result for this case is presented. As a prerequisite, first we need to consider how the state/solution \(u\) depends on the domain \(\Omega\) and introduce the notion of a derivative of the mapping \(\Omega \mapsto u_\Omega\), where \(u_\Omega\) denotes the solution of the PDE in the domain \(\Omega\). There are two common approaches to this \cite[Chapter 4.3]{AllaireShapeOptimization2021}:
+\begin{itemize}
+    \item Eulerian approach: Given a point \(x \in \Omega\) one can define the derivative \(u^\prime_\Omega(\theta)(x)\) as the derivative of the mapping
+    \begin{align}
+        \theta \mapsto \overline{u_{\Omega_\theta}}(x).
+    \end{align}
+    This is a point-to-point approach, which from a theoretical standpoint can be to restrictive, since for boundary points this might not be well defined for $\theta$ pointing inwards.
+    \item Lagrangian approach: Instead of looking at the pointwise derivative, one can consider the change of the solution \(u_\Omega\) under the transport of the domain. The derivative \(u_\Omega(\theta)\) is then the Fréchet derivative at $\theta = 0$ of the mapping
+    \begin{align}
+        \theta \mapsto u_\Omega(\theta) = u_{\Omega_\theta} \circ (\I + \theta).
+    \end{align}
+\end{itemize}
+
+Since the Lagrangian approach is applicable to a bigger class of functions, we will use it in the following. We are interested in the shape derivative of objectives of the form 
+\begin{align}
+    J(\Omega) = \int_{\Omega} j(u_\Omega) \, \d x,
+\end{align}
+with \(j(x)\) at least twice continuously differentiable. The following proposition characterizes the shape derivative:
+\begin{proposition}
+    Let \(u_\Omega\) be the solution of a PDE in the domain \(\Omega\) with Lagrange derivative \(u_\Omega(\theta)\). Then the shape derivative of the functional
+    \begin{align}
+        J(\Omega) = \int_{\Omega} j(u_\Omega) \, \d x
+    \end{align}
+    is given by
+    \begin{align}\label{eq:shape-derivative-pde}
+        \d J(\Omega)(\theta) = \int_{\Omega} \left( \operatorname{div} \theta \, j(u_{\Omega}) + j'(u_{\Omega}) u_{\Omega}(\theta) \right) \, \mathrm{d}x,
+    \end{align}
+    where \(n\) is the outward normal vector on the boundary of the domain.
+\end{proposition}
+The proof follows the same strategy as in the example \ref{ex:shape-derivative-example1}, by using a change of variables, the expansion of the determinant and the definition of the Lagrangian derivative \cite[Chapter 4.5]{AllaireShapeOptimization2021}.
+
+While the above proposition gives a theoretical satisfying formula, it is impractical for computational reasons. The problem here is that the shape derivative depends on the solution \(u_\Omega\) and thus implicitly on the deformation \(\theta\). That means for every possible deformation \(\theta\), a new solution \(u_{\Omega_\theta}\) of a PDE has to be computed. 
+
+\subsubsection{Adjoint state method}
+To solve this issue mentioned above, the adjoint state method was introduced in 1986 \cite{CeaAdjointMethod1986}. The basic idea is to rewrite the unconstrained minimization problem with the state equation as a constrained minimization problem. Given the minimization problem 
+\begin{align}\label{eq:minimization-problem-adjoint}
+    \min_{\Omega \in \mathcal{U}} J(\Omega, u_\Omega) = \min_{\Omega \in \mathcal{U}} \int_{\Omega} j(u_\Omega) \, \d x,
+\end{align}
+with \(U\) being the set of all admissible shapes and given the state equation (typically a PDE-constraint)
+\begin{align} \label{eq:general-state-equation}
+    \E(\Omega, u_\Omega) = 0.
+\end{align}
+In the following, we will use the variational formulation of the state equation. Let \(u\) be in the Sobolev Space \(W^{k,2}(\R^d) = H^k\) with \(k\) depending on the specific state equation. The variational formulation (cf. \ref{sec:variational-formulation}) of (\ref{eq:general-state-equation}) is then finding a \(u = u_\Omega\), such that
+\begin{align}
+    \langle \E(\Omega, u), p \rangle_{L^2(\Omega)} = \int_{\Omega} \E(\Omega, u) \cdot p \, \d x = 0 \quad \forall p \in H^k.
+\end{align}
+Now, we can define the Lagrangian functional
+\begin{align}
+    \mathcal{L}(\Omega, u, p) = J(\Omega, u) + \langle \E(\Omega, u), p \rangle_{L^2(\Omega)},
+\end{align}
+where \(p\) is the adjoint state variable and plays the role of a Lagrange multiplier and \(\langle \cdot, \cdot \rangle_{L^2(\Omega)}\) is the standard inner product in \(L^2(\Omega)\). Given a shape \(\Omega\), we want to examine the stationary points \((\hat{u}, \hat{p})\) of the reduced Lagrangian functional \(\mathcal{L}(\Omega, \cdot, \cdot)\), i.e., the zeros of the Gâteaux derivatives:
+\begin{itemize}
+    \item For every (differentiation direction) \(\tilde{p} \in H^k\), we have 
+    \begin{align}
+        0 = \frac{\partial \mathcal{L}}{\partial p}(\Omega,\hat{u},\hat{p})(\tilde{p}) = \langle \E(\Omega, \hat{u}), \tilde{p} \rangle_{L^2(\Omega)}.
+    \end{align}
+    By the fundamental lemma of the calculus of variations, we obtain
+    \begin{align}
+        \E(\Omega, \hat{u}) = 0,
+    \end{align}
+    which is the original state equation (\ref{eq:general-state-equation}).
+    \item For every (differentiation direction) \(\tilde{u} \in H^k\), we have
+    \begin{align}
+        0 = \frac{\partial \mathcal{L}}{\partial u}(\Omega,\hat{u},\hat{p})(\tilde{u}) &= \frac{\partial J}{\partial u}(\Omega, \hat{u})(\tilde{u}) + \langle \frac{\partial \E}{\partial u}(\Omega, \hat{u})(\tilde{u}), \hat{p} \rangle_{L^2(\Omega)}\\
+        &= \frac{\partial J}{\partial u}(\Omega, \hat{u})(\tilde{u}) + 
+        \langle \tilde{u}, \frac{\partial \E}{\partial u}^*(\Omega, \hat{u})(\hat{p}) \rangle_{L^2(\Omega)},
+    \end{align}
+    introducing the adjoint \(\frac{\partial \E}{\partial u}^*\) (in respect to the \(L^2\) inner product).
+    Inserting (\ref{eq:minimization-problem-adjoint}) 
+    \begin{align}
+        \frac{\partial J}{\partial u}(\Omega, \hat{u})(\tilde{u}) = \int_\Omega j'(\hat{u}) \tilde{u} \, \d x = \langle j'(\hat{u}), \tilde{u} \rangle_{L^2(\Omega)}.
+    \end{align}
+    and using the fundamental lemma of calculus of variations again one obtains the \textit{adjoint state equation}
+    \begin{align}\label{eq:adjoint-state-equation}
+        j^\prime(\hat{u}) = \frac{\partial \E}{\partial u}^*(\Omega, \hat{u})(\hat{p}).
+    \end{align}
+\end{itemize}
+In the adjoint state equation (\ref{eq:adjoint-state-equation}), the adjoint state \(\hat{p}\) is the unknown, while the state \(\hat{u}\) is known from solving the original state equation (\ref{eq:general-state-equation}). 
+Now, we can extract a expression for the shape derivative. First note, that for \(u_\Omega\) a solution of the state equation and any \(p \in H^k\), we have
+\[
+J(\Omega) = \mathcal{L} (\Omega, u_\Omega, p).
+\]
+Especially, using the chain rule, we obtain
+\[
+\d J(\Omega) = \frac{\partial \mathcal{L}}{\partial \Omega} (\Omega, u_\Omega, p)(\theta) + \frac{\partial \mathcal{L}}{\partial u} (\Omega, u_\Omega, p)(u^\prime(\theta)) .
+\]
+Since this holds for any \(p\), we can choose \(p = \hat{p} = p_\Omega\) which is a solution of the adjoint state equation (\ref{eq:adjoint-state-equation}). Then we have  
+\begin{align}\label{eq:shape-derivative-adjoint}
+    \d J(\Omega)(\theta) = \frac{\partial \mathcal{L}}{\partial \Omega} (\Omega, u_\Omega, p_\Omega)(\theta),
+\end{align}
+which is a much simpler expression for the shape derivative, since this can be resolved by the same methods as in example \ref{ex:shape-derivative-example1}, giving us an expression only explicitly dependent on \(\theta\) and on the states \(u_\Omega\) and \(p_\Omega\).
+The whole discussion is only of formal nature, and can be made rigorous in specific examples. One example can be found in \cite[Chapter 1.4.5, Proposition 4.5]{AllaireShapeOptimization2021}.
+
+Having knowledge of the shape derivative (\ref{eq:shape-derivative-adjoint}), again we now want to infer a descent direction. It turns out that doing the calculations after equation \ref{eq:shape-derivative-adjoint} for specific cases one often gets a shape derivative of the form
+\begin{align}\label{eq:shape-derivative-nice-form}
+    \d J(\Omega)(\theta) = \int_\Omega v_\Omega \theta \cdot n \, \d s,
+\end{align}
+where \(v_\Omega\) is a scalar field depending on the state \(u_\Omega\) and the adjoint state \(p_\Omega\). This is very similar to the shape derivative in example \ref{ex:shape-derivative-example1} and \ref{ex:shape-derivative-example2} and thus we can use the same strategy to find the descent direction
+\begin{align}\label{eq:descent-direction-nice-form}
+    \theta = -v_\Omega n.
+\end{align}
+Even in this 'ideal' case this choice of \(\theta\) presents a few limiting considerations, both of theoretical and practical nature.
+\begin{itemize}
+    \item The direction only is defined on the boundary of the domain, which is to be expected, since the control of the optimization problem is the boundary. This is a mathematical problem, since it is not guaranteed that \(\theta\) can be extended to the whole domain, which is needed to be able to treat it in the framework introduced in the beginning of this section.
+    \item The concentration on the boundary is also a problem for numerical reasons, since for computing methods relying on meshing the shape including the boundary into discrete elements, it is not clear how to calculate the normal vector \(n\) in a robust way. It is also not clear how to move the mesh in the interior of the domain, to avoid single mesh cells blowing up on the boundary. Mesh quality is a big issue in shape optimization \cite{HerzogMeshQuality2024}, \cite{SturmMeshquality2018}, to which we will come back later.
+    \item The choice of \(\theta\) being directly dependent on the state \(u_\Omega\) and adjoint state \(p_\Omega\) can lead to difficulties in ensuring the stability, since the numerical calculation of the states might introduce numerical artifacts.
+\end{itemize}
+Additionally, we would like to have a method of extracting a descent direction that is not dependent on the shape derivative to be in a convenient form like (\ref{eq:shape-derivative-nice-form}).
+To address these issues, we will turn to inner products and the concept of \textit{gradients} in Hilbert spaces.
+
+\subsubsection{Shape Gradients via Inner Products}\label{sec:shape-gradients-inner-products}
+We start with reformulating the procedure used to get eq. (\ref{eq:descent-direction-nice-form}): Given a shape derivative of the form
+\begin{align}
+    \d J(\Omega)(\theta) = \int_{\partial\Omega} v_\Omega \theta \cdot n \, \d s,
+\end{align}
+where \(v_\Omega\) is a scalar field depending on the state and adjoint state, and \(n\) is the outward normal. We can reformulate the procedure of finding a descent direction, by using  the \(L^2\) inner product on the boundary: Find a function \(g_\Omega\), such that
+\begin{align}
+    -\d J(\Omega)(\theta) = -  \int_{\partial\Omega} v_\Omega \theta \cdot n \, \d s = a_{L^2(\partial\Omega)}(g_\Omega, \theta).
+\end{align}
+\(a(\cdot, \cdot)\) commonly denotes a general bilinear form, in this case the index \(_{L^2(\partial\Omega)}\) indicates that it is the inner product in \(L^2(\partial\Omega)\). If such a function \(g_\Omega\) exists, we can use it to define the descent direction \(\theta = g_\Omega\), since by the positive definiteness of the inner product, we have
+\begin{align}
+    -\d J(\Omega)(\theta) = a_{L^2(\partial\Omega)}(g_\Omega, g_\Omega) \geq 0.
+\end{align}
+In this case, we have \(g_\Omega = -v_\Omega n\), which recovers the result from earlier.
+
+Here we already used the concept of gradients in Hilbert spaces implicitly.
+Given a general Hilbert space $H$ with an inner product $a_H(\cdot, \cdot)$, and a functional \(F:H \to \mathbb{R}\) with (Fréchet) derivative \(F^\prime\), the shape gradient $g$ of \(F\) is defined as the unique element in $H$ such that
+\begin{align}\label{eq:conversion-derivative-gradient}
+    a_H(g, h) = F^\prime(h) \quad \forall h \in H.
+\end{align}
+The existence and uniqueness of $g$ is guaranteed by the Riesz-Fréchet representation theorem \cite[Theorem 5.5]{BrezisFA2011}, which states that for every continuous linear functional on a Hilbert space, there exists an unique element in the space such that the functional can be expressed as an inner product with that element.
+With the concept of shape gradients and the previous example, we can derive a general method for computing descent directions in shape optimization problems.
+
+Given a Hilbert space $H \subseteq W^{1,\infty}(\R^d, \R^d)$ with an inner product $a_H(\cdot, \cdot)$, we can infer a descent direction by solving for the (shape) gradient \(g_\Omega\):
+\begin{align} \label{eq:conversion-derivative-gradient-shape}
+    -\d J(\Omega)(\theta) = a_H(g_\Omega, \theta) \quad \forall \theta \in H.
+\end{align}
+Then, $\theta = g_\Omega$ is a descent direction for the functional $J$ following the same reasoning as in eq. (\ref{eq:descent-direction-condition}), since the inner product is by definition positive-definite. For a sufficiently small step size $\alpha > 0$, we have
+\begin{align}
+    J(\Omega_{- \alpha g_\Omega}) &= J(\Omega) - \alpha \, \d J(\Omega)(g_\Omega) + o(\alpha) \\
+    &=J(\Omega) - \alpha a(g_\Omega, g_\Omega) + o(\alpha)\\
+    &< J(\Omega),
+\end{align}
+which shows that the objective functional decreases in the direction of the descent direction.
+
+Modern theoretical approaches to that topic use the language of differential geometry and interpret the set of all admissible configurations as a manifold, e.g \cite{SchulzRiemannView2014}. With this intuition one can interpret this method to find regularized geodesics and velocities with better behavior than the classical Euclidean geodesics.
+
+Although this method can be more computationally intensive due to the need for solving another variational problem, it solves the issues mentioned in the previous section. The gradient $g_\Omega$ is naturally defined on the whole domain and depending on the choice of the inner product also fulfills convenient regularity properties. In the literature, there have been many proposals for inner products that yield useful shape gradients, depending on the specific given problem. We want to list a few of them here:
+\begin{itemize}
+    \item Mathematically speaking a natural and straightforward choice would be to set $H$ to be the Sobolev space $W^{k,2}(\R^d, \R^d) = H^k \subset W^{1, \infty}$ given $m > d/2 + 1$ with the standard inner product 
+    \begin{align} \label{eq:Hk-inner-product}
+        a(u,v) = \sum_{\alpha \in \N^d, |\alpha| \leq k} \int_{\R^d} D^\alpha u \cdot D^\alpha v \, \d x.
+    \end{align}
+
+    \item Another choice is to use a Laplace-Beltrami type inner product \cite{SchulzLaplaceBeltramiEx2015}, on a subspace $H = H^1(\partial \Omega)$ with the inner product
+    \begin{align}
+        a(u,v) = \alpha^2 \int_{\partial \Omega} \nabla_T u : \nabla_T v \, \d s + \int_{\partial \Omega} u \cdot v \, \d s,
+    \end{align}
+    where $\alpha$ can be interpreted as a weight parameter and $\nabla_T$ denotes the tangential gradient on the boundary.
+
+    \item An alternative inspired by physical considerations uses the variational formulation of the equations of linear elasticity \cite{SchulzLinearElasticity2016}. The equations governing small elastic deformations of a shape $\Omega$ quantified in the displacement field $u$ are 
+    \begin{align}\label{eq:linear-elasticity}
+  -\nabla \cdot \sigma &= f \text{ in } \Omega, \\
+  \sigma &= \lambda \operatorname{tr}(\varepsilon) I + 2\mu \varepsilon, \\
+  \varepsilon &= \frac{1}{2} \left( \nabla u + (\nabla u)^{\top} \right),
+    \end{align}
+    where $\sigma$ is the stress tensor and $\varepsilon$ the strain tensor, given $f$ the body force per volume, $\lambda$ and $\mu$ the Lamé parameters in terms of the Young's modulus $E$ and Poisson's ratio $\nu$:
+    \begin{align}
+        \lambda = \frac{\nu E}{(1+\nu)(1-2\nu)}, \qquad \mu = \frac{E}{2(1+\nu)}.
+    \end{align}
+    The inner product is then defined as the variational formulation of those equations:
+    \begin{align}\label{eq:linear-elasticity-inner-product}
+        a(u, v) = \int_{\Omega} \sigma(u) : \varepsilon(v) \, \d x,
+    \end{align}
+    where the colon operator $:$ denotes the inner product of two tensors, which is the sum of the products of their components. This is well-defined as an inner product, since the equations of linear elasticity are elliptic and thus the resulting bilinear form is positive definite \cite[6.1.2]{EvansPDEs2013}. Note that the variational form of the equations of linear elasticity is the elastic energy of, which is minimized in equilibrium.
+    Thus, solving (\ref{eq:conversion-derivative-gradient}) gives us a descent direction, where the shape derivative is interpreted as a (surface) force. The force is then transported through the whole domain, treating it as a elastic body.
+    One can think of the shape derivative as tiny actuators on the surface, pushing or pulling the boundary. The elasticity inner product computes how these surface forces would propagate through the entire object, resulting in a smooth, physically plausible deformation.
+    The parameters $\lambda$ and $\mu$ can be tuned to achieve different deformation behaviors. For example the Young's modulus $E$ controls the stiffness of the material; a higher $E$ results in smaller deformations for the same applied force, while a lower $E$ allows for larger deformations.
+
+%Note: Different parameters used in different papers in SchulzLinearElasticity2016 on page 2812 and Herzogs A DISCRETIZE-THEN-OPTIMIZE APPROACH TO PDE-CONSTRAINED SHAPE OPTIMIZATION on page 18
+\end{itemize} 
+
+\subsubsection{A structure theorem for shape derivatives}
+As we have already observed, given sufficiently smooth boundaries, the shape derivative only depends on the normal component of the boundary of the shape and not on other geometric features. This is a general result, known as the Hadamard structure theorem:
+\begin{theorem}[Structure theorem {\cite[Chapter 9, Thm 3.6]{DelfourShapes2011}, \cite[Proposition 5.9.1]{HenrotShapeDerivative2018}}] \label{thm:structure-theorem}
+Let $J$ be a real-valued shape functional. Assume that $J$ has a shape gradient $\d J(\Omega)$ for some $\Omega \subset \mathbb{R}^N$ with boundary $\Gamma$.
+Then the support of the shape gradient $G(\Omega)$ is contained in $\Gamma$. 
+
+Additionally if \(\Gamma\) is \(C^1\), the shape derivative is only dependent on the normal component of the deformation, i.e., for all \(\theta \in W^{1, \infty}(\R^d, \R^d)\), such that \(\theta \cdot n = 0\) on \(\Gamma\), we have \(\d J(\Omega)(\theta) = 0\).
+\end{theorem}
+One can understand this theorem intuitively, since the shape derivative quantifies the sensitivity of the objective functional to changes in the shape. If we deform the shape in the interior or tangentially, we are not changing the actual shape, but only reparametrizing it.
+\subsection{Nematic Liquid Crystals}\label{sec:theory-lc}
+\subsubsection{Order and Symmetry} \label{sec:LC-Order}
+In order to understand the behavior of nematic liquid crystals (LCs) and their orientation, we require a suitable macroscopic description. This is done as in many other examples by introducing some order parameters, like the magnetization in the Ising model or the charge density in the theory of semiconductors. The treatment here follows roughly the outline of \cite{VirgaLiquidCrystals1994} and \cite{SelingerSoftMatter2016}.
+
+For LCs, we start by considering the vector \(\vec{p} \in \mathcal{S}^2\), thus a vector on the unit sphere, which describes the orientation of a single liquid crystal molecule. Here we will focus our discussion on the three dimensional case. For a single LC molecule, there is no difference of being in \(+\vec{p}\) or \(-\vec{p}\) orientation, also called \textit{head-to-tail symmetry}. Mathematically this can be described the projective space \(\mathbb{RP}^2\), which incorporates the idea that \(+\vec{p}\) and \(-\vec{p}\) are equivalent. Thus trying to introduce the mean of the orientation given its probability distribution \(\rho(\vec{p})\)
+\begin{align}
+    \langle \vec{p} \rangle = \int_{\mathcal{S}^2} \vec{p} \rho(\vec{p})\, \d \vec{p}
+\end{align}
+is not suitable as an order parameter, since it will always average out to 0. One might also think to take the average of the dot or cross product \(\langle \vec{p} \cdot \vec{p} \rangle\) or \(\langle \vec{p} \times \vec{p} \rangle\) as  order parameters, since they are even functions in \(\vec{p}\) but those also are not suitable choices, since they also always equal 0 or 1. Taking the average of the tensor product seems more promising, also because it corresponds to the variance of the orientation
+\begin{align}
+    \tensor{M} =  \langle \vec{p} \otimes \vec{p} \rangle = \int_{\mathcal{S}^2} \vec{p} \otimes \vec{p} \rho(\vec{p})\, \d \vec{p}
+\end{align}
+which captures the fluctuations of the orientation and can serve as a proper order parameter.
+Calculating the tensor \(\tensor{M}\)  for an isotropic distribution yields
+
+\begin{align}
+    \tensor{M} = \frac{1}{4\pi} \int_{\mathcal{S}^2} \vec{p} \otimes \vec{p} \, \d \vec{p} = \frac{1}{3} \tensor{E},
+\end{align}
+where \(\tensor{E}\) is the identity tensor. Since it is more convenient to work with an order parameter, which is 0 in the unordered phase, we will subtract \(\frac{1}{3} \tensor{E}\) from \(\tensor{M}\) to obtain our order parameter
+\begin{align}
+    \tensor{Q} = \tensor{M} - \frac{1}{3} \tensor{E},
+\end{align}
+which is traceless and symmetric and will be referred to as the \textit{Q-tensor} or \textit{order tensor}. Let us first consider the case of perfect nematic orientation, where all LCs are aligned along the \(z-\)axis \(\vec{p} =  \pm \vec{e}_z\). In this case, the Q-tensor can be explicitly calculated as
+
+\begin{align}
+    \tensor{Q} = \begin{pmatrix}
+        0 & 0 & 0 \\
+        0 & 0 & 0 \\
+        0 & 0 & 1
+    \end{pmatrix} - \frac{1}{3} \begin{pmatrix}
+        1 & 0 & 0 \\
+        0 & 1 & 0 \\
+        0 & 0 & 1
+    \end{pmatrix} = \begin{pmatrix}
+        -\frac{1}{3} & 0 & 0 \\
+        0 & -\frac{1}{3} & 0 \\
+        0 & 0 & \frac{2}{3}
+    \end{pmatrix}.
+\end{align}
+If we now consider the same setting but instead of perfect alignment, we only have partial alignment around the \(z-\)axis, so each liquid crystal molecule can be described by a vector \(\vec{p}\)
+\begin{align}
+    \vec{p} = (\sin(\theta) \cos(\phi), \sin(\theta) \sin(\phi), \cos(\theta))
+\end{align}
+with classical spherical coordinates, where \(\theta \in [0, \pi]\) is the polar angle and \(\phi \in [0, 2\pi)\) is the azimuthal angle. Assuming that the azimuthal angle is uniformly distributed, we can calculate the three non-zero components of the Q-tensor as follows:
+\begin{align}
+    Q_{zz} &= \langle \cos^2(\theta) - \frac{1}{3} \rangle,\\
+    Q_{xx} &= \langle \sin^2(\theta) \cos^2(\phi) - \frac{1}{3} \rangle = \langle \frac{1}{2}\sin^2(\theta)  - \frac{1}{3}\rangle = - \frac{Q_{zz}}{2},\\
+    Q_{yy} &= \langle \sin^2(\theta) \sin^2(\phi) - \frac{1}{3} \rangle = \langle \frac{1}{2} \sin^2(\theta) - \frac{1}{3} \rangle = - \frac{Q_{zz}}{2}.
+\end{align}
+Defining  
+\begin{align}
+    S = \langle \cos^2(\theta) - \frac{1}{3} \rangle = Q_{zz},
+\end{align}
+which is the mean of the second Legendre Polynomial. This leads to the following expression of the Q-tensor
+\begin{align}
+    \tensor{Q} = S \begin{pmatrix}
+        -\frac{1}{2} & 0 & 0 \\
+        0 & -\frac{1}{2} & 0 \\
+        0 & 0 & 1
+    \end{pmatrix}.
+\end{align}
+Generalizing this to a arbitrary symmetry axis \(\vec{n}\), we get the expression 
+\begin{align}\label{eq:uniaxial_Q_tensor}
+    \tensor{Q} = S(\vec{n} \otimes \vec{n} - \frac{1}{3} \tensor{E}),
+\end{align}
+which is  the \textit{uniaxial Q-tensor}, where \(\vec{n}\) is the \textit{director}, the main axis of nematic order and \(S\) the \textit{scalar order parameter}, quantifying the degree of alignment. \(S\) is in the range \([0, 1]\), where \(S = 1\) corresponds to perfect alignment along the director and \(S = 0\) to the isotropic state.
+
+Comparing the degree of freedoms on both sides of eq. (\ref{eq:uniaxial_Q_tensor}), one observes that there are \(2+1\) degrees of freedom on the left hand side, namely the two angular components of the director \(\vec{n}\) and the scalar order parameter \(S\), while there are \(5\) degrees of freedom on the right hand side, since the tensor is traceless and symmetric. This means that the uniaxial Q-tensor is not capturing the whole picture. To resolve this, the discussion can also be approached in a different way.
+
+By virtue of the spectral theorem for symmetric tensors, we can diagonalize the Q-tensor in its eigenvector basis, consisting of orthonormal vectors \(\vec{n}_1, \vec{n}_2, \vec{n}_3\) with corresponding eigenvalues \(\lambda_1, \lambda_2, \lambda_3\):
+\begin{align}\label{eq:spectral-decomposition-Q-tensor}
+    \tensor{Q} = \lambda_1 \vec{n}_1 \otimes \vec{n}_1 + \lambda_2 \vec{n}_2 \otimes \vec{n}_2 + \lambda_3 \vec{n}_3 \otimes \vec{n}_3.
+\end{align}
+Since the tensor is also traceless, we have the constraint
+\begin{align}\label{eq:lmbda3-trace-condition}
+     \lambda_3 = -\lambda_1 - \lambda_2.
+\end{align}
+Now, there are two possibilities: either \(\lambda_1 = \lambda_2\) or \(\lambda_1 \neq \lambda_2\). First assuming \(\lambda_1 = \lambda_2\), we can write the Q-tensor as
+\begin{align}
+    \tensor{Q} = \lambda_1 (\vec{n}_1 \otimes \vec{n}_1 + \vec{n}_2 \otimes \vec{n}_2 - 2 \vec{n}_3 \otimes \vec{n}_3).
+\end{align}
+By setting 
+\begin{align}\label{eq:uniaxial-parameters}
+    S = -3\lambda_1, \quad \vec{n} = \vec{n}_3
+\end{align}
+we recover the uniaxial Q-tensor form eq. (\ref{eq:uniaxial_Q_tensor}).
+In the other case \(\lambda_1 \neq \lambda_2\), we can write the Q-tensor as
+\begin{align}
+    \tensor{Q} = \lambda_1 \vec{n}_1 \otimes \vec{n}_1 + \lambda_2 \vec{n}_2 \otimes \vec{n}_2 - (\lambda_1 + \lambda_2) \vec{n}_3 \otimes \vec{n}_3.
+\end{align}
+By setting
+\begin{align}
+    S_1 = 2\lambda_1 + \lambda_2, \quad S_2 = \lambda_1 + 2\lambda_2,
+\end{align}
+we get 
+\begin{align}
+    \tensor{Q} = S_1 \vec{n}_1 \otimes \vec{n}_1 + S_2 \vec{n}_2 \otimes \vec{n}_2 - \frac{1}{3}(S_1 + S_2) \tensor{E}.
+\end{align}
+This is the \textit{biaxial Q-tensor}, which has two directors \(\vec{n}_1\) and \(\vec{n}_2\) with corresponding scalar order parameters \(S_1\) and \(S_2\). In the further discussion, we will focus on the uniaxial Q-tensor, since it is the most common case in applications. Also throughout the discussion we silently assumed that we are looking at length scales much larger than the molecular scale, so that we can talk about averages, but small enough, that we can distinguish distortions in the space. Up to now, we have omitted the dependence of space of the probability distribution \(\rho(\vec{p})\), but in general, distortions and spatial variations in the liquid crystal lead to a position-dependent distribution \(\rho(\vec{p}, x)\), and thus to a spatially varying order parameter \(S(x)\), \(\vec{n}(x)\) and Q-tensor field \(\tensor{Q}(x)\). With the inclusion of spatial variables, the here defined order parameters provides a mesoscopic description, which allows us to formulate suitable models for the equilibrium of \(\tensor{Q}(x)\).
+
+In this section we defined two sets of order parameters, either the director \(\vec{n}\) and the scalar order parameter \(S\) or the Q-tensor \(\tensor{Q}\). Both sets of order parameters are equivalent, and can be transformed into each other: in one direction via eq. (\ref{eq:uniaxial_Q_tensor}) and in the other direction via an Eigenanalysis. From eq. (\ref{eq:spectral-decomposition-Q-tensor}) - (\ref{eq:uniaxial-parameters}) we can see, that the director \(\vec{n}\) coincides with the eigenvector \(\vec{n}_3\) of the Q-tensor. By \ref{eq:lmbda3-trace-condition}, the corresponding eigenvalue \(\lambda_3\) is the (absolute) largest eigenvalue and can be used to calculate the scalar order parameter \(S\) via eq. (\ref{eq:uniaxial-parameters}) and \ref{eq:lmbda3-trace-condition}.
+
+\subsubsection{Oseen-Frank: Modeling Liquid Crystals via the director field}
+In order to model the behavior of liquid crystals in equilibrium states, we are looking for minimizers of a free energy functional. There have been many approaches to this, since it is challenging to balance the physical accuracy with the ability to treat the free energy mathematically. One, in many cases, successful approach is the Oseen-Frank model, which uses the \textit{elastic free energy} or \textit{bulk free energy} of the director field. The free energy functional is given by
+\begin{align}
+    E_\textrm{B}(\vec{n}) =\frac{1}{2}\int_{\Omega} e_\text{el}(\vec{n}, \nabla \vec{n})\, \d x,
+\end{align}
+where the function \(e_\text{el}(\vec{n}, \nabla \vec{n})\) describes the elastic energy density of the director field and is yet to be specified. \(e_\text{el}\) has to fulfill a list of physical properties, as frame-indifference, head-to-tail symmetry and positive definiteness. Additionally, in most systems, \(S(\vec{x}) = \) const. is a good approximation, since the scalar order parameter is strongly determined by molecular interactions fixed by the temperature or concentration.  For nematic LCs, the free energy density proposed by Frank  is given by
+\begin{align}
+    e_\textrm{OF}(\vec{n}, \nabla \vec{n}) &= k_1(\Div\vec{n})^2 + k_2(\vec{n} \cdot \Curl\vec{n})^2 + k_3(\vec{n} \times \Curl\vec{n})^2 \\ \nonumber
+    &+ (k_2+k_4)\left[\tr(\nabla \vec{n})^2 - (\Div \vec{n})^2\right],
+\end{align}
+where \(k_1\), \(k_2\), \(k_3\) and \(k_4\) are the Frank elastic constants, depending on the material properties of the liquid crystal and are called \textit{splay, twist, bend} and \textit{saddle-splay} moduli, respectively.
+% p.1351 of Alignment Properties of Liquid Crystals of Handbook of Visual Display Technology 
+A common approximation used is the \textit{one-constant approximation}, given by 
+\begin{align}\label{eq:one-constant-frank}
+    k_1 = k_2 = k_3 = k, \qquad k_4 = 0,
+\end{align}
+resulting in 
+\begin{align}
+    E_\textrm{OF, one}(\vec{n}) =\frac{1}{2}\int_{\Omega} |\nabla \vec{n}|^2\, \d x.
+\end{align}
+Although successful in many applications, the Oseen-Frank model has its limitations, especially in the description of defects, which are points in the liquid crystal where the director field has a point of discontinuity, which is related to the assumption of constant \(S\) \cite[Chapter 2.2.1]{BorthagarayLiquidCrystals2021}.
+
+\subsubsection{Landau-de Gennes: Modeling Liquid Crystals via the Q-Tensor}\label{sec:LdG}
+Another approach to model liquid crystals is the Landau-de Gennes theory, which uses the Q-tensor as the order parameter. 
+%The treatment here follows the outline of \cite[Chapter 4.1.1.]{SonnetLiquidCrystals2012}. 
+The free energy functional in this framework is expressed in terms of the Q-tensor and its spatial derivatives. The free energy functional is given by
+\begin{align}
+    E_\textrm{LdG}(\tensor{Q}) = \frac{1}{2}\int_{\Omega} W_\textrm{el}(\nabla \tensor{Q})\, \d x + \frac{1}{\eta_\mathrm{B} }\int_{\Omega} \psi_\mathrm{bulk}(\tensor{Q})\, \d x,
+\end{align}
+where \(W_\textrm{el}\) is an elastic free energy density, which penalizes distortions in \(\tensor{Q}\) and thus only depends on \(\nabla \tensor{Q}\), while \(\psi_\mathrm{bulk}\) is a bulk free energy density, also called the thermotropic potential, since it is related to the molecular order. \(\eta_\mathrm{B} > 0\) is a constant known as the \textit{nematic correlation length}.
+
+To get an expression for the elastic free energy density, we want to expand the free energy up to second order in \(\tensor{Q}\) and \(\nabla \tensor{Q}\). The only expressions that respect the material frame-indifference and are invariant under space inversion are 
+\begin{align}
+    |\nabla \tensor{Q}|^2 &:= (\partial_k Q_{ij})^2, \\
+    |\Div \tensor{Q}|^2 &:= (\partial_j Q_{ij})^2, \\
+    (\nabla \tensor{Q})^T : \nabla \tensor{Q} &:= (\partial_k Q_{ij})(\partial_j Q_{ik}),
+\end{align}
+where we used the Einstein summation convention \cite[Chapter 8]{SpencerInvariants1987}. This leads to the following expression for the elastic free energy density:
+\begin{align}
+    W_\textrm{el}(\nabla \tensor{Q}) = L_1|\nabla \tensor{Q}|^2 + L_2 |\Div \tensor{Q}|^2 + L_3(\nabla \tensor{Q})^T : \nabla \tensor{Q} .
+\end{align}
+
+For the bulk free energy density, we can also do an expansion in the spirit of the Landau theory, using the invariants of \(\tensor{Q}\) (\(I_1 = \tr(Q), I_2 = \tr(Q^2), I_3 = \tr(Q^3)\)), since they are  material frame-indifferent. The first invariant is zero since \(\tensor{Q}\) is traceless. The fourth order is the minimal order needed to observe two distinct free energy minima, necessary to describe the isotropic and the nematic phase. Thus, we can write the bulk free energy density as
+\begin{align}\label{eq:bulk-free-energy}
+    \psi_\mathrm{bulk}(\tensor{Q}) = U_0 + \frac{A}{2} \tr(\tensor{Q}^2) + \frac{B}{3} \tr(\tensor{Q}^3) + \frac{C}{4} (\tr(\tensor{Q}^2))^2,
+\end{align}
+where \(A\), \(B\) and \(C\) are material parameters and \(U_0\) a convenient constant. Note that this bulk free energy, does not depend on the director \(\vec{n}\), but only on \(S\). One can argue that from a physical point of view, since there is no symmetry breaking field, the system should not prefer any particular direction. Mathematically this can be seen, by transforming \(\tensor{Q}\) into the basis, where \(\tensor{Q}\) has the form eq. (\ref{eq:uniaxial_Q_tensor}) which can be done, since the trace operator is invariant under orthogonal transformations. Then we have
+\begin{align}
+    \tr(\tensor{Q}^2) &= S^2 \tr((\vec{n} \otimes \vec{n})^2 - \frac{2}{3} \vec{n} \otimes \vec{n} + \frac{1}{3^2} \tensor{E}) = S^2 \left(1 - \frac{2}{3} + \frac{1}{3}\right) = \frac{2S^2}{3},
+\end{align}
+since \(\tr((\vec{n} \otimes \vec{n})^2) = \tr(\vec{n} \otimes \vec{n}) = |\vec{n}|^2 = 1\). Similarly, one can calculate
+\begin{align}
+    \tr(\tensor{Q}^3) &= S^3 \tr((\vec{n} \otimes \vec{n})^3 - 3\frac{1}{3} (\vec{n} \otimes \vec{n})^2 + 3\frac{1}{3^2} \vec{n} \otimes \vec{n} - \frac{1}{3^3} \tensor{E}) = S^3 \left(1 - 1 + \frac{1}{3} - \frac{1}{9}\right) = \frac{2S^3}{9}
+\end{align}
+and one gets 
+\begin{align}\label{eq:bulk-free-energy-S}
+    \psi_\mathrm{bulk}(S) = U_0 + \frac{A}{3} S^2 + \frac{2B}{27} S^3 + \frac{C}{9} S^4.
+\end{align}
+To find the minima of this polynomial, we can calculate the derivative and set it to zero and get the three solutions
+\begin{align}
+    S_1 &= 0, \\
+    S_{2,3} &= \frac{-B \pm \sqrt{B^2 - 24AC}}{4C}.
+\end{align}
+Looking at the second derivative
+\begin{align}
+    \frac{\d^2 \psi_\mathrm{bulk}}{\d S^2} = \frac{2A}{3} + \frac{4B}{9} S + \frac{4C}{3} S^2,
+\end{align}
+the solution \(S_1\) is a local minimum if \(A > 0\), corresponding to the isotropic state. The other two solutions \(S_{2,3}\) are real if \(B^2 > 24AC\) or in other words \(A \leq A^* = \frac{B^2}{24C}\). Given that \(A < 0\), \(S_2\) is positive and thus corresponds to the nematic state, while \(S_3\) is negative and corresponds to a state where the liquid crystals are aligned perpendicular to the director, which is not a physically relevant state. With \(B < 0\), \(S_2\) has always less energy than \(S_3\), which favors the nematic state with parallel alignment, which is why \(B < 0\) normally.
+To have bounded free energy, we require \(C > 0\). Another important point is where \(A\) crosses \(A_c = \frac{B^2}{27C}\), which is where the nematic and isotropic states have the same energy. That is the transition point from the isotropic to the nematic phase. Normally one assumes that \(A\) scales with temperature \(T\), parametrizing the phase transition, i.e.,
+\begin{align}
+    A = A^\prime (T - T_0),
+\end{align}
+with \(T_0\) being the temperature at which the phase transition occurs \cite{SonnetLiquidCrystals2012}. 
+In figure \ref{FreeEnergyLandscape.png} the bulk free energy density is plotted for different values of \(A\), showing the transition from the isotropic to the nematic phase.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{FreeEnergyLandscape.png}
+    \caption{Bulk free energy density \(\psi_\mathrm{bulk}(S)\) for different values of \(A\), showing the transition from the isotropic to the nematic phase. Parameters: \(B = -1, C = 1, U_0 = 0\) and \(A_c = \frac{B^2}{27C}\). The nematic minimum \(S_2\) is marked with a dot. One observes the phase transition at \(A = A_c\), since for \(A > A_c\) the isotropic state \(S_1 = 0\) is the global minimum, while for \(A < A_c\) the nematic state \(S_2\) is the global minimum.}
+    \label{FreeEnergyLandscape.png}
+\end{figure}
+
+In the presence of external fields, like electric or magnetic fields, one can add an additional term to the free energy functional, which describes the interaction of the liquid crystal with the external field. As an example, for an electric field \(\vec{E}\), this term can be given by
+\begin{align}
+    W_\mathrm{ext}(\tensor{Q}, \vec{E}) = - \int_{\Omega} \tensor{Q} : E\, \d x,
+\end{align}
+where \(E\) is the electric field.
+As in eq. (\ref{eq:one-constant-frank}), we can make an one constant approximation, by setting \(L_1 = L,  L_2 = L_3 = 0\), leading to the simplified free energy functional
+\begin{align} \label{eq:landau-de-gennes-one-constant}
+    E_\textrm{LdG, one}(\tensor{Q}) = \frac{L}{2}\int_{\Omega} |\nabla \tensor{Q}|^2\, \d x + \frac{1}{\eta_\mathrm{B} }\int_{\Omega} \psi_\mathrm{bulk}(\tensor{Q})\, \d x.
+\end{align}
+
+\subsubsection{Onsager Theory}
+An alternative approach to model liquid crystals is the Onsager theory, which is a microscopic theory based on the statistical mechanics of rod-like molecules. Since this theory is not useful for our purpose, first because its of lyotropic and not thermotropic nature and second because it does not fit into our computational shape optimization framework, we will only give a brief overview.
+
+The Onsager theory starts by modelling liquid crystal molecules as hard rods, which only interact via excluded volume effects and have no other interactions. Assuming rods of length \(L\) and diameter \(D\) with \(L \gg D\), looking at two rods with angle \(0 \leq \theta < \pi\) between them, one can calculate the excluded volume \(V_\mathrm{excl}(\theta)\) as 
+\begin{align}
+    V_\mathrm{excl}(\theta) = 2DL^2 \sin(\theta).
+\end{align}
+This is the volume the second rod cannot enter due to the presence of the first rod. From an entropic view, this excluded volume leads to an effective interaction between the rods, since it reduces the possible configurations of the system and thus the entropy. The Onsager theory uses this idea to compare the free energy of the isotropic and nematic phase, showing that at high enough concentrations, the nematic phase is favored, since it minimizes the excluded volume effects \cite{OnsagerTheory1949}. 
+\subsubsection{Alignment of Liquid Crystals}
+To influence the director field of a liquid crystal, one can use external fields, like electric or magnetic fields or rely on surface anchoring effects. In the following we will focus on the latter.
+One can generally distinguish between three types of surface anchoring: \textit{homeotropic} or \textit{vertical anchoring}, where the director is aligned perpendicular to the surface, \textit{planar} or \textit{homogeneous anchoring}, where the director is aligned parallel to the surface, and \textit{intermediate anchoring}, which is in between these two extremes \cite[Chapter 7.2.2.2]{JonesAlignment2012}. 
+
+Experimentally, there are many techniques to achieve surface anchoring. In liquid Crystal Displays (LCDs) for example, thin alignment films are applied to glass substrates. To achieve homeotropic alignment a surfactant like lecithin can be used as a coating material. Its hydrophobic tail interacts with the liquid crystal molecules, enforcing vertical alignment\cite[Chapter 7.2.2.3]{JonesAlignment2012}. 
+
+One of the most common methods for achieving planar alignment is to use polyvinyl alcohol or polyimides as alignment layers applied to the substrate via a 'rubbing' technique\cite[Chapter 7.2.2.3]{JonesAlignment2012}.
+There are multiple disadvantages of this technique, including the potential for mechanical damage to the alignment layer and limited spatial accuracy.
+
+Another common and more novel method for achieving alignment is photo-alignment, where the polymer alignment layer is highly sensitive to UV-light, allowing the layer to transform, which then induces alignment, depending on the specific techniques and materials used \cite{XiPhotoalignment2023}.
+
+The novel development, which motivates the following sections, uses two-photon laser printing, an additive manufacturing technique based on two-photon polymerization, to print polydimethylsiloxane (PDMS) microscaffolds. Since the PDMS surfaces have hydrophobic properties, they impose vertical anchoring conditions on the liquid crystal molecules in contact with them, making surface alignment on arbitrary shapes with high resolution possible \cite{MeloAlignment2024}.
+
+For the theoretical treatment of the alignment, there are two approaches, either via \textit{strong anchoring} or \textit{weak anchoring}. Strong anchoring assumes that the liquid crystal director is fixed at the surface and imposes them as strict Dirichlet boundary conditions. Weak anchoring, on the other hand, allows for some freedom of the director at the surface, leading to a more flexible alignment that can adapt to other external influences. This is achieved by adding a surface energy term to the free energy functional, which penalizes deviations from the prescribed alignment. A common choice for the surface energy term is the Rapini-Papoular type anchoring energy \cite{BarberoRapiniEnergy1986}, which in the Landau-de Gennes framework is given by
+\begin{align}
+    W_\mathrm{anch} = \frac{1}{2}\eta_{\partial \Omega} \int_{\partial \Omega} \tr(\tensor{Q} - \tensor{Q}_{\partial \Omega})^2 \, \d s =\frac{1}{2} \eta_{\partial \Omega} \int_{\partial \Omega} |\tensor{Q} - \tensor{Q}_{\partial \Omega}|^2 \, \d s,
+\end{align}
+given the Q-tensor \(\tensor{Q}_{\partial \Omega}\) at the boundary \(\partial \Omega\). \(\eta_{\partial \Omega}\) is a constant that characterizes the strength of the anchoring, recovering strong anchoring with \(\eta_{\partial \Omega} \to \infty\).
+
+\newpage
+\section{Implementation}
+\subsection{Finite Elements}
+Partial Differential Equations (PDEs) are ubiquitous in the physical world. Since in many situations these are not solvable with analytical methods, numerical methods are needed to approximate the solution. One of the most common and successful methods is the Finite Element Method (FEM), which is a numerical technique for finding approximate solutions to PDEs.
+\subsubsection{Introduction into Finite Element Methods}
+The basic idea of FEM is to break down a complex problem into smaller, simpler parts, called finite elements. There are two underlying principles, the \textit{discretization} of the domain into a mesh and second the \textit{variational formulation} of the PDE. This section will give a brief overview. For a more detailed treatment, see \cite{LangtangenFEM2019} or \cite[Part I]{FenicsBook2012}.
+
+\paragraph{Variational Formulation} \label{sec:variational-formulation}
+The basic idea of the variational formulation comes from the calculus of variations, where one wants to find a function \(u\) that minimizes a functional \(J(u)\). The standard recipe to do this is multiplying the PDE with a \textit{test function} \(v\) and integrating over the domain \(\Omega \in \R^d\). This leads to the so called \textit{weak} or \textit{variational formulation} of the PDE. The unknown function \(u\) is called the \textit{trial function}. Both functions \(u\) and \(v\) are assumed to be in some suitable function space \(H\). In an analytical setting, this is often a Sobolev space \(H^k(\Omega)\).
+As an example, we will consider the Poisson equation with homogeneous Dirichlet boundary conditions:
+\begin{align}
+    -\Delta u = f \text{ in } \Omega, \quad u = 0 \text{ on } \partial \Omega,
+\end{align}
+where \(f\) is a given source term. Multiplying the equation with a test function \(v\) and integrating over the domain \(\Omega\) yields
+\begin{align}
+    \int_{\Omega} -\Delta u \, v \, \d x = \int_{\Omega} f v \, \d x.
+\end{align}
+Integrating by parts, this leads to 
+\begin{align}
+    \int_{\Omega} \nabla u \cdot \nabla v \, \d x - \int_{\partial \Omega} \frac{\partial u}{\partial n} v \, \d s = \int_{\Omega} f v \, \d x.
+\end{align}
+Since the test function \(v\) can (and has to) be chosen to be zero on the part of the domain, where the solution is known, the boundary term vanishes, leading to the final variational formulation:
+\begin{align}\label{eq:variational-formulation-poisson}
+    \int_{\Omega} \nabla u \cdot \nabla v \, \d x = \int_{\Omega} f v \, \d x \quad \forall v \in H.
+\end{align}
+A solution \(u\) of the PDE is by construction also a solution of the variational formulation. 
+We transferred the problem of solving a PDE into the problem of finding a function \(u\) in some function space \(H\), such that eq. (\ref{eq:variational-formulation-poisson}) holds for all test functions \(v \in H\). This approach has the advantage, that the solution \(u\) does not have to be twice differentiable anymore. This allows us for example to use piecewise polynomial function spaces.
+
+In a general setting, we can write the variational formulation of a PDE in the form
+\begin{align}
+    a(u, v) = L(v) \quad \forall v \in H,
+\end{align}
+where \(a(u, v)\) is a bilinear form and \(L(v)\) a linear form.
+\paragraph{Discretization}
+The second step in the FEM is the discretization of the domain \(\Omega\) into a mesh, consisting of simple geometric shapes, like triangles or quadrilaterals in 2D and tetrahedra or hexahedra in 3D, called \textit{mesh cells}. On these mesh cells, we can then define our representation of the solution \(u\) and the test function \(v\). Although not limited to this, a common choice is to use piecewise polynomial functions, which are polynomials on each mesh cell and continuous across the mesh cells. An often used function space, which we will also use, is the space of Lagrangian finite elements of order \(k\) \cite[Chapter 4.6]{LangtangenFEM2019}. 
+In general, we then have a representation \(u_h\) of the solution \(u\) in a finite dimensional subspace \(H_h \subset H\) of the form
+\begin{align}
+    u(x) \approx u_h(x) = \sum_{i=1}^{N} U_i \phi_i(x),
+\end{align}
+where \(N\) is the dimension of the subspace \(H_h\), \(\phi_i\) are the basis functions of the subspace and \(U_i\) are the coefficients to be determined. Using the Galerkin method, we also choose the test functions \(v\) to be in the same subspace \(H_h\). Using polynomial basis functions, as the Langrangian elements, the variational formulation then leads to a system of algebraic equations for the coefficients \(U_i\), which can be solved with standard numerical methods.
+
+\subsubsection{The FEniCS Project}
+The implementation of FEM from scratch is a complex and time-consuming task, but there are several software packages that provide tools for solving PDEs via FEM. One of the most popular and widely used is the FEniCS Project \cite{Fenics2015}, \cite{FenicsBook2012}, which is an open-source computing platform for solving PDEs via FEM. It provides a high-level Python and C++ interface for defining and solving variational problems. FEniCS uses the Unified Form Language (UFL) \cite{AlnaesUFL2014} to define variational forms in a numerical setting in a way that closely resembles their mathematical notation. This enables for example the possibility to automatically compute derivatives of variational forms \cite[Chapter 17.5, 17.7]{FenicsBook2012} and implementing the adjoint method for PDE-constrained optimization quickly \cite{MituschPyadjoint2018}.
+In detail, we will use the legacy FEniCS library, which is still widely used and has a large user base. In contrast to the newer FEniCSx library, it's focus is more on the automated differentiation and shape optimization capabilities, which are not yet fully implemented in FEniCSx.
+
+\subsubsection{Automatic Shape Differentiation in Unified Form Language}
+For the computation of shape derivatives, we will use the automatic shape differentiation capabilities of the Unified Form Language (UFL) \cite{HamAutomaticShapeDifferentation2019}. This allows us to compute shape derivatives of functionals defined in UFL automatically, without the need to derive and implement the shape derivatives manually. The basic idea is to use pullbacks to reformulate the shape derivative in the physical space in a general reference space,  as done similarly in eq. (\ref{eq:shape-derivative-pullback}) and then using the automatic differentiation capabilities of UFL to compute the derivative with respect to the displacement function \(\theta\) \cite{HamAutomaticShapeDifferentation2019}. 
+This approach has the advantage, that it is not limited to specific types of PDEs or functionals and can be applied to a wide range of problems. In contrast, the calculation of shape derivatives by hand can be a tedious and error-prone task, especially for complex problems. The automatic shape differentiation in UFL simplifies this process significantly in a generic and robust way.
+
+\subsubsection{Mesh generation}
+For the generation of meshes, there are several tools available, both open-source and commercial. A popular open-source tool is Gmsh \cite{GeuzaineGmsh2009}, which provides an interface for creating and manipulating meshes. Key features for our application are the ability to create 2D and 3D meshes, assigning physical groups to parts of the mesh, which can be used to define boundary conditions on specific parts of the domain and the ability to export meshes in formats compatible with FEniCS. For simple geometries, FEniCS also provides built-in mesh generation capabilities via the \texttt{mshr} module.
+
+\subsubsection{Mesh quality}
+During the shape optimization process, the mesh will be deformed multiple times. This can lead to poor mesh quality, if not handled properly. Poor mesh quality can lead to inaccurate results and even failure of the numerical solver. Examples of that will be shown and investigated in the results section. 
+
+There are several metrics to quantify the quality of a mesh, which also heavily depend on the type of mesh cells used and the dimension of the mesh.
+Some common metrics are the \textit{aspect ratio}, which is the ratio of the longest edge to the shortest edge of a mesh cell, the \textit{skewness}, which measures how far a mesh cell deviates from an ideal shape, and the \textit{minimum angle}, which is the smallest angle in a mesh cell or the \textit{radius ratio}, which is the ratio of the inscribed circle radius to the circumscribed circle radius of a mesh cell \cite{ReviewMeshquality2023}. We will use a FEniCS built-in function as a mesh quality metric, which is simply based on the volume of the mesh cells:
+\begin{align}\label{eq:mesh-quality-measure}
+    \int_{\mathcal{D}} \frac{1}{|K(x)|} \, \d x,
+\end{align}
+where \(K(x)\) is the volume of the mesh cell containing the point \(x\).
+This metric penalizes small mesh cells, which are flat or deprecated, which is especially in our case a problem, which will be seen later.
+\subsection{Armijo Line Search}
+The Armijo line search is a technique used to find a suitable step size in gradient-based optimization methods. 
+In our shape optimization context, we want to iteratively update the shape \(\Omega\) in the direction of the negative shape gradient \(-\theta\) to minimize the objective functional \(J(\Omega)\). Given a current iterate \(\Omega^n\) and a descent direction \(\theta^n\), one needs to find a step size \(\alpha_n\) such that the next iterate \(\Omega^{n+1} =\Omega_{\alpha^n\theta} =(\mathrm{Id} + \alpha^n \theta^n)(\Omega^n)\) leads to a sufficient decrease in the objective functional. Of course, one could just choose a fixed step size, but this can either lead to slow convergence, if the step size is too small or even divergence, if the step size is too large. Thus we need a systematic way to choose the step size, which is done with a backtracking line search. The idea is to start with an initial step size \(\alpha_0^n\) and iteratively reduce it by a factor \(\beta \in (0,1)\) until certain decrease conditions are met. We will use the Armijo condition, which requires that
+\begin{align}
+    J(\Omega^n_{\alpha^n_i\theta^n}) \leq J(\Omega^n) - \sigma \alpha^n_i \norm{\theta^n}^2_{2},
+\end{align}
+where \(\sigma \in (0,1)\) is an acceptance parameter that controls the required decrease and \(\norm{\theta^n}^2_{2}\) is the squared \(L^2\)-norm of the shape gradient \(\theta^n\). The Armijo condition ensures that not every step size that leads to a decrease in the objective functional is accepted, but only those that lead to a sufficient decrease, scaling with the step size and the norm of the descent direction. This prevents accepting too large steps in the beginning of the line search, which could lead to divergence, since the shape gradient is only a local approximation of the behavior of the objective functional. In practice the acceptance parameter \(\sigma\) is often chosen to be quite small, e.g., \(10^{-4}\). 
+One might also consider adding other sufficient decrease conditions to ensure that the step size is not too small, but since we are using a backtracking approach accepting the first (and therefore largest) step size that satisfies the Armijo condition, this is not necessary. \cite[Chapter 3]{NocedalNumericalOptimization2006}.
+
+\subsection{Algorithmic Overview}
+\begin{algorithm}[H] % or [t] if you don't load "float"
+\caption{Shape Optimization routine via gradient descent}
+\label{alg:shape-optimization}
+\textbf{Initialization:} Initial shape $\Omega^0$.\\[0.25em]
+\textbf{for} $n = 0, \dots$ \textbf{until convergence do}
+\begin{enumerate}
+    \item Calculate the state $u_{\Omega^n}$ (resp. $p_{\Omega^n}$) to the state equation in $\Omega^n$.
+    \item Evaluate the objective functional $J(\Omega^n)$.
+    \item Calculate the shape derivative $dJ(\Omega^n)[\cdot]$ at $\Omega^n$.
+    \item Solve the displacement inner product problem \ref{eq:conversion-derivative-gradient-shape} to get the shape gradient $\theta^n$
+    \item Perform an Armijo line search to get the step size $\alpha^n$:
+    \begin{itemize}
+        \item Set initial step size $\alpha_i^n, i = 0$
+        \item \textbf{while not} \(J(\Omega^n_{\alpha^n_i\theta^n}) \leq J(\Omega^n) - \sigma \alpha^n_i \norm{\theta^n}^2_{2}\) \textbf{do}
+        \begin{itemize}
+            \item Set \(\alpha^n_{i+1} = \beta \alpha^n_i\)
+            \item Set \(i = i + 1\)
+        \end{itemize}
+        \item Set \(\alpha^n = \alpha^n_i\)
+    \end{itemize}
+    \item Deform \(\Omega\) by \(\alpha^n \theta^n\), i.e., set \(\Omega^{n+1} = \Omega^n_{\alpha^n\theta^n} = (\mathrm{Id} + \alpha^n \theta^n)(\Omega^n)\)
+\end{enumerate}
+\textbf{end for}\\
+\textbf{return} $\Omega^n$
+\end{algorithm}
+
+Algorithm \ref{alg:shape-optimization} summarizes the overall shape optimization routine via gradient descent. There are a few algorithmic choices to be made, including the choice of the displacement inner product, the parameters for the Armijo line search and the stopping criteria for the optimization process. The choice of the displacement inner product is crucial for the convergence of the optimization process and will be discussed in more detail in the results section.
+For the Armijo line search, throughout this work, we will use \(\beta = 0.5\). Since the initial step size \(\alpha_0^n\) and the acceptance parameter \(\sigma\) influence the convergence behavior of the optimization process, we will specify them for each problem individually in the results section. 
+For the stopping criteria, we will use a tolerance on the relative change of the objective functional, i.e., we will stop the optimization process if
+\begin{align}
+    \frac{|J(\Omega^{n+1}) - J(\Omega^n)|}{|J(\Omega^n)|} < \text{tol},
+\end{align}
+where tol is a user-defined tolerance, which we will set to \(10^{-2}\) throughout this work.
+
+\newpage
+\section{Results}\label{sec:results}
+The previously presented framework will now be applied to a few selected problems. The implementation is done in Python, using the FEniCS library \cite{Fenics2015}, \cite{FenicsBook2012}, which provides tools for solving PDEs via finite element methods. The code used for the simulations can be found on GitHub\footnote{\url{https://github.com/its-davidli/BachelorthesisShapeOptimization}}. The specific parameters used for each simulation will be given in the respective sections if of interest or else can be found in the git repository.
+
+In this section we will treat three different problems in 2 dimensions. The first two problems are academic in nature and serve to showcase the shape optimization framework and first challenges, that can arise during the optimization process. To this point, we keep the underlying PDE-constraint simple, but using the same framework and objective functional as in later, more complex problems. The third problem is the main result of this work and uses the previously presented framework to optimize the shape of a microscaffold, used to align nematic liquid crystals, in order to achieve a desired director field configuration. For each problem, we will verify the results by comparing the final shape with the expected target shape and discuss the challenges that arose during the optimization process and their possible solutions.
+
+
+\subsection{Shape Optimization: Introductory Example}
+\subsubsection{Problem Description}
+The first problem is of academic nature and its purpose is to showcase the shape optimization framework and first challenges, that can arise during the optimization process and their possible solutions. To this end, the underlying PDE-constraint will be replaced by the identity operator. In a computational domain, we will then define a subdomain, which we want to deform into a desired target shape, but without any underlying physical effects. This is a simple example, where the initial and target shape are qualitatively different, with no numerical issues arising from the underlying PDE-constraint, thus making it easier to focus on the shape optimization process itself, being the ideal starting point for more complex problems. To this point, we will use the same type of objective functional as in the LC application, which will be presented later, thus keeping the implementation close to the later needed functionalities.
+
+\paragraph{Optimization Problem}
+
+Given a computational domain \(\mathcal{D} \subset \R^2\), an initial shape \(\Omega_0 \subset \mathcal{D}\) and a target shape \(\Omega^* \subset \mathcal{D}\), we want to find a shape \(\Omega \subset \mathcal{D}\) that minimizes the objective functional
+\begin{align}
+    J(\Omega) = \int_{\mathcal{D}} (u(x) - u^*(x))^2 \, \d x,
+\end{align}
+with \(u^*\) being the characteristic function of the target shape \(\Omega^*\) and \(u\) is subject to
+\begin{align}\label{eq:constraint-simple-example}
+    u(x) = \chi_\Omega(x),
+\end{align}
+with \(\chi\) being the characteristic function of the shape \(\Omega\).
+Although this constraint can be just imposed by a simply setting \(u\) to be the characteristic function of the shape, to stay close to later needed implementation features and functionalities, we will treat the constraint \eqref{eq:constraint-simple-example} as a PDE constraint in the optimization problem, thus resulting in the following variational formulation for testfunctions \(v\):
+\begin{align}
+    \int_{\mathcal{D}} u(x) v(x) \, \d x = \int_{\mathcal{D}} v(x) \chi_\Omega(x) \, \d x.
+\end{align}
+
+Throughout the section, we want to deform a circle with radius \(r\) to an ellipse with semi-major axis \( a \) and semi-minor axis \(b\) sharing the same center in the computational domain  \(\mathcal{D} = [-5, 5]^2\). This was chosen as a simple example, where the initial and target shape are qualitatively different, but still similar enough to be reachable via a smooth deformation. The characteristic functions/state variables of the initial and target shape can be seen in Figure \ref{fig:Identity-H1-initial-target}.
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{circle_characteristic.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{ellipse_characteristic.png}
+    \end{minipage}
+    \caption{Characteristic functions of the initial and target shapes used in the introductory shape optimization example. Left: Initial shape is a circle of radius \(r = 1\). Right: Target shape is an ellipse with semi-major axis \(a = 2\) and semi-minor axis \(b = 1.5\). The characteristic function is 1 inside the shape and 0 outside, indicating and visualizing the region to be deformed during optimization.}
+    \label{fig:Identity-H1-initial-target}
+\end{figure}
+
+\subsubsection{Shape Optimization with Sobolev-Type Displacement Inner Product}
+Doing the optimization process, one important choice to make is the selection of the displacement inner product, needed to transform the shape derivative into a shape gradient (Section \ref{sec:shape-gradients-inner-products}).
+We will start with a basic Sobolev-type displacement inner product, augmented from the \(H^1\) inner product eq. (\ref{eq:Hk-inner-product}):
+\begin{align}
+    a(u, v) = \int_{\mathcal{D}} \nabla u \cdot \nabla v \, \d x + \delta \int_{\mathcal{D}} u v \, \d x
+\end{align}
+where $\delta > 0$ is a regularization parameter, preventing the introduction of rigid motions of the shape during the transition to shape gradients. In the following \(\delta\) is set to 0.2. Solving the resulting system, we will enforce Dirichlet boundary conditions on the outer boundary of the computational domain, setting the displacement to zero there, thus fixing the outer boundary during the optimization process. The results of the optimization process can be seen in Figure \ref{fig:Identity-H1-iterations}. .
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{circle_characteristic.png}
+        \caption*{Iteration 0 (starting mesh)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example1It10.png}
+        \caption*{Iteration 10}
+    \end{minipage}
+    \vspace{0.5em}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example1It50.png}
+        \caption*{Iteration 50}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example1It72.png}
+        \caption*{Iteration 72 (final iteration)}
+    \end{minipage}
+    \caption{Shape optimization progress for the introductory example: characteristic function of the shape at selected iterations. Top left: Initial shape (circle, iteration 0). Top right: After 10 iterations, the shape begins to deform toward the target ellipse. Bottom left: After 50 iterations, the shape is further elongated. Bottom right: Final iteration (72), showing the stagnation of the optimization process before reaching the exact target shape, which is indicated by the yellow region.}
+    \label{fig:Identity-H1-iterations}
+\end{figure}
+Qualitatively the optimization process shows a smooth transition from the initial circle shape to the target ellipse shape. On a closer look, we can observe that further iterations do not lead to significant changes in the shape, although the target shape is not yet fully reached. 
+This can be seen in the plots in Figure \ref{fig:Identity-H1-objective-evolution}, where the objective function values, the squared norm of the shape gradient and the relative changes in the objective function are shown over the iterations.
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Example1objective_and_gradient_norms_log.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Example1rel_changes.png}
+    \end{minipage}
+    \caption{Left: Evolution of the objective function value (blue), squared norm of the shape gradient (red). Right: Relative change in the objective function over optimization iterations for the introductory shape optimization example. The objective function value follows the trend of the squared norm of the shape gradient, indicating that the shape gradient is a good descent direction. The relative change in the objective function decreases over iterations, indicating convergence of the optimization process.}
+    \label{fig:Identity-H1-objective-evolution}
+\end{figure}
+The squared norm of the shape gradient is calculated as
+\begin{align}
+    \|\nabla J(\Omega)\|^2 = \sum_{j}\sum_{i} \left( g_i \right)^2,
+\end{align}
+where $g_i$ are the components of the shape gradient vector and $j$ indexes the different degrees of freedom of the mesh, which is the discrete analogue to \(\norm{\theta^n}^2_{L^2(\Omega)}\).
+The objective function value decreases rapidly in the first few iterations, but then stagnates and does not improve significantly. The squared norm of the shape gradient also decreases rapidly in the beginning, but then stagnates at a value around \(0.01\), indicating that the optimization process is close to a stationary point. 
+Looking more closely at the mesh, we can observe that while the calculated shape gradient expands the subregion \(\Omega\) towards the target shape, it is not able to also push the mesh cells on the exterior of \(\Omega\) far enough and distribute the mesh movement to the mesh cells further away from the inner boundary, which leads to jam of the mesh close to the boundary of \(\Omega\) as shown in Figure \ref{fig:Example1Mesh_jam}. In the final iteration, this leads to a deteriorated mesh at the boundary of \(\Omega\), which from a shape optimization view hinders further improvement of the shape. From a more general numerical point of view, this can also lead to failure of the numerical solver, since the quality of the mesh is crucial for the accuracy and stability of the numerical solution of the PDE-constraint.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Version2Example1MeshJam.png}
+        \caption*{Iteration 35}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Version2Example1MeshJamIt72.png}
+        \caption*{Final iteration (72)}
+    \end{minipage}
+    \caption{Mesh close to the boundary of \(\Omega\) at two different iterations. Left: At iteration 35, mesh cells near the boundary begin to compress as the shape deforms, leading to a local accumulation of small elements. Right: In the final iteration (72), the mesh at the boundary is highly deteriorated, with severely distorted and compressed cells, illustrating the mesh quality issues.}
+    \label{fig:Example1Mesh_jam}
+\end{figure}
+Note that the optimization process was stopped, although the graphs in figure \ref{fig:Identity-H1-objective-evolution} indicate that the optimization process is not fully converged yet, since all further improvements in the objective function were due to squashing of the cells, making the solution of the forward problem unreliable.
+
+This is a common issue in shape optimization, where the lack of proper mesh movement can lead to suboptimal mesh configurations and hinder convergence \cite[Figure 3]{SchulzSiebenbornDragMinimization2016} and improvement of the shape beyond a certain point. In less extreme cases, this can lead to unphysical solutions of the state equation or in more extreme cases, especially with nonlinear problems as the minimization of the LdG-energy, this can lead to an early termination of the optimization process, if the state equation becomes ill-posed. This issue is also to be expected, since mathematically the shape derivative is concentrated on the boundary. Not taking any measures to distribute the movement of the mesh cells further away will lead to this observed phenomenon of cell compression.
+One strategy to counteract this is monitoring the mesh quality during the optimization process and penalizing bad mesh quality by adding a mesh quality functional to the objective functional, as done in \cite{HerzogMeshQuality2024}. There are many different ways to measure the mesh quality and to penalize bad mesh quality \cite{ReviewMeshquality2023}. Generally, mesh quality issues in shape optimization are ubiquitous and an active field of research. In this work, we will use a penalty term based on the volume of the mesh cells, which penalizes cells with very small volumes, avoiding mesh cells that are too distorted or even inverted.
+
+
+\subsubsection{Shape Optimization with Mesh Quality Penalty}
+To keep the discussion consistent, we keep the same setting as in the previous example, cf. Figure \ref{fig:Identity-H1-initial-target}, but now add a penalty term to the objective functional, penalizing bad mesh quality. The new objective functional is given by
+\begin{align}
+    J(\Omega) = J_\text{main}(\Omega) + J_\text{meshquality}(\Omega) = \int_{\mathcal{D}} (u(x) - u^*(x))^2 \, \d x + k_\text{meshquality} \int_{\mathcal{D}} \frac{1}{|K(x)|} \, \d x,
+\end{align}
+where \(K(x)\) is the volume of the mesh cell containing the point \(x\) and \(k_\text{meshquality} > 0\) is a scaling factor/strength for the mesh quality penalty term. The choice of this constant is crucial, since too small values will not have a significant effect on the optimization process, while too large values will dominate the objective functional and lead to suboptimal and unphysical shapes. In the following, we set \(k_\text{meshquality} = 1e-6\), which was chosen, such that both terms of the objective functional are of similar magnitude at the beginning of the optimization process. The results of the optimization process can be seen in Figure \ref{fig:Identity-H1-meshquality-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example2It10.png}
+        \caption*{Iteration 10}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example2It26.png}
+        \caption*{Iteration 26 (final iteration)}
+    \end{minipage}
+    \caption{Shape optimization progress for the introductory example with mesh quality penalty: characteristic function of the shape at iterations 10 and 26 (final). The shape deforms smoothly toward the target ellipse while maintaining better mesh quality}
+    \label{fig:Identity-H1-meshquality-iterations}
+\end{figure}
+
+In figure \ref{fig:Identity-H1-objective-evolution-meshquality}, the objective function values, the squared norm of the shape gradient and the relative changes in the objective function are shown over the iterations.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Example2_objective_and_gradient_norms_log.png}
+        \caption*{Objective and gradient norm (log scale)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Example2_rel_changes.png}
+        \caption*{Relative changes}
+    \end{minipage}
+    \caption{Left: Evolution of the objective function value (blue), squared norm of the shape gradient (red), and the two components of the objective functional: main objective $J_\text{main}$ (blue, dotted line) and mesh quality penalty $J_\text{meshquality}$ (blue, dashed line) over optimization iterations. Right: Relative change in the objective function per iteration. The plot illustrates how the mesh quality penalty term eventually dominates, limiting further improvement in the main objective.}
+    \label{fig:Identity-H1-objective-evolution-meshquality}
+\end{figure}
+One can observe, that we have similar convergence behavior as in the previous example, without the mesh quality penalty term. The objective function value and the squared norm of the shape gradient decrease exponentially over the iterations. Comparing the objective values of both examples, one sees that in the second example the final value of the main objective functional \(J_\text{main}\) is slightly higher, suggesting that the added mesh quality penalty term does not improve but decrease the capability of the optimization process to reach the target shape.
+This is to be expected, since we added an additional constraint to the optimization problem, which limits the acceptable displacements of the mesh. 
+\begin{table}
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+         & \thead{No mesh quality penalty, \\ final iteration (72)} & \thead{No mesh quality penalty, \\ iteration (26)} & \thead{With mesh quality penalty, \\ final iteration (26)} \\
+        \hline
+        $J_\text{main}$& 0.087 & 0.63  & 1.53 \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of objective function values $J_\text{main}$ at selected optimization iterations for cases without and with mesh quality penalty.}
+    \label{tab:objective-values-comparison}
+\end{table}
+
+
+This is also reflected in the evolution of the two components of the objective functional (fig. \ref{fig:Identity-H1-objective-evolution-meshquality}), where the mesh quality component \(J_\text{meshquality}\) increases slightly over the iterations, until it crosses the main component \(J_\text{main}\) dominating the objective functional in the final iterations, thus preventing further movement of the mesh and improvement of the main objective functional.
+Looking at the mesh close to the boundary of \(\Omega\) in Figure \ref{fig:Example2MeshJam}, one can observe that the mesh quality in the final iteration is significantly improved compared to the final iteration  of the previous example.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{Version2Example2Meshjam.png}
+    \caption{Mesh close to the boundary of \(\Omega\) at the final iteration (26), showing that the mesh quality is improved compared to the final iteration without mesh quality penalty in figure \ref{fig:Example1Mesh_jam}.}
+    \label{fig:Example2MeshJam}
+\end{figure}
+
+\subsubsection{Conclusion Example 1}
+The two methods to treat this problem setting show some of the capabilities of the shape optimization framework and confirms that shape derivatives can be implemented and computed automatically in FEniCS.
+A major challenge in shape optimization is to maintain good mesh quality during the optimization process, since bad mesh quality can lead to suboptimal shapes and hinder convergence of the optimization algorithm.
+Adding a mesh quality penalty term to the objective functional helps to maintain good mesh quality during the optimization process, stopping the optimization process from progressing further once the mesh quality is compromised, but at the cost of a reduced capability to reach the target shape. This trade-off between mesh quality and optimization performance is a common issue in shape optimization and requires careful consideration and tuning of parameters.
+The result here is unsatisfying, since the mesh quality penalty term was not able to make the optimization process converge to a better shape, but rather to stop the optimization process.
+Other strategies to maintain good mesh quality, are presented in the next examples, where we will also introduce physically relevant PDE constraints, to have a more interesting setting.
+
+
+
+% Identity PDE, basic example deforming into a desired shape
+% Circle to bigger Circle
+% Circle to ellipse
+
+
+% Show basic H1 Inner Product and compare with Elasticity Inner product
+% Show intersecting mesh, and introduce the first reason of meshquality
+% Showcase different Youngs Modulus
+\subsection{Shape Optimization of Electric Potentials}
+\subsubsection{Problem Description}
+As a first physically relevant example, we will look at a shape optimization problem constrained by an electrostatic problem. The goal is to find a charged shape \(\Omega\) that has the same electric field as a target charged shape \(\Omega^*\) in the domain \(\mathcal{D}\).
+As the state variable, we will use the electric potential \(u\), which is governed by the Poisson equation.
+Similar problems have been studied in the context of electric impedance tomography, e.g., in \cite{AntoineEIT2013} via Shape Optimization and level set methods.
+\paragraph{Optimization Problem}
+Given a computational domain \(\mathcal{D} \subset \R^2\) and an initial charged shape \(\Omega_0 \subset \mathcal{D}\), we want to find a shape \(\Omega \subset \mathcal{D}\) that minimizes the objective functional
+\begin{align}
+    J(\Omega) = \int_{\mathcal{D}} (u(x) - u^*(x))^2 \, \d x,
+\end{align}
+where \(u\) is subject to the Poisson equation
+\begin{align}
+    -\Delta u(x) = f(x) \quad \text{in } \mathcal{D}, \\
+    u(x) = 0 \quad \text{on } \partial \mathcal{D},
+\end{align}
+with the source term
+\begin{align}
+    f(x) = \begin{cases}
+        Q, & x \in \Omega, \\
+        0, & x \notin \Omega,
+    \end{cases}
+\end{align}
+where we set \(Q = 100\) in the following. The target potential \(u^*\) is calculated by solving the Poisson equation with the same source term, but with the target shape \(\Omega^*\) instead of \(\Omega\).
+
+Throughout the following examples, we will use the same computational domain \(\mathcal{D} = [-3, 3]^2\) and the same initial shape \(\Omega_0\), which is a circle with radius \(r = 1\) centered at the origin. The target shape \(\Omega^*\) will be again an ellipse, now with semi-major axis \(a = 3\) and semi-minor axis \(b = 1.2\). The electric potential/state variables of the initial and target shape can be seen in Figure \ref{fig:EField-initial-target}.
+For the optimization process, we use the same code basis as in the previous examples, with the only difference being the PDE constraint.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{EFieldStartingCharge.png}
+        \caption*{Initial source term (circle)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{EFieldTargetCharge.png}
+        \caption*{Target source term (ellipse)}
+    \end{minipage}
+    \vspace{0.5em}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{EFieldStartingPotential.png}
+        \caption*{Initial electric potential}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{EFieldTargetPotential.png}
+        \caption*{Target electric potential}
+    \end{minipage}
+    \caption{Top: Source term $f(x)$ for the initial (circle, left) and target (ellipse, right) charged regions, showing the regions where the charge present. Bottom: Corresponding (electric) potential $u(x)$ for the initial and target shapes, illustrating the effect of the source geometry on the resulting potential field.}
+    \label{fig:EField-initial-target}
+\end{figure}
+\subsubsection{Electric Potential Shape Optimization with Mesh Quality Penalty}
+We will directly start with the \(H^1\) inner product and mesh quality penalty term, following the insights from the previous examples and taking it as a basis for our optimization. The results of the optimization process can be seen in Figure \ref{fig:EField-H1-meshquality-iterations}.  
+
+\begin{figure}
+    \centering
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example3It2.png}
+        \caption*{Iteration 2}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example3It6.png}
+        \caption*{Final iteration (6)}
+    \end{minipage}
+    \caption{Shape optimization progress for the electric potential problem: characteristic function of the charged region at iterations 2 and 6 (final). The shape first inflates significantly before adapting to the target ellipse shape.}
+    \label{fig:EField-H1-meshquality-iterations}
+\end{figure}
+Initially, the algorithm overshoots the target shape and does not capture the elongated shape of the ellipse well. This is likely due to the fact, that physically, the dominating effect is not the spatial distribution of the electric potential but rather the total charge, which is proportional to the area of the shape. Thus, the optimization process first increases the area of the shape significantly, before it starts to adapt the specific geometry of the shape to better match the target potential. (This phenomenon can also be observed in the next examples.)
+But the algorithm terminates before it can adapt to the target shape, since by then the mesh quality penalty term has become dominant in the objective functional, preventing further movement of the mesh. One approach to counteract this is to tune the strength of the mesh quality penalty term, during the optimization process, e.g., starting with a scaling value matching the magnitude of the main objective functional and then decreasing it over the iterations, to allow for more mesh movement in the later stages of the optimization process. While this approach can lead to more mesh movements, there are two conceptual issues with it. First, the tuning of the scaling factor is problem-dependent and requires trial-and-error to find a good value. This is partially depend on already knowing the target shape, to know which mesh movements are needed. Second, this approach still does not intrinsically ensure that the mesh quality is maintained during the optimization process, but only makes the mesh quality penalty term less dominant and important in the later stages of the optimization process.
+
+Another approach is to use a different, more sophisticated displacement inner product, which better distributes the movement of the mesh. A physically intuitive strategy is to treat the domain as a deformable body, such that the shape derivative is interpreted as a body force on the domain. Solving the (linear) elasticity problem on it should then lead to a (mesh) displacement which better preserves the mesh quality.
+
+\subsubsection{Shape Optimization Using Linear Elasticity-Based Displacement Inner Product}
+To keep the discussion consistent, we keep the same setting as in the previous example, cf. Figure \ref{fig:EField-initial-target}, but now employ the displacement inner product derived from linear elasticity
+\begin{align}
+    a(u, v) = \int_{\Omega} \sigma(u) : \varepsilon(v) \, \d x + \delta \int_{\Omega} u \cdot v \, \d x,
+\end{align}
+with \(\sigma, \varepsilon\) being the stress and strain tensors, respectively, cf. eq. (\ref{eq:linear-elasticity})-(\ref{eq:linear-elasticity-inner-product}). We again introduced a regularization term, with scaling factor \(\delta = 0.2\) to prevent the introduction of rigid motions by the shape gradient. First, we will only consider the effects of this new inner product, without adding a mesh quality penalty term to the objective functional. 
+By introducing the elasticity inner product, we introduce two new parameters, the Young's modulus \(E\) and the Poisson ratio \(\nu\), which influence the behavior of the displacement field. The Poisson ratio describes the ratio of transverse contraction strain to longitudinal extension strain in the direction of stretching force. It is a measure of the material's ability to deform in directions perpendicular to the applied force. The Young's modulus, on the other hand, describes the stiffness of a material and is a measure of the resistance of a material to elastic deformation under load.
+The choice of these parameters is quite delicate, since they influence the behavior of the displacement field significantly. In the following we will set the Poisson ratio to \(\nu = 0.3\) and the Young's modulus to \(E = 0.01\).
+
+\begin{remark}
+    In the literature, where the elasticity inner product is used, a wide range of values for the elasticity parameters can be found, e.g., \(E = 0.1, \nu = 0.01\) in \cite{SchulzLinearElasticity2016} or \(E = 1, \nu = 0.4\) in \cite{HerzogMeshQuality2024}. There also exists strategies to vary the elasticity parameters throughout the domain, e.g., setting \(E_\text{max}\) at the moving boundary and decreasing it harmonically to \(E_\text{min}\) at the outer boundary of the computational domain \cite{SchulzSiebenbornDragMinimization2016}.
+    To our knowledge, there exists no general strategy to choose these parameters optimally and they are usually chosen in a heuristic manner. This is a problematic issue, since most of the time, the parameters are chosen in a trial-and-error manner, which is time-consuming and also with the knowledge of the target shape, which would not be available in a real-world scenario.
+\end{remark}
+
+The results of the optimization process can be seen in Figure \ref{fig:EField-Elasticity-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example4It4.png}
+        \caption*{Iteration 4 (charge distribution)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example4It10.png}
+        \caption*{Iteration 10 (charge distribution)}
+    \end{minipage}
+    \vspace{0.5em}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example4It25.png}
+        \caption*{Final iteration (25) (charge distribution)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Example4It25Potential.png}
+        \caption*{Final iteration (potential)}
+    \end{minipage}
+    \caption{Evolution of the charged region (source shape) during shape optimization for the electric potential problem. The top row and bottom left shows the progression of the charged region as it deforms from the initial circle toward the target ellipse over selected iterations. The bottom right shows the electric potential corresponding to the final optimized shape. Intersecting mesh cells near the interface of the charged region are visible.}
+    \label{fig:EField-Elasticity-iterations}
+\end{figure}
+Here, one can observe a significant improvement in the optimization process, compared to the previous example. The algorithm shows a similar behavior, first increasing the area of the shape significantly, before it starts to adapt the specific geometry of the shape to better match the target potential. But now, the algorithm is able to adapt the shape further towards the target shape, before it terminates, showing the capability of the elasticity inner product. 
+This is also reflected in the evolution of the objective function value, shown in Figure \ref{fig:EField-Elasticity-objective-evolution}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Example4_objective_and_gradient_norms_log.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Example4_rel_changes.png}
+    \end{minipage}
+    \caption{Left: Evolution of the objective function value (blue) and squared norm of the shape gradient (red) over iterations for the electric potential problem with elasticity inner product. Right: Relative change in the objective per iteration. The optimization first increases the area to match the total charge, then adapts the shape to better fit the target potential, which explains the change in the rate of decrease of the objective function at iteration 7.}
+    \label{fig:EField-Elasticity-objective-evolution}
+\end{figure}
+Although improving the optimization process significantly, there are new mesh quality issues arising, as shown in Figure \ref{fig:Example4MeshIssues}, where mesh cells are highly distorted, with a spiky boundary of \(\Omega\) and even inverted mesh cells. 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{Example4Meshquality.png}
+    \caption{Mesh close to the boundary of \(\Omega\) at the final iteration (25), showing severe mesh quality issues. Several mesh cells are highly distorted, with some cells becoming extremely thin, elongated, or even inverted (self-intersecting).}
+    \label{fig:Example4MeshIssues}
+\end{figure}
+
+Regarding the intersecting mesh cells, this phenomenon has been discussed in the literature, revolving around the question how to guarantee, that after a mesh movement, the mesh is still valid, i.e., no inverted or flat mesh cells exist. On a theoretical level, as already mentioned earlier, modern approaches use a Riemannian view on the space of shapes, i.e., treat the space of all admissible meshes as a Riemannian manifold, with the displacement inner product being the (complete) Riemannian metric. This Riemannian metric would then induce a notion of geodesics on the set of admissible meshes. Using the transport along these geodesics to move the mesh would then guarantee, that the mesh stays valid during the optimization process \cite{HerzogMeshQuality2024}, \cite{HerzogManifoldMeshes2023}. Our approach is more pragmatic, using the Euclidean geodesics, i.e., straight lines, to move the mesh, as an approximation to the Riemannian geodesics. Using appropriate small step sizes, this approach works well in practice, but does not guarantee that the mesh stays valid during the optimization process \cite{SchulzLaplaceBeltramiEx2015}, \cite{SchulzSiebenbornDragMinimization2016}. 
+Since for the treatment of liquid crystals, this issue is not as crucial, we will not further investigate this issue here and only point to the existing literature for further reading.
+
+The distorted mesh cells, however, are a more severe issue, since they can lead to inaccurate solutions of the PDE constraint and thus wrong shape gradients. This is also a common issue in shape optimization, where in the calculation of the shape derivative the algorithm tries to arrange the mesh cells in a way to exploit the discretization and quadrature errors. This happens especially, in the interior of the shape, where there are no physical relevant quantities sensitive to mesh movements or at the boundary of the shape, when the shape is already in a local objective minimum, thus in a situation, where physical relevant quantities also are not sensitive to mesh movements. This is observed in Figure \ref{fig:EField-Elasticity-iterations}, between iteration 10 and the final iteration, where the shape does not change significantly anymore, but the mesh quality on the boundary of \(\Omega\) deteriorates significantly.      
+There are a few strategies to counteract this issue, e.g., remeshing, filtering out those spurious mesh movements in the interior or adding additional smoothing steps during the optimization process. Those strategies will be investigated in the case of liquid crystals in the next section. Since this example is only meant to showcase the capabilities of the elasticity inner product, we will not further investigate this issue here, but refer to the next section.
+
+\begin{remark}
+    For this particular example, where one has an inside domain, embedded in to a bigger domain, with different material properties, there have been other approaches to solve this problem, which are in general better suited and avoid the above mentioned issues, namely the level set method  \cite{OsherLevelSet2002},\cite{HintermuellerLevelSet2005} and phase field methods \cite{LauxPhaseField2023}.
+    Again, since this example is merely of academic nature, we will not further investigate this here, but refer to the cited literature.
+\end{remark}
+
+\subsection{Shape Optimization of Liquid Crystals}
+Now, after investigating some basic examples and the capabilities of the shape optimization framework, we will finally turn to the main application of this work, the shape optimization of liquid crystals. 
+
+\subsubsection{Problem Description}
+We will use the Landau-de Gennes (LdG) model to describe the liquid crystal, therefore our state variable will be the Q-tensor field \(Q\). Given a starting shape \(\Omega_0\), we want to find a shape \(\Omega\) that minimizes the objective functional 
+\begin{align}
+    J(\Omega) = \int_{\Omega} |Q(x) - Q^*(x)|^2 \, \d x,
+\end{align}
+where \(Q^*\) is a target Q-tensor field. The Q-tensor field \(Q\) is a minimizer of the Landau-de Gennes free energy functional
+\begin{align}
+E_\textrm{LdG}(Q) = \int_{\Omega} \frac{l}{2} |\nabla Q|^2 \, \d x + \int_{\Omega} \left[ - \frac{a_B}{2} \operatorname{tr}(Q^2) - \frac{1}{3} \operatorname{tr}(Q^3) + \frac{1}{4} (\operatorname{tr}(Q^2))^2 \right] \, \d x + \frac{1}{2} \eta_{\partial \Omega} \int_{\partial \Omega} |Q - Q_{\partial \Omega}|^2 \, \mathrm{d}s,
+\end{align}
+where the first term is the elastic free energy, the second term is the bulk free energy and the last term is the weak anchoring energy on the boundary of the shape \(\partial \Omega\), with \(Q_{\partial \Omega}\) being the prescribed Q-tensor at the boundary
+\begin{align}
+    Q_{\partial \Omega} = \frac{S_0}{2} \left( d\, \vec{n} \otimes \vec{n} - \tensor{E} \right),
+\end{align}
+where $d$ is the spatial dimension, $\vec{n}$ is the unit outward normal to the boundary, and \(\tensor{E}\) is the identity tensor. This form of the Landau-de Gennes free energy functional is non-dimensionalized, by dividing equation (\ref{eq:landau-de-gennes-one-constant}) and equation (\ref{eq:bulk-free-energy}) by \(B\cdot V \), where \(V\) is the volume of the simulations space and assuming \(B = C\).
+The resulting parameters \(l = \frac{L}{BV}, a_B= \frac{A}{BV}, \eta_{\partial \Omega}\) where set to \(l = 2 \cdot 10^{-6} \mathrm{\mu m^2}, a_B = 0.1\) in the following examples, corresponding to \(L \approx 6 \cdot 10^{-12}\text{J/m}, A \approx 10^5 \mathrm{J/m^3}\) \cite{WangJanusDroplets2019}. \(S_0\) was chosen to be \(S_0 = \sqrt{2a_b}\), which is the equilibrium scalar order parameter for the chosen value of \(a_B\), calculated as in section \ref{sec:LdG}. Additionally to ensure anchoring, we set \(\eta_{\partial \Omega} = 1000\).
+
+
+The target Q-tensor field \(Q^*\) is prescribed analytically. Since we want to verify the shape optimization algorithm, we will choose \(Q^*\) to be a minimizer of the LdG free energy functional of a known geometry.  In our case, this will be the circle, which is chosen because of its simple geometric properties. The \(Q\)-tensor is given by
+\begin{align}
+    Q^*(x) = \frac{S(r)}{2} \left( 2 \vec{e}_r \otimes \vec{e}_r - \mathrm{Id} \right) = S(r)\begin{pmatrix}
+        \cos^2(\phi) - \frac{1}{2} &  \cos(\phi) \sin(\phi) \\
+        \cos(\phi) \sin(\phi) & \sin^2(\phi) - \frac{1}{2}
+\end{pmatrix}.
+\end{align}
+Here, \(S(r)\) is the scalar order parameter, \(\vec{e}_r\) is the radial unit vector, and \(\phi\) is the azimuthal angle in polar coordinates. We will approximate \(S(r)\) to be the constant \(S_0\). To see that this expression indeed describes a minimizer of the LdG free energy functional for a circle, first note, that for constant \(S\) the bulk free energy is constant, since it only depends on \(S\) (cf. eq. (\ref{eq:bulk-free-energy-S})) and thus does not influence the minimization. Then in the one constant approximation, the elastic free energy of the Landau-de Gennes model reduces to the Oseen-Frank elastic free energy \cite{RavnikLdGColloids2009}. One then solves 
+\begin{align}
+    E_\textrm{OF, one}(\vec{n}) =\frac{1}{2}\int_{\Omega} |\nabla \vec{n}|^2\, \d x.
+\end{align}
+Parametrizing the director field \(\vec{n}\) in polar coordinates as \(\vec{n} = (\cos(\phi(x,y)), \sin(\phi(x,y)))\), to ensure \(|\vec{n}| = 1\), leads to
+ \begin{align}
+    \frac{1}{2}\int_{\Omega} |\nabla \vec{n}|^2\, \d x = \frac{1}{2}\int_{\Omega} \left|\begin{pmatrix} -\sin(\phi) \frac{\d \phi}{\d x} \\ \cos(\phi) \frac{\d \phi}{\d y} \end{pmatrix}\right|^2 \, \d x = \frac{1}{2}\int_{\Omega} |\nabla \phi|^2 \, \d x.
+\end{align}
+Minimizing this functional leads to the Laplace equation \(\Delta \phi = 0\) in \(\Omega\), with the boundary condition \(\phi = \phi_{\partial \Omega}\) on \(\partial \Omega\), where \(\phi_{\partial \Omega}\) is the azimuthal angle at the boundary, because of the vertical anchoring.
+The solution of this problem is \(\phi(x,y) = \arctan2(y/x)\), which returns the azimuthal angle in 2D,  which inserted into the parametrization of the director field leads to \(\vec{n} = \vec{e}_r\), which inserted into the expression for the Q-tensor leads to the above expression for \(Q^*\).
+
+\subsubsection{Numerical Solution of the LdG Model}
+The first complication arises in finding the minimizer of the LdG free energy functional, since it is a nonlinear functional, comparing to the previous examples, where we had linear PDE constraints. To find the minimizer, we will use the build-in Newton solver of FEniCS \cite[Chapter 1.2.4]{FenicsBook2012}. As an initial guess we use a minimizer of a Oseen-Frank-type free energy functional, solving the variational problem 
+\begin{align}
+    \int_{\Omega} \nabla n_\text{initial} \cdot \nabla v \, \d x = 0 \quad \forall v \in H,\\
+    n_\text{initial} = n_{\partial \Omega} \quad \text{on } \partial \Omega,
+\end{align}
+where \(H\) is the appropriate test function space and using strong anchoring conditions on the boundary, i.e., \(n_{\partial \Omega}\) being the outer normal at the boundary. Note that this is a linear problem, which can be solved easily. Since we did not prescribe the normalization constraint \(|n| = 1\), this might not lead to a physical correct solution, but it is sufficient as an initial guess for the Newton solver of the LdG model. The initial guess for the Q-tensor field is then calculated from the director field \(n_\text{initial}\) via 
+\begin{align}
+    Q_\text{initial}(x) = S_0 \left( \frac{n_\text{initial} \otimes n_\text{initial}}{n_\text{initial} \cdot n_\text{initial}} - \frac{1}{2}\mathrm{Id} \right).
+\end{align}
+With this initial guess, we can now proceed to solve the LdG model using the Newton solver. For certain shapes, the Newton solver did not converge, which we counteracted by reducing the step size in the Newton solver, resulting in a under-relaxed Newton method. This is a common strategy to improve the convergence of the Newton method. This comes at the cost of loosing the quadratic convergence of the Newton method, which is why we solved the LdG model only up to a certain relative tolerance using under-relaxation and then switched to the regular Newton method to reach quadratic convergence.
+
+Another important consideration is how to guarantee that the \(Q\)-tensor stays symmetric and traceless. One can for example achieve that by adding Lagrange multipliers to the variational formulation, enforcing the symmetry and tracelessness constraints. But this comes at the cost of introducing additional unknowns to the problem, which could introduce numerical instabilities, which we want to avoid. Instead, we will use a different approach, by parametrizing the \(Q\)-tensor in a way that it is symmetric and traceless by construction. In two dimensions, the \(Q\)-tensor can be parametrized by two scalar fields \(q_1, q_2\) as
+\begin{align}
+    Q(x) = \begin{pmatrix}
+        q_1(x) & q_2(x) \\
+        q_2(x) & -q_1(x)
+    \end{pmatrix}.
+\end{align}
+We will use this parametrization in the following, thus only solving for the two scalar fields \(q_1, q_2\) instead of the full \(Q\)-tensor. 
+
+\subsubsection{Shape Optimization of Liquid Crystals - Ellipse}
+As a first test case, we will start with an ellipse as the initial shape, with semi-major axis \(a = 2\) and semi-minor axis \(b = 1\). Our goal is to find the shape of the domain, whose Q-tensor field \(Q\) is as close as possible to the target Q-tensor field \(Q^*\), which we expect to be a circle. The initial and target Q-tensor fields are shown in Figure \ref{fig:LC-initial-target}. 
+\begin{figure}
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{LCEllipseInitialQ1.png}
+        \caption*{Initial $q_1$ component}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{LCEllipseTargetQ1.png}
+        \caption*{Target $q_1$ component}
+    \end{minipage}
+    \vspace{0.5em}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{LCEllipseInitialQ2.png}
+        \caption*{Initial $q_2$ component}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{LCEllipseTargetQ2.png}
+        \caption*{Target $q_2$ component}
+    \end{minipage}
+    \caption{Top: Initial (ellipse, left) and target (circle, right) \(q_1\) component of the Q-tensor field. Bottom: Initial and target \(q_2\) component of the Q-tensor field. The target Q-tensor field corresponds to a radial configuration, with the director field aligning radially from the center of the circle. In the numerical solution, defects appear at the center of the circle, due to the discretization errors of the numerical solver.}
+    \label{fig:LC-initial-target}
+\end{figure}
+We will again use the elasticity inner product for the mesh displacement, since it showed the best performance in the previous examples. Throughout the following examples, we will use elasticity parameters \(E = 1\) and \(\nu = 0.4\). Without any additional mesh quality penalty term, the results of the optimization process can be seen in Figure \ref{fig:LC-Ellipse-iterations}.
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseIt03.png}
+        \caption*{Iteration 3}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseIt08.png}
+        \caption*{Iteration 8 (final)}
+    \end{minipage}
+    \caption{Shape optimization iterations for the liquid crystal problem: mesh at iterations 3 and 8 (final). The initial ellipse deforms toward a more circular shape as the optimization progresses. The mesh quality deteriorates near the center and at the boundary.}
+    \label{fig:LC-Ellipse-iterations}
+\end{figure}
+We can see, that the algorithm is able to adapt the shape towards the target shape, but again, mesh quality issues arise. Here, there are two separate issues, first in the center of the shape, where mesh cells are highly distorted, and second at the boundary of the shape, which has become highly irregular. Without any further analysis of the origins of these issues yet, we will add a mesh quality penalty term to the objective functional, to see if this can counteract these issues. The results of the optimization process with mesh quality penalty term can be seen in Figure \ref{fig:LC-Ellipse-MeshQuality-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseMeshQualIt01.png}
+        \caption*{Iteration 1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseMeshQualIt02.png}
+        \caption*{Iteration 2 (final)}
+    \end{minipage}
+    \caption{Shape optimization iterations for the liquid crystal problem with mesh quality penalty term: mesh at iterations 1 and 2 (final). The initial ellipse deforms slightly towards a more circular shape, but the optimization process stops early due to the dominance of the mesh quality penalty term. The mesh quality near the origin is improved compared to the case without penalty, but some distortion remains at the boundary.}
+    \label{fig:LC-Ellipse-MeshQuality-iterations}
+\end{figure}
+Here, one can observe that the mesh quality penalty term helps to maintain a better mesh quality during the optimization process, preventing the formation of spikes at the boundary of the shape. But it does not prevent the formation of distorted mesh cells in the interior of the shape and spikes still appear on the boundary. Additionally, the optimization process stops after only two iterations, since the mesh quality penalty term becomes too dominant in the objective functional, preventing further movement of the mesh.
+A strategy could be to tune the scaling constant of the mesh quality penalty term, adjusting it during the optimization process, to find a good trade-off between mesh quality and optimization performance. But this would require a lot of manual tuning and is not a satisfactory solution, since this also requires knowledge of the target shape, to judge whether a certain mesh movement is wanted or not.
+This is a similar behavior as observed in the previous examples. In a sense the mesh penalty term only combats the symptoms of bad mesh quality, but not the root cause.
+
+From a theoretical/analytical point of view, the deterioration of mesh quality in the interior of the shape is surprising, since the shape derivative should be only concentrated on the boundary of the shape, by the Hadamard structure theorem \ref{thm:structure-theorem}. The mesh movement in the interior is then only induced by the displacement inner product, but this is a smooth, well behaved operation, which should not introduce spurious mesh movements in the interior, leading to such a deterioration of mesh quality. Indeed analyzing the shape derivative (fig.\ref{fig:LC-shape-gradient-unmodified}) one can see that it is mainly concentrated on the boundary of the shape, but there are small contributions in the interior of the shape, which are due to numerical inaccuracies in the solution of the LdG model and the attempt of the shape derivative to exploit different triangulation and quadrature errors \cite{EtlingSpuriousMeshMovements2020}.
+
+To remove these spurious mesh movements, we will filter out unphysical shape derivative information in the interior of the shape, by only considering the normal component of the shape derivative at the boundary of the shape (see fig. \ref{fig:LC-shape-gradient-normal-proj}), as done in \cite{SchulzLinearElasticity2016}.  
+\paragraph{Shape Derivative Projection onto Normal}
+We perform the same optimization process as before, without any mesh quality penalty term, but now project the shape derivative onto the normal at the boundary of the shape, before calculating the shape gradient.
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{LCEllipseShapeDerivative.png}
+        \caption{Unmodified Shape derivative }
+        \label{fig:LC-shape-gradient-unmodified}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{LCEllipseShapeDerivativeProjNormal.png}
+        \caption{Shape derivative projected onto normal}
+        \label{fig:LC-shape-gradient-normal-proj}
+    \end{subfigure}
+    \caption{Visualization of the shape derivative for the liquid crystal shape optimization problem. (a) The computed shape derivative \(j(x)\), with \(dJ(\Omega)[\theta] = \int_{\Omega} j(x) \cdot \theta(x) \, \d x\), showing that the derivative is mainly concentrated on the boundary, but with small contributions in the interior. (b) The shape derivative after projection onto the normal at the boundary, filtering out spurious interior contributions. Arrows indicate direction and color indicates magnitude. Note that \(-j(x)\) would be a descent direction.}
+    \label{fig:LC-shape-gradient}
+\end{figure}
+
+The results of the optimization process can be seen in Figure \ref{fig:LC-Ellipse-Projection-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseProjIt01.png}
+        \caption*{Iteration 1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseProjIt04.png}
+        \caption*{Iteration 4 (final)}
+    \end{minipage}
+    \caption{Shape optimization iterations for the liquid crystal problem with shape derivative projection onto the normal: mesh at iterations 1 and 4 (final). The initial ellipse deforms smoothly toward a more circular shape, and the mesh quality in the interior is preserved due to the projection. Some irregularities remain at the boundary.}
+    \label{fig:LC-Ellipse-Projection-iterations}
+\end{figure}
+One can observe that the inner mesh movements are not problematic anymore, since the mesh quality in the interior of the shape is maintained well during the optimization process. The spikes at the boundary of the shape are also reduced significantly, although no additional mesh quality penalty term is used. The optimization process is able to adapt the shape further towards the target shape, before it terminates, showing the capability of this approach. 
+
+There are still some mesh quality issues at the boundary of the shape, of which the origin is not fully clear yet. A possible reason could be, that at the left and right ends of the ellipse the mesh cells are not aligned well with the normal, since the curvature is high there compared to the top and bottom of the ellipse. To counteract this, one could use anisotropic mesh adaptation, to align the mesh cells better with the normal at the boundary of the shape or impose a mesh quality penalty term, punishing spiky structures at the boundary of the shape by penalizing high curvature of the boundary or high boundary lengths. Since anisotropic mesh adaption itself might introduce other mesh quality issues and is quite complicated to implement this is not the preferred solution here. Adding mesh quality penalties is not favorable in general as seen before and in this specific case, this is also quite restrictive since penalties on the boundary length and curvature automatically favoring the circle unregarding the underlying physics.
+Instead we will choose another approach, which will be to add an additional smoothing step of the shape derivative/shape gradient on the boundary of the shape. There are two main approaches doing this. One can either in a first step smooth the shape derivative on the boundary of the shape and then calculate the shape gradient from this smoothed shape derivative or one can add a smoothing term to the displacement inner product, leading to a smoothed shape gradient \cite{SchmidtAcousticHorn2016}. In the following, we will use the second approach, since from a practical point of view, this is easier to implement and does not require a separate smoothing step.
+
+We will derive the additional displacement inner product term from an harmonic smoothing PDE using the Laplace-Beltrami operator. This leads to the new inner product
+\begin{align}
+    a(u, v) = \int_{\Omega} \sigma(u) : \varepsilon(v) \, \d x + \delta \int_{\Omega} u \cdot v \, \d x + \delta_\Gamma \int_{\partial \Omega} \nabla_{\Gamma} u \cdot \nabla_{\Gamma} v \, \d s,
+\end{align}
+with \(\delta_\Gamma\) being a regularization parameter for the boundary term, quantifying the amount of smoothing and \(\nabla_{\Gamma}\) being the tangential gradient
+\begin{align}
+    \nabla_{\Gamma} = \nabla - (\nabla \cdot n) n,
+\end{align}
+where \(n\) is the unit outward normal to the boundary. The additional boundary term is the variational formulation of the Laplace-Beltrami equation
+\begin{align}
+    \nabla_{\Gamma}^2 u = 0 \quad \text{on } \partial \Omega,
+\end{align}
+penalizing high changes of the displacement field on the boundary of the shape, thus leading to a smoothing effect.
+We will set \(\delta_\Gamma = 0.1\) chosen in a trial-and-error manner, to ensure that the smoothing is sufficient, but not too strong to prevent wanted mesh movements. The results of the optimization process using this new displacement inner product can be seen in Figure \ref{fig:LC-Ellipse-Smoothing-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseBeltramiIt01.png}
+        \caption*{Iteration 1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseBeltramiIt06.png}
+        \caption*{Iteration 6 (final)}
+    \end{minipage}
+    \caption{Shape optimization iterations for the liquid crystal problem with shape derivative projection onto the normal and additional smoothing: mesh at iterations 1 and 6 (final). The initial ellipse deforms smoothly toward a more circular shape, and the mesh quality is well preserved both in the interior and at the boundary due to the projection and smoothing.}
+    \label{fig:LC-Ellipse-Smoothing-iterations}
+\end{figure}
+Here, one can observe that the additional smoothing step helps to maintain good mesh quality during the optimization process, preventing the formation of spiky structures at the boundary of the shape. The optimization process is able to adapt the shape further towards the target shape, before it terminates, showing the capability of this approach, balancing mesh quality and physical accuracy well.
+\begin{remark}
+    At this point, with all the additional mesh quality improvements, one might ask, whether we need the step going from the shape derivative to the shape gradient via the displacement inner product at all, since we now have a well behaved shape derivative, which is mainly concentrated on the boundary of the shape and does not introduce spurious mesh movements in the interior of the shape. One could therefore use the shape derivative directly as a descent direction, without calculating the shape gradient via the displacement inner product. Figure \ref{fig:LC-Ellipse-Direct-Descent-iterations} shows why this is not a good idea. Since the shape derivative is only concentrated on the boundary of the shape, using it directly as a descent direction leads to folding of the mesh at the boundary of the shape. One can still see the shape trying to adapt to a circle, but since the mesh movements are not transported into the interior of the shape, the mesh cells at the boundary fold and the optimization process stops early.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{LCEllipseDirectDescent.png}
+    \caption{Shape optimization iteration for the liquid crystal problem using the shape derivative directly as a descent direction without calculating the shape gradient via the displacement inner product. The mesh folds at the boundary of the shape, since the mesh movements are not transported into the interior of the shape.}
+    \label{fig:LC-Ellipse-Direct-Descent-iterations}
+\end{figure}
+\end{remark}
+Concluding, we show the director field of the initial and final shape in Figure \ref{fig:LC-Ellipse-DirectorField}, showing the expected behavior, with the director field being aligned radially at the boundary of the shape, due to the strong anchoring conditions. The director field was recovered from the Q-tensor field via calculating the eigenvalues and eigenvectors of the Q-tensor and using the eigenvector corresponding to the largest eigenvalue as the director field as explained in section \ref{sec:LC-Order}. 
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCEllipseInitialResultDIrector.png}
+        \caption*{Initial Director Field}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{Version2LCEllipseFinalResultDIrector.png}
+        \caption*{Final Director Field}
+    \end{minipage}
+    \caption{Final director field after shape optimization (right) compared to the initial director field (left). The director field is aligned radially at the boundary of the shape, as expected due to the anchoring conditions.}
+    \label{fig:LC-Ellipse-DirectorField}
+\end{figure}
+
+\subsubsection{Quantitative Comparison of Mesh Quality Approaches}
+To compare the different approaches regarding mesh quality, we will use the mesh deterioration measure introduced in eq. (\ref{eq:mesh-quality-measure}), which is a measure for the distortion of mesh cells. Since high values of this measure indicate flat and deprecated mesh cells, we want to minimize this value.
+The results of the different approaches can be seen in Figure \ref{fig:LC-Ellipse-MeshQuality-Comparison}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{mesh_quality_comparison.png}
+     \caption{Comparison of different mesh quality approaches during the shape optimization of the liquid crystal problem. The plot shows the evolution of the mesh deterioration measure (lower values indicate better mesh quality) for different strategies: no mesh quality treatment, mesh quality penalty term, projection of the shape derivative onto the normal, and projection plus Laplace-Beltrami smoothing. The results confirm the qualitative observations made earlier about the effectiveness of these strategies in maintaining mesh quality.}
+    \label{fig:LC-Ellipse-MeshQuality-Comparison}
+\end{figure}
+Here, the observations made qualitatively before are confirmed quantitatively. The approach without any mesh quality treatment shows a significant mesh deterioration during the optimization process. Adding a mesh quality penalty term helps to maintain a better mesh quality, but the mesh quality still deteriorates significantly and the optimization process stops early, since the mesh quality penalty term becomes dominant in the objective functional. Projecting the shape derivative onto the normal at the boundary of the shape helps to maintain good mesh quality during the optimization process, preventing spurious mesh movements in the interior of the shape. The additional smoothing step using the Laplace-Beltrami operator further improves the mesh quality, leading to a very good mesh quality during the whole optimization process.
+
+In figure \ref{fig:LC-Ellipse-objective-evolution}, we show the evolution of the objective value during the optimization process for the different approaches. There one can observe that all approaches are able to reduce the objective value significantly.  Comparing the approaches it seems that the approaches with more mesh deterioration prevention, i.e., the projection onto the normal and the additional smoothing step, achieve worse objective values, than the approach without any mesh quality treatment. This seems counterintuitive at first, but is likely due to the fact, that the approaches without mesh quality preventions allow irregular mesh movements, which exploit discretization and quadrature errors, thus leading to a better objective value, but not a physically correct solution. This is also understandable from the viewpoint of the optimization process, where the approaches with higher mesh quality allow for less freedom in the mesh movements, thus leading to a (numerically) less optimal solution. But since the goal is to find a physically correct solution, the approaches with higher mesh quality are to be preferred.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{main_objective_comparison.png}
+    \caption{Evolution of objective value over optimization iterations for the different mesh quality approaches. All approaches are able to reduce the objective value significantly, with the approach without mesh quality treatment achieving the lowest objective value, likely due to exploiting discretization errors. The approaches with mesh quality treatments achieve slightly higher objective values, but maintain better mesh quality, leading to more physically accurate solutions.}
+    \label{fig:LC-Ellipse-objective-evolution}
+\end{figure}
+
+To have a better benchmark for the optimization process, one should therefore not only look at the objective value, which is the \(L^2\) difference of the Q-tensor fields, but also at more physical relevant quantities, e.g., the difference in free energy of the LdG model or the difference in the orientation of the director field. While in theory, those quantities could be insightful, in practice, they are not reliable, since with the deteriorated meshes, the calculation of those quantities is not accurate anymore. Especially the free energy is very sensitive to instabilities in the solution of the LdG model, since it involves derivatives of the Q-tensor field. In our case, since we know the target shape, we can also try to measure the difference of the shape to the target shape using geometric properties of the target shape. As a quantitative measure, in our scenario with the circle as the target shape, we can use the variance of the distance of the boundary points to the center of the shape. This measure is zero for a perfect circle and increases the more the shape deviates from a circle. The evolution of this measure during the optimization process can be seen in Figure \ref{fig:LC-Ellipse-ShapeDifference-evolution}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{variance_radius_comparison.png}
+    \caption{Evolution of the variance of the boundary radius (a measure of deviation from a perfect circle) over optimization iterations for the different mesh quality approaches. Lower values indicate shapes closer to a perfect circle. This provides a geometric benchmark for the effectiveness of each mesh quality strategy in guiding the shape toward the desired target.}
+    \label{fig:LC-Ellipse-ShapeDifference-evolution}
+\end{figure}
+Again, we can see, that all approaches are able to reduce this value. The method with no smoothing or projection step but an added mesh quality penalty term performs worst, since the optimization process stops early due to the mesh quality penalty term becoming dominant in the objective functional, as discussed before. The other three approaches perform similarly well, showing, that the additional smoothing and projection steps are effective in maintaining good mesh quality during the optimization process, while still allowing for a good adaptation of the shape towards the target shape.
+
+\subsubsection{Shape Optimization of Liquid Crystals - Rounded Rectangle}
+After investigating the shape optimization of liquid crystals using an ellipse as the initial shape, we will now consider a more complex initial shape, namely a rounded rectangle, cf. Figure \ref{fig:LC-RoundedRectangle-initial}, with the same target shape, i.e., the circle.
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{LCRectangleInitialQ1.png}
+        \caption*{Initial $q_1$ component}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{LCRectangleInitialQ2.png}
+        \caption*{Initial $q_2$ component}
+    \end{minipage}
+    \caption{Initial (numerically solved) $q_1$ and $q_2$ components of the Q-tensor field. The initial shape is a rounded rectangle, which will be optimized towards a circular shape.}
+    \label{fig:LC-RoundedRectangle-initial}
+\end{figure}
+We will use the same approach as before, i.e., projecting the shape derivative onto the normal at the boundary of the shape and adding an additional smoothing step using the Laplace-Beltrami operator. The results of the optimization process can be seen in Figure \ref{fig:LC-RoundedRectangle-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleIt01.png}
+        \caption*{Iteration 1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleIt05.png}
+        \caption*{Iteration 05 (final)}
+    \end{minipage}
+    \caption{Shape optimization iterations for the liquid crystal problem with rounded rectangle as initial shape: mesh at iterations 1 and 5 (final). The initial rounded rectangle deforms smoothly toward a more circular shape, and the mesh quality is well preserved both in the interior and at the boundary due to the projection and smoothing.}
+    \label{fig:LC-RoundedRectangle-iterations}
+\end{figure}
+Here one can observe that the algorithm is able to adapt the shape towards the target shape, while maintaining good mesh quality during the optimization process. The shape optimization process terminates after 5 iterations, although the shape is not yet perfectly circular. This is likely due to the fact, that for our \(L^2\)-type objective functional, the solution  at iteration 5 is already close to the prescribed target, thus the optimization process terminates. This can be seen in the evolution of the shape gradient norm and the objective value, shown in Figure \ref{fig:LC-RoundedRectangle-objective-evolution}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{LCRecObjective_and_gradient_norms_log.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{LCRecRel_changes.png}
+    \end{minipage}
+    \caption{Left: Evolution of the objective function value (blue) and squared norm of the shape gradient (red) over optimization iterations for the liquid crystal shape optimization with a rounded rectangle as initial shape. Right: Relative change in the objective function per iteration. The plots show rapid convergence.}
+    \label{fig:LC-RoundedRectangle-objective-evolution}
+\end{figure}
+
+\paragraph{Planar Anchoring}
+To showcase the flexibility of the shape optimization framework and our implementation, we will instead of vertical anchoring conditions at the boundary of the shape, use planar anchoring conditions, i.e., the director field is aligned tangentially to the boundary of the shape. This only needs the modification of a few lines of code, since the rest of the implementation is independent of the anchoring conditions. 
+The prescribed Q-tensor at the boundary is then given by
+\begin{align}
+    Q_{\partial \Omega} = \frac{S_0}{2} \left( d\, \vec{t} \otimes \vec{t} - \mathrm{Id} \right),
+\end{align}
+where  \(\vec{t}\) is the tangent at the boundary. The new target \(Q\)-tensor, which is the solution for the circle shape, is then given by
+\begin{align}
+    Q^*(x) = \frac{S(r)}{2} \left( 2 \vec{e}_\phi \otimes \vec{e}_\phi - \mathrm{Id} \right) = S(r)\begin{pmatrix}
+        \sin^2(\phi) - \frac{1}{2} & -\cos(\phi) \sin(\phi) \\
+        -\cos(\phi) \sin(\phi) & \cos^2(\phi) - \frac{1}{2},
+\end{pmatrix}.
+\end{align}
+where \(\vec{e}_\phi\) is the azimuthal unit vector in polar coordinates and \(S(r)\) again assumed to be constant. This can be seen as in the case of vertical anchoring. The results of the optimization process can be seen in Figure \ref{fig:LC-RoundedRectangle-Planar-iterations}.
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleParallelIt02.png}
+        \caption*{Iteration 2}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleParallelIt06.png}
+        \caption*{Iteration 6 (final)}
+    \end{minipage}
+    \caption{Shape optimization iterations for the liquid crystal problem with rounded rectangle as initial shape and planar anchoring conditions: mesh at iterations 2 and 6 (final). The initial rounded rectangle deforms smoothly toward a more circular shape, and the mesh quality is well preserved both in the interior and at the boundary due to the projection and smoothing.}
+    \label{fig:LC-RoundedRectangle-Planar-iterations}
+\end{figure}
+Here, one can observe a similar behavior as in the previous case with vertical anchoring conditions. The algorithm is able to adapt the shape towards the target shape, while maintaining good mesh quality during the optimization process. 
+In figure \ref{fig:LC-RoundedRectangle--Director-Field} we show the director field of the initial and final shape, each with vertical and planar anchoring, showing the expected behavior.
+\begin{figure}[h!]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleVerticalInitialDirector.png}
+        \caption*{Initial Director Field (Vertical Anchoring)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleVerticalFinalDirector.png}
+        \caption*{Final Director Field (Vertical Anchoring)}
+    \end{minipage}
+    \vspace{0.5em}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleParallelItInitialDirector.png}
+        \caption*{Initial Director Field (Planar Anchoring)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{LCRectangleParallelItFinalDirector.png}
+        \caption*{Final Director Field (Planar Anchoring)}
+    \end{minipage}
+    \caption{Comparison of director fields for initial and final shapes under different anchoring conditions. Both vertical and planar anchoring conditions lead to the expected radial alignment of the director field at the boundary of the shape after optimization.}
+    \label{fig:LC-RoundedRectangle--Director-Field}
+\end{figure}
+
+%p.236 https://doi.org/10.1016/j.camwa.2025.04.004 parameters
+
+\newpage
+\section{Conclusion and Outlook}
+Shape optimization is a powerful tool to find optimal shapes for a given physical problem. In this work, we presented a shape optimization framework using the finite element method, the open-source software package FEniCS and automated (shape) differentiation, which is flexible and can be adapted to different physical problems easily. We showcased the capabilities of this framework in three different problems, including an electrostatic and a liquid crystal problem. With the liquid crystal problem in the framework of the Landau-de Gennes theory, we presented a novel application of shape optimization. This follows up on the previous experimental and theoretical work in \cite{MeloAlignment2024}, where a method to print complex anchoring surfaces for liquid crystals was presented. This opens up the door to programming specific alignment patterns of liquid crystals, which can be used to create complex thermal actuator patterns via liquid crystal elastomers.
+
+Throughout section \ref{sec:results}, we discussed the importance of mesh quality during the optimization process and presented different approaches to maintain good mesh quality. We showed that projecting the shape derivative onto the normal at the boundary of the shape and adding an additional smoothing step using the Laplace-Beltrami operator are effective methods to maintain good mesh quality during the optimization process, while still allowing for a good adaptation of the shape towards the target shape.
+
+In a future work, one could investigate more complex target patterns of LCs, e. g. topological defects, cholesteric or smectic phases or 3D problems. Our code is adapted to 3D problems, first tests have been conducted but the computational cost is significantly higher and the analysis and visualization of results is more challenging and beyond the scope of this work.
+Running more complex problems will certainly require more theoretical and numerical research. Essentially we expect three issues, which will be needed to be addressed:
+\begin{enumerate}
+    \item Introducing more complex targets or different types of liquid crystals will require more robust methods to solve the state equation, i.e., the minimization of the LdG energy. There are several approaches in the literature and this is still an active area of research, e.g., \cite{FarrellLdGSolution2015}, \cite{RamageLdGSolution2013}, \cite{XiaLdGSolution2023}.
+    \item With problems involving large deformations, it will be an important question how to balance mesh quality with physically valid mesh movements. The approaches presented in this work are a good starting point, but more methods might be required for more complex problems. This is an active area of research and one of the biggest challenges in shape optimization. Fruitful approaches might include to \textit{remesh} \cite{WilkeRemeshing2006}, \cite{DokkenRemesh2019}, use different representations of the shape, e.g., \textit{level-set methods} \cite{OsherLevelSet2002}, \cite{FepponShapeOptimization2019} or \textit{phase-field methods} \cite{LauxPhaseField2023}, use more sophisticated mesh quality penalties \cite{HerzogMeshQuality2024}, utilizing other types of displacement inner products \cite{DeckelnickInnerProduct2022} or other regularization techniques \cite{BanschShapeOptimization2005}, \cite{DoganShapeOptimization2007}.
+    \item Within the current framework, we can only optimize the shape of the domain, but not the topology, i.e., we cannot create or remove surfaces with anchoring conditions. This is a limitation, since in many practical problems, the topology of the shape is not known a priori and one would like to optimize this as well. This is the topic in the field of \textit{Topology optimization}, which is a very active area of research with many recent developments, see e.g., \cite{KimSiMPL2025}, \cite{BlauthQuasiNewtonLevelSet2023}.
+\end{enumerate}
+Other aspects of future research could be to use machine learning and (physical) informed neural networks to learn optimal shapes or to speed up the optimization process, this is a new area of research, see e.g., \cite{WangAONN22024}, \cite{SunMachineLearning2023}.
+Looking at the application side, especially for thermal micro actuators, one open question is how to find the optimal alignment pattern of the liquid crystal, to achieve a desired actuation pattern of the resulting liquid crystal elastomer. This could be addressed with the presented shape optimization framework in a second optimization loop and is an interesting direction for future research.
+
+In summary, this work contributes to the inverse design of liquid crystal based micro actuators, using shape optimization, by presenting a flexible shape optimization framework and showcasing its capabilities in different settings.
+
+% Non euclidean geometry  \cite{SadocNonEuclideanLC2020}
+\newpage
+\bibliographystyle{unsrt}
+\addcontentsline{toc}{section}{\protect\numberline{}References}
+\bibliography{refs} % Entries are in the refs.bib file
+
+\newpage
+\section*{Acknowledgements}
+\addcontentsline{toc}{section}{\protect\numberline{}Acknowledgements}
+At this point, I would like to express my sincere gratitude to all those who have contributed in various ways to the success of this work.
+Special thanks go to my supervisor, Prof. Dr. Ulrich Schwarz, for the opportunity to work on this exciting topic, for his scientific support and the supervision throughout the project. \\
+Special thanks also go to Santiago Gomez Melo, without whom this project would not have been possible, for the help starting with this project, for the many fruitful discussions, pointing me towards the right direction and for providing the physical background and motivation for this work. The discussions were always a great pleasure and I learned a lot from them.
+I would also like to thank Dr. Falko Ziebert for the supervision and the helpful suggestions and comments on this project and the manuscript. \\
+Furthermore, special thanks go to Prof. Dr. Roland Herzog, Manuel Weiß and Dr. Stephan Schmidt for their interest in this work and the time and effort they invested in discussing this work with me and providing valuable insights. Without their help and their experience in shape optimization, this work would not have been possible in its current form.\\
+I also thank Prof. Dr. Peer Fischer for agreeing to be the second reviewer of this thesis. \\
+I would also like to thank Santiago Gomez Melo, Falko Ziebert, Ulrich Schwarz and Yukai Zhao for their careful proofreading of my work and their many helpful suggestions for improvement.
+Last, but not least, I'd like to thank my office colleagues and fellow group members Santiago Gomez Melo, Julian Voits, Niels Gieseler, Ejona Syla, Mike Brandt, David Hildebrandt and Alex Arnhold for the atmosphere in the office at Philosophenweg 19 and the many laughter-filled lunch breaks we had.
+
+
+\newpage \pagestyle{empty}
+
+\vspace*{5ex}
+\noindent
+\textbf{\Large Eidesstattliche Erklärung} \vspace*{7ex} \par
+%
+\noindent
+Hiermit erkläre ich, dass ich die vorliegende Arbeit selbstständig verfasst habe, dass ich sie zuvor an keiner anderen Hochschule und in keinem anderen Studiengang als Prüfungsleistung eingereicht habe und dass ich keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe. Alle Stellen der Arbeit, die wörtlich oder sinngemäß aus Veröffentlichungen oder aus anderweitigen fremden Äußerungen entnommen wurden, sind als solche kenntlich gemacht. Ferner versichere ich, dass
+die übermittelte elektronische Version in Inhalt und Wortlaut mit der gedruckten Version meiner Arbeit vollständig übereinstimmt. \par
+%
+\vspace*{6ex}\noindent
+\begin{tabular}{@{}p{6.5cm}@{\hspace{1.5cm}}p{6.5cm}@{}}
+	\hrulefill & \hrulefill \\
+	Ort, Datum & Unterschrift
+\end{tabular}
+
+\vspace*{12ex}
+\noindent
+\textbf{\Large Statutory Declaration} \vspace*{7ex} \par
+%
+\noindent
+I hereby declare that I have written this thesis independently, that I have not previously submitted it
+to any other university and in any other degree program as an examination assignment and that I have not used any sources and aids other than those specified. All passages in the thesis that were taken literally or analogously from publications
+or from other external publications are marked as such. I further certify that the submitted electronic version fully corresponds in content and wording to the printed version of my work. \par
+%
+\vspace*{6ex}\noindent
+\begin{tabular}{@{}p{6.5cm}@{\hspace{1.5cm}}p{6.5cm}@{}}
+	\hrulefill & \hrulefill \\
+	Place, Date & Signature
+\end{tabular}
+\end{document}

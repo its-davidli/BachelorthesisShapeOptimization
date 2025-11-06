@@ -64,7 +64,7 @@ The first test does not yield good results. The shape derivative looks fine, but
 - **Problem**: How to prescribe the Q-Tensor for defects? We only have a local description of the defects.
 
 
-### Meeting, 30th October 2025
+### Meeting: Thursday, 30th October 2025
 
 - Look at absolute error in sol of State equ
 - Target funtion is not a background mesh, but attached to the mesh
@@ -95,3 +95,10 @@ The first test does not yield good results. The shape derivative looks fine, but
     - The stepsizes are too small
 - Problem: There are many rigid movements it seems
     - Tuning the delta parameter higher somehow adds rigid movements
+
+### Meeting: Thursday, 6th November 2025
+
+**TODO:**
+- Analyze the circle case in more detail: Try different initial shapes
+- Prescribe only part of the geometry as target: start with half of the circle
+- The issue of spikes at interfaces of anchoring surfaces: Try to smooth the transition 

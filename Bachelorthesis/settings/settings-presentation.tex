@@ -1,0 +1,126 @@
+% ========================================================================================
+% LaTeX Presentation Template by Lorenz Vogel (version 2022-03)
+% Plehn Group, Institute for Theoretical Physics, Heidelberg University
+% [compiler: pdfLaTeX]
+% ========================================================================================
+
+\usepackage[utf8]{inputenc} % input encodings (allow UTF-8 input)
+\usepackage[T1]{fontenc} 	% selecting font encodings (use 8-bit T1 fonts)
+\usepackage[english]{babel} % multilingual support (English language/hyphenation)
+%\usepackage{lmodern} 		% Latin Modern fonts
+\usepackage{geometry} 		% flexible and complete interface to document dimensions
+%\usepackage{microtype} 		% subliminal refinements towards typographical perfection
+\usepackage{amsmath} 		% math package (American Mathematical Society)
+\usepackage{amssymb} 		% math package (extended symbol collection)
+
+\newcommand\hmmax{0}
+\newcommand\bmmax{0}
+
+\usepackage{amsthm} 		% math package (typesetting theorems using AMS style)
+\usepackage{mathtools} 		% math package (fixes various deficiencies of amsmath)
+\usepackage{float} 			% floating objects such as figures and tables
+\usepackage{graphicx} 		% enhanced support for graphics
+\usepackage{tabularx} 		% tabulars with adjustable-width columns
+\usepackage{booktabs} 		% professional-quality tables
+\usepackage{pdfpages} 		% inclusion of external multi-page PDF documents
+\usepackage{extarrows} 		% extra arrows beyond those provided in amsmath
+\usepackage{multirow} 		% create tabular cells spanning multiple rows
+\usepackage{multicol} 		% intermix single and multiple columns
+\usepackage{caption} 		% customising captions in floating environments
+\usepackage{subcaption} 	% support for sub-captions (captions for subfigures)
+\usepackage{setspace} 		% set space between lines (single, onehalf, double)
+\usepackage{xspace} 		% define commands that appear not to eat spaces
+\usepackage{ragged2e} 		% alternative versions of ragged-type commands
+\usepackage{stackrel} 		% enhancement to the \stackrel command
+\usepackage{tikz} 			% create PostScript and PDF graphics
+\usepackage{braket} 		% Dirac bra-ket notation
+\usepackage{bm} 			% access bold symbols in maths mode
+\usepackage{tensor} 		% typeset tensors (tensor-style super- and subscripts)
+\usepackage{slashed} 		% slash through characters (Feynman slash notation)
+\usepackage{siunitx} 		% SI units package (typesetting values with units)
+%\usepackage{lastpage} 		% reference last page
+\usepackage{cite} 			% improved citation handling
+\usepackage[normalem]{ulem} % package for underlining
+%\usepackage{fontawesome} 	% access to web-related icons
+\usepackage{doi} 			% create correct hyperlinks for DOI numbers
+\usepackage{hyperref} 		% hypertext links (handel cross-referencing commands)
+\usepackage[dvipsnames]{xcolor} 				% colour management
+\usepackage[most]{tcolorbox} 					% coloured and framed text boxes
+%\usepackage[nameinlink, capitalize]{cleveref} 	% intelligent cross-referencing
+%\usepackage[ruled, vlined]{algorithm2e} 		% floating algorithm environment
+\usepackage{pgfpages}
+\usepackage{isotope}
+\usepackage{pifont}
+\usepackage{appendixnumberbeamer}
+\usepackage[version=4]{mhchem}
+\usepackage[compat=1.0.0]{tikz-feynman}
+
+
+
+%\usetheme{metropolis}
+%\usecolortheme{dove}
+%\usepackage[default, lining]{FiraSans}
+%\usefonttheme[onlymath]{serif}
+
+\usetheme{metropolis}
+\usecolortheme{dove}
+\usefonttheme[bitstream-charter]{serif}
+\usepackage[bitstream-charter]{mathdesign}
+\usefonttheme{professionalfonts}
+
+
+\metroset{
+	titleformat=regular, % regular, smallcaps, allsmallcaps, allcaps
+	sectionpage=progressbar, % none, simple, progressbar
+	subsectionpage=none, % none, simple, progressbar
+	numbering=fraction, % none, counter, fraction
+	progressbar=frametitle, % none, head, frametitle, foot
+	%background=light, % dark, light
+}
+
+
+
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% prevent all line breaks in inline equations
+\binoppenalty=10000
+\relpenalty=10000
+
+% fix \cal and \mathcal characters look (so it's not the same as \mathscr)
+\DeclareSymbolFont{usualmathcal}{OMS}{cmsy}{m}{n}
+\DeclareSymbolFontAlphabet{\mathcal}{usualmathcal}
+
+
+
+
+\hypersetup{
+	pdftitle={Bachelor Thesis Presentation},
+	pdfauthor={David Li},
+	colorlinks=true, 	% false: boxed links, true: colored links
+	linkcolor={black}, 	% color of internal links (sections, pages, etc.)
+	citecolor={black}, 	% color of citation links (links to bibliography)
+	urlcolor={black}, 	% color of URL links (external links)
+} 
+% more hypersetup options: 
+% linktoc=none,section,page,all (defines which part in the TOC is made into a hyperlink)
+% hidelinks (removing color and border)
+
+
+
+
+
+% algorithm environment settings
+%\renewcommand{\algorithmautorefname}{Algorithm}
+%\newcommand\mycommfont[1]{\textcolor{gray}{#1}}
+%\SetArgSty{textnormal}
+%\SetKwComment{Comment}{{\small\#}~}{}
+%\SetCommentSty{mycommfont}
+
+%\renewcommand{\thefootnote}{\fnsymbol{footnote}} 	% footnote symbol
+%\setlength{\tabcolsep}{5pt}		% adding space between columns in a table
+%\setlength{\parskip}{5pt} 		% parameter that characterises the paragraph spacing
+%\setlength{\parindent}{0pt} 	% parameter that characterises the paragraph indentation
+
+\usetikzlibrary{arrows, arrows.meta, shapes, calc}

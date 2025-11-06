@@ -1,0 +1,182 @@
+% ========================================================================================
+% LaTeX Presentation Template by Lorenz Vogel (version 2022-03)
+% Plehn Group, Institute for Theoretical Physics, Heidelberg University
+% [compiler: pdfLaTeX]
+% ========================================================================================
+
+% corporate design colors: signet background (lightred) and signet outline (darkred)
+% [https://www.uni-heidelberg.de/en/university/about-the-university/corporate-design]
+\definecolor{unihd-lightred}{cmyk}{0.20, 1.00, 0.90, 0.00} % C20 / M100 / Y90 / K0
+\definecolor{unihd-darkred}{cmyk}{0.30, 1.00, 0.90, 0.65}  % C30 / M100 / Y90 / K65
+\definecolor{unihd-sand}{cmyk}{0.05, 0.05, 0.09, 0.00}     % C5  / M5   / Y9  / K0
+\colorlet{unihd-bkgred25}{rgb:unihd-lightred!25,1}
+\colorlet{unihd-bkgred40}{rgb:unihd-lightred!40,1}
+
+% harmonic colors
+\definecolor{TorchRed}{cmyk}{0.00, 1.00, 0.80, 0.05}
+\definecolor{Carmine}{cmyk}{0.00, 1.00, 0.81, 0.33}
+\definecolor{TickleMePink}{cmyk}{0.00, 0.50, 0.40, 0.00}
+\definecolor{Green}{cmyk}{0.89, 0.00, 1.00, 0.11}
+\definecolor{JapaneseLaurel}{cmyk}{0.89, 0.00, 1.00, 0.38}
+\definecolor{SnowyMint}{cmyk}{0.22, 0.00, 0.25, 0.00}
+\definecolor{MintGreen}{cmyk}{0.45, 0.00, 0.50, 0.00}
+\definecolor{DeepCerulean}{cmyk}{1.00, 0.24, 0.00, 0.35}
+\definecolor{Orient}{cmyk}{1.00, 0.24, 0.00, 0.55}
+\definecolor{Onahau}{cmyk}{0.25, 0.06, 0.00, 0.00}
+\definecolor{Anakiwa}{cmyk}{0.50, 0.12, 0.00, 0.00}
+\definecolor{FlushOrange}{cmyk}{0.00, 0.55, 1.00, 0.00}
+\definecolor{RoseOfSharon}{cmyk}{0.00, 0.55, 1.00, 0.30}
+\definecolor{Negroni}{cmyk}{0.00, 0.14, 0.25, 0.00}
+\definecolor{MacaroniAndCheese}{cmyk}{0.00, 0.27, 0.50, 0.00}
+
+% red, green, and blue comments
+\newcommand{\red}[1]{\textcolor{unihd-lightred}{#1}}
+\newcommand{\blue}[1]{\textcolor{DeepCerulean}{#1}}
+\newcommand{\green}[1]{\textcolor{Green}{#1}}
+
+
+
+
+\newtcolorbox{cblock1}[2][]{%
+	coltitle=black,
+	colback=unihd-bkgred25,
+	colframe=unihd-lightred,
+	colbacktitle=unihd-bkgred25,
+	boxrule=1pt,
+	titlerule=1pt,
+	arc=4pt,
+	left=2pt,
+	right=2pt,
+	top=2pt,
+	bottom=2pt,
+	fonttitle=\bfseries,
+	title={#2},
+	%sharp corners=downhill, %northwest
+	#1}
+
+
+
+
+\setbeamertemplate{itemize item}[circle]
+\setbeamertemplate{itemize subitem}[circle]
+\setbeamertemplate{enumerate item}{\insertenumlabel.}
+\setbeamertemplate{enumerate subitem}{\insertenumlabel.\insertsubenumlabel}
+\setbeamertemplate{frame footer}{%
+	\insertshortauthor~---~\insertshortinstitute~\vspace{-6pt}}
+\addtobeamertemplate{footline}{\hypersetup{allcolors=.}}{}
+
+
+\AtBeginNote{%
+	\setbeamertemplate{itemize item}[square]
+	\setbeamertemplate{itemize subitem}[circle]
+	\setbeamercolor{itemize item}{fg=black}
+	\setbeamercolor{itemize subitem}{fg=black}
+	\setbeamercolor{enumerate item}{fg=black}
+	\setbeamercolor{enumerate subitem}{fg=black}
+	\setlength{\leftmargini}{0.5cm}
+	\setlength{\leftmarginii}{0.5cm}
+}
+
+
+
+\setbeamercolor{title separator}{fg=unihd-lightred}
+\setbeamercolor{progress bar}{fg=unihd-lightred, bg=unihd-bkgred25}
+\setbeamercolor{frame footer}{fg=gray}
+\setbeamercolor{frame numbering}{fg=gray}
+%\setbeamercolor{progress bar in head/foot}{fg=unihd-lightred, bg=unihd-bkgred25}
+%\setbeamercolor{progress bar in section page}{fg=unihd-lightred, bg=unihd-bkgred25}
+
+\setbeamercolor{itemize item}{fg=unihd-lightred}
+\setbeamercolor{itemize subitem}{fg=unihd-lightred}
+\setbeamercolor{enumerate item}{fg=unihd-lightred}
+\setbeamercolor{enumerate subitem}{fg=unihd-lightred}
+
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{subtitle}{fg=black}
+\setbeamercolor{author}{fg=black}
+%\setbeamercolor{date}{fg=black}
+%\setbeamercolor{institute}{fg=black}
+
+
+% for [10pt]:
+% \tiny 5
+% \scriptsize 7
+% \footnotesize 8
+% \small 9
+% \normalsize 10
+% \large 12
+% \Large 14.4
+% \LARGE 17.28
+% \huge 20.74
+% \Huge 24.88
+
+\setbeamerfont{title}{size=\fontsize{15.0}{18.0}, series=\bfseries}
+\setbeamerfont{subtitle}{size=\large}
+\setbeamerfont{author}{size=\fontsize{11.0}{13.2}, series=\bfseries}
+\setbeamerfont{date}{size=\small}
+\setbeamerfont{institute}{size=\small}
+
+\setbeamerfont{frametitle}{size=\fontsize{12.5}{15.0}, series=\bfseries}
+\setbeamerfont{frame footer}{size=\tiny} % \scriptsize
+\setbeamerfont{frame numbering}{size=\tiny} % \footnotesize
+\setbeamerfont{block title}{size=\normalsize, series=\bfseries}
+\setbeamerfont{block body}{size=\normalsize}
+\setbeamerfont{caption}{size=\small}
+\setbeamerfont{footnote}{size=\small}
+
+%\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+%\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+%\setbeamerfont{itemize/enumerate subsubbody}{size=\normalsize}
+
+
+
+
+\makeatletter
+\setlength{\metropolis@progressinheadfoot@linewidth}{1.5pt}
+\setlength{\metropolis@titleseparator@linewidth}{2pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{2pt}
+
+\setbeamertemplate{frametitle}{
+	\nointerlineskip\vspace{5pt}
+	\begin{beamercolorbox}[
+		wd=\paperwidth, sep=0pt,
+		leftskip=\metropolis@frametitle@padding,
+		rightskip=\metropolis@frametitle@padding,
+		]{frametitle}
+			\metropolis@frametitlestrut@start
+			\insertframetitle
+			%\nolinebreak
+			\metropolis@frametitlestrut@end
+	\end{beamercolorbox}
+	\par\vspace{-8pt}
+	\usebeamertemplate*{progress bar in head/foot}
+}
+
+\setbeamertemplate{progress bar in head/foot}{
+	\nointerlineskip
+	\setlength{\metropolis@progressinheadfoot}{
+		0.86\paperwidth*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}
+	\hspace{-22.5pt}
+	\begin{beamercolorbox}[wd=0.86\paperwidth]{progress bar in head/foot}
+		\begin{tikzpicture}
+			\fill[bg] (0,0) rectangle (0.86\paperwidth, 
+			\metropolis@progressinheadfoot@linewidth);
+			\fill[fg] (0,0) rectangle (\metropolis@progressinheadfoot, 
+			\metropolis@progressinheadfoot@linewidth);
+		\end{tikzpicture}
+	\end{beamercolorbox}
+}
+
+\makeatother
+
+
+
+
+%\AtBeginSection[]{%
+%	\setbeamertemplate{footline}{\hbox{}}
+%	\begin{frame}<beamer>[noframenumbering]
+%		\frametitle{Outline}
+%		\setbeamertemplate{section in toc}[sections numbered]
+%		\tableofcontents[currentsection]
+%	\end{frame}
+%}

@@ -1,5 +1,5 @@
-mesh_name: OneSidedWallBox
-subfolder: OneSidedWallBox
+mesh_name: RoundedBox
+subfolder: RoundedBox
 save_fold: Results
 geom_folder: ./Geometries/
 surf_markers: [1]
@@ -11,7 +11,7 @@ finite_element_degree: 1
 target_geometry: "uniform_horizontal"
 top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
-inner_product: "elasticity"
+inner_product: "H1"
 anchoring: "vertical"
 tangential_smoothing: True
 use_normal_dJds_projection: True 
@@ -35,5 +35,5 @@ a_B: 0.1
 L_c: 2e-6
 beta_param: 5.0
 x0: 1.5
-delta: 2
-delta_beltrami: 1
+delta: 10
+delta_beltrami: 5

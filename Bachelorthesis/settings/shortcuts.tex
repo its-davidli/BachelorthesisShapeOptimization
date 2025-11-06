@@ -1,0 +1,124 @@
+\newcommand{\ie}{i.e.\@\xspace} 		% id est (i.e.)
+\newcommand{\eg}{e.g.\@\xspace} 		% exempli gratia (e.g.)
+\newcommand{\vs}{vs.\@\xspace} 			% versus (vs.)
+\newcommand{\etal}{et~al.\@\xspace}		% et al.
+\newcommand{\eqcomma}{\quad\text{,}} 	% equation comma
+\newcommand{\eqperiod}{\quad\text{.}} 	% equation period
+
+% red, green, and blue comments
+%\newcommand{\red}[1]{\textcolor{unihd-lightred}{#1}}
+%\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+%\newcommand{\green}[1]{\textcolor{green}{#1}}
+
+% brackets and parentheses
+\newcommand{\Langle}{\bigl\langle}
+\newcommand{\Rangle}{\bigr\rangle}
+\newcommand{\XLangle}{\Bigl\langle}
+\newcommand{\XRangle}{\Bigr\rangle}
+\newcommand{\XXLangle}{\biggl\langle}
+\newcommand{\XXRangle}{\biggr\rangle}
+\newcommand{\Lbrack}{\bigl\lbrack}
+\newcommand{\Rbrack}{\bigr\rbrack}
+\newcommand{\XLbrack}{\Bigl\lbrack}
+\newcommand{\XRbrack}{\Bigr\rbrack}
+\newcommand{\XXLbrack}{\biggl\lbrack}
+\newcommand{\XXRbrack}{\biggr\rbrack}
+\newcommand{\Lbrace}{\bigl\lbrace}
+\newcommand{\Rbrace}{\bigr\rbrace}
+\newcommand{\XLbrace}{\Bigl\lbrace}
+\newcommand{\XRbrace}{\Bigr\rbrace}
+\newcommand{\XXLbrace}{\biggl\lbrace}
+\newcommand{\XXRbrace}{\biggr\rbrace}
+\newcommand{\braces}[1]{\lbrace#1\rbrace}
+
+\newcommand{\qqquad}{\qquad\quad}
+\newcommand{\qqqquad}{\qquad\qquad}
+
+% general math definitions
+\newcommand{\diff}{\mathop{}\!\mathrm{d}} 	% differential
+\newcommand{\del}{\partial} 				% partial derivative
+\newcommand{\vect}[1]{\bm{#1}} 				% bold vector notation
+\newcommand{\abs}[1]{\lvert#1\rvert} 		% absolute value (single vertical lines)
+\newcommand{\norm}[1]{\lVert#1\rVert} 		% norm (double vertical lines)
+\newcommand{\Z}{\mathbb{Z}} 				% integers
+\newcommand{\Q}{\mathbb{Q}} 				% rational numbers
+\newcommand{\R}{\mathbb{R}} 				% real numbers
+\newcommand{\var}{\operatorname{Var}} 		% variance
+\newcommand{\sign}{\operatorname{sign}} 	% sign
+\newcommand{\tr}{\operatorname{Tr}}			% trace
+\newcommand{\order}{\mathcal{O}} 			% order
+\newcommand{\imag}{\mathrm{i}} 				% imaginary unit
+\newcommand{\euler}{\mathrm{e}} 			% Euler's number
+\newcommand{\iid}{\text{i.i.d.}} 			% independent and identically distributed
+\newcommand{\range}[2]{#1,\ldots,#2}
+\newcommand{\really}{\stackrel{!}{=}}
+\newcommand{\mean}[1]{\left\langle#1\right\rangle}
+
+% particle physics and machine learning definitions
+\newcommand{\similarity}{\operatorname{sim}}
+\newcommand{\softmax}{\operatorname{softmax}}
+\newcommand{\sigmoid}{\operatorname{sigmoid}}
+\newcommand{\ReLU}{\operatorname{ReLU}}
+\newcommand{\LeakyReLU}{\operatorname{LeakyReLU}}
+\newcommand{\Attention}{\operatorname{Attention}}
+\newcommand{\MultiHead}{\operatorname{MultiHead}}
+\newcommand{\Concat}{\operatorname{Concat}}
+\newcommand{\head}{\operatorname{head}}
+
+\newcommand{\pT}{p_{\mathrm{T}}} 	% transverse momentum
+\newcommand{\pTi}{p_{\mathrm{T},i}} % transverse momentum (with index i)
+\newcommand{\pTjet}{p_{\mathrm{T},\,\mathrm{jet}}}
+\newcommand{\etajet}{\eta_{\,\mathrm{jet}}}
+\newcommand{\yjet}{y_{\,\mathrm{jet}}}
+\newcommand{\kT}{k_{\mathrm{T}}}
+\newcommand{\mT}{m_{\mathrm{T}}} 	% transverse mass
+\newcommand{\sqrts}{\sqrt{s}} 		% center-of-mass energy
+\newcommand{\loss}{\mathcal{L}} 	% loss value
+\newcommand{\dth}{\Delta_{\mathrm{th/sys}}}
+\newcommand{\dst}{\Delta_{\mathrm{stat}}}
+\newcommand{\dsy}{\Delta_{\mathrm{syst}}}
+
+\newcommand{\pTa}{p_{\mathrm{T},a}} % transverse momentum (with index a)
+\newcommand{\pTb}{p_{\mathrm{T},b}} % transverse momentum (with index b)
+\newcommand{\batch}{\mathrm{batch}}
+\newcommand{\Nbatch}{N_{\mathrm{batch}}}
+\newcommand{\nc}{n_{C}} % number of constituents
+
+\newcommand{\etaphi}{$\eta$--$\phi$\xspace} % eta-phi plane
+\newcommand{\AUC}{\mathrm{AUC}} % area under the ROC curve
+\newcommand{\es}{\epsilon_{s}} 	% signal efficiency (true-positive rate)
+\newcommand{\eb}{\epsilon_{b}} 	% background mistag rate (false-positive rate)
+\newcommand{\imtafe}{\epsilon_{b}^{-1}(\epsilon_{s}\!=\!0.5)}
+\newcommand{\sklearn}{\texttt{scikit-learn}\xspace}
+\newcommand{\PyTorch}{\texttt{PyTorch}\xspace}
+\newcommand{\Adam}{\texttt{Adam}\xspace}
+\newcommand{\AdamW}{\texttt{AdamW}\xspace}
+\newcommand{\EnergyFlow}{\texttt{EnergyFlow}\xspace}
+\newcommand{\FastJet}{\textsc{FastJet}\xspace}
+\newcommand{\Pythia}{\textsc{Pythia}\xspace}
+\newcommand{\Delphes}{\textsc{Delphes}\xspace}
+\newcommand{\Rivet}{\textsc{Rivet}\xspace}
+\newcommand{\Python}{\texttt{Python}\xspace}
+\newcommand{\NumPy}{\texttt{NumPy}\xspace}
+\newcommand{\Vegas}{\textsc{Vegas}\xspace}
+\newcommand{\Madgraph}{\textsc{Madgraph}\xspace}
+\newcommand{\Sherpa}{\textsc{Sherpa}\xspace}
+\newcommand{\Keras}{\textsc{Keras}\xspace}
+
+\newcommand{\EFP}{\mathrm{EFP}} 		% energy flow polynomials
+\newcommand{\ttbar}{t\bar{t}} 			% top-antitop pair
+\newcommand{\electron}{\mathrm{e}^{-}} 	% electron
+\newcommand{\positron}{\mathrm{e}^{+}} 	% positron
+
+% hyperlink references
+\newcommand{\urlx}[1]{\href{#1}{#1}}
+\newcommand{\DOI}[2]{\href{http://dx.doi.org/#2}{#1}}
+%\newcommand{\arXiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
+\newcommand{\arXiv}[2][]{%
+	\ifthenelse{\equal{#1}{}}%
+	{\href{http://arxiv.org/abs/#2}{arXiv:#2}}%
+	{\href{http://arxiv.org/abs/#2}{arXiv:#2~[#1]}}}
+\newcommand{\arXivred}[2][]{%
+	\ifthenelse{\equal{#1}{}}%
+	{\href{http://arxiv.org/abs/#2}{\red{arXiv:#2}}}%
+	{\href{http://arxiv.org/abs/#2}{\red{arXiv:#2~[#1]}}}}
