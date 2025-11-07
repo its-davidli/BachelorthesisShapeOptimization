@@ -318,6 +318,19 @@ if d == 3:
     xdmffile_results = XDMFFile(save_dir + '/results.xdmf')
     xdmffile_adjoints = XDMFFile(save_dir + '/adjoints.xdmf')
 
+# Initial mesh displacement to create tests
+def boundary(x, on_boundary):
+    return on_boundary
+initial_shape_BC = [DirichletBC(S, Expression(('0','x[0] < -0.1 && x[0] > -1.1 && x[1] < 0  ? -1*exp(-1/(1-pow((x[0]+0.6)/1,2))) : 0'), degree = 1), boundary)]
+displacement_initial = Function(S)
+solve(displacementInnerProduct == dot(Constant((0,0)), TrialFunction(S))*dx, displacement_initial, initial_shape_BC)
+# solve(dot(TrialFunction(S), TestFunction(S))*dx == dot(Constant((0,0)), TestFunction(S))*dx, displacement_initial, initial_shape_BC)
+File(save_dir + f"/displacement_initial.pvd") << displacement_initial
+ALE.move(mesh, displacement_initial)
+File(save_dir + f"/mesh_initial_deformed.pvd") << mesh
+
+
+# Run a shape gradient loop.
 while iteration < maxIter:
     X = SpatialCoordinate(mesh)
     # Compute the current volume and boundary length of the mesh.

@@ -102,3 +102,9 @@ The first test does not yield good results. The shape derivative looks fine, but
 - Analyze the circle case in more detail: Try different initial shapes
 - Prescribe only part of the geometry as target: start with half of the circle
 - The issue of spikes at interfaces of anchoring surfaces: Try to smooth the transition 
+
+### Friday, 7th November 2025
+
+- Trying different Ellipses
+- **Problem:** Meshing wide Ellipse does not work (e.g. radius 5 to 1)
+- Trying to implement perturbations of the initial domain 
