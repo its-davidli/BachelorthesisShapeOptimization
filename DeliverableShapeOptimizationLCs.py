@@ -172,11 +172,76 @@ elif config['anchoring'] == 'planar':
     else:
         raise NotImplementedError("Tangential vector computation is only implemented for 2D meshes.")
 
-Energy = (LG_energy(q_,a_B,L_c,β,x0, d))*dx + LG_boundaryPenalty(q_,Q_b,k_bc, d) * ds_anchoring
+
+if 'bc_smoothing' in config == True and d == 3:
+    bc_strength = MeshFunction('double', mesh, mesh.topology().dim(), 0)
+    bc_strength.set_all(1)
+    print("Applying boundary anchoring smoothing with width:")
+    width = float(config.get('bc_smoothing_width', mesh.hmin()*2.0))
+    width = max(width, 1e-12)
+    print(width)
+
+    # cosine ramp: s(dist) = 0.5*(1 + cos(pi * dist / width)) for dist in [0,width], else 0
+    for cell in cells(mesh):
+        p = np.array(cell.midpoint().array())
+        # compute distance to nearest anchoring facet midpoint
+        dmin = min([p[1], 1 - p[1], p[2], 5 - p[2]])
+        if dmin <= width:
+            val = 1- 0.5 * (1.0 + math.cos(math.pi * dmin / width))
+        else:
+            val = 1.0
+        bc_strength[cell.index()] = float(val)
+        # Save cell-wise anchoring strength for visualization and offline analysis
+    File(save_dir + "/bc_strength.pvd") << bc_strength
+
+    # Create a Expression using the mesh function
+    V0 = FunctionSpace(mesh, "DG", 0)
+    bc_strength_func = Function(V0)
+    vals = bc_strength_func.vector().get_local()
+    for cell in cells(mesh):
+        vals[cell.index()] = bc_strength[cell.index()]
+    bc_strength_func.vector().set_local(vals)
+    bc_strength_func.vector().apply("insert")
+    Energy = (LG_energy(q_,a_B,L_c,β,x0, d))*dx + bc_strength_func * LG_boundaryPenalty(q_,Q_b,k_bc, d) * ds_anchoring
+
+elif config['bc_smoothing'] == True and d == 2:
+    print("2D bc smoothing")
+    bc_strength = MeshFunction('double', mesh, mesh.topology().dim(), 0)
+    bc_strength.set_all(1)
+    print("Applying boundary anchoring smoothing with width:")
+    width = float(config.get('bc_smoothing_width', mesh.hmin()*2.0))
+    width = max(width, 1e-12)
+    width = 0.5
+    print(width)
+
+    # cosine ramp: s(dist) = 0.5*(1 + cos(pi * dist / width)) for dist in [0,width], else 0
+    for cell in cells(mesh):
+        p = np.array(cell.midpoint().array())
+        # compute distance to nearest anchoring facet midpoint
+        dmin = min([p[0] + 2 , 2 - p[0]])
+        if dmin <= width:
+            val = 1- 0.5 * (1.0 + math.cos(math.pi * dmin / width))
+        else:
+            val = 1.0
+        bc_strength[cell.index()] = float(val)
+        # Save cell-wise anchoring strength for visualization and offline analysis
+    File(save_dir + "/bc_strength.pvd") << bc_strength
+
+    # Create a Expression using the mesh function
+    V0 = FunctionSpace(mesh, "DG", 0)
+    bc_strength_func = Function(V0)
+    vals = bc_strength_func.vector().get_local()
+    for cell in cells(mesh):
+        vals[cell.index()] = bc_strength[cell.index()]
+    bc_strength_func.vector().set_local(vals)
+    bc_strength_func.vector().apply("insert")
+    Energy = (LG_energy(q_,a_B,L_c,β,x0, d))*dx + bc_strength_func * LG_boundaryPenalty(q_,Q_b,k_bc, d) * ds_anchoring
+else:
+    Energy = (LG_energy(q_,a_B,L_c,β,x0, d))*dx + LG_boundaryPenalty(q_,Q_b,k_bc, d) * ds_anchoring
 Dv_Energy= derivative(Energy, q_, p_)
 
-
 # Define the target state variable q_target
+subdomainlist = []
 if d == 2 and target_geometry == "circle":
     X = SpatialCoordinate(mesh)
     theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
@@ -184,10 +249,21 @@ if d == 2 and target_geometry == "circle":
     q_target_proj = project(q_target, W)
     # q_target0, q_target1 = q_target.split()
 
-elif d == 2 and target_geometry == "uniform_vertical":
-    q_target = Expression(('-S0*(0.5)', '0'), S0 = S0, degree = 1)
+elif d == 2 and target_geometry == "half_of_circle":
+    X = SpatialCoordinate(mesh)
+    theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
+    q_target = Expression(('S0*(cos(theta)*cos(theta)-0.5)', 'S0*sin(theta)*cos(theta)'), theta = theta, S0 = S0, degree = 1)
     q_target_proj = project(q_target, W)
-    q_target0, q_target1 = q_target_proj.split()
+    class Charged(SubDomain):
+        def inside(self, x, on_boundary):
+            return x[0] <= 0.3
+    Charged_Domain = Charged()
+    Charged_Domain.mark(domains, 1)
+    subdomainlist.append(1)
+
+elif d == 2 and target_geometry == "uniform_vertical":
+    q_target = Expression(('-S0*(0.5)', 'eps'), S0 = S0, eps=tol, degree = 1)
+    q_target_proj = project(q_target, W)
 
 elif d == 3 and target_geometry == "sphere":
     phi = Expression('atan2((x[1]),(x[0]))', degree = 1)
@@ -213,6 +289,7 @@ elif d == 2 and target_geometry == "defect":
                 return r <= 0.45 + tol
         Charged_Domain = Charged()
         Charged_Domain.mark(domains, i)
+        subdomainlist.append(i)
         theta = Expression('q*(atan2((x[1]-y0),(x[0]-x0)+ (-ind + 1)* pi))', degree = 1, ind = i, q = q, x0 = position_defect[0], y0 = position_defect[1])
         q_target += Expression(('sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*(cos(theta)*cos(theta)-0.5) : 0', 'sqrt(pow(x[0]-x0,2) + (pow(x[1]-y0,2))) < 0.5 ? S0*sin(theta)*cos(theta):0'), theta = theta, S0 = S0, x0 = position_defect[0], y0 = position_defect[1], degree = 1)
     q_target_proj = project(q_target, W)
@@ -255,7 +332,10 @@ File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order para
 # the volume constraint, the center of mass constraints 
 # and a regularization term for the mesh quality.
 # TODO Subtract forms
-objective_main = (dot(q_ - q_target, q_ - q_target))*dx
+if not subdomainlist:
+    objective_main = (dot(q_ - q_target, q_ - q_target))*dx
+else:
+    objective_main = (dot(q_ - q_target, q_ - q_target))*dx(subdomainlist[0])
 objective_volume = ((current_volume - Vol0)**2)/current_volume*dx
 objective_center_of_mass = ((assemble(x*dx)-c_x0)**2 + (assemble(y*dx)-c_y0)**2)*dx
 objective_boundary_length = (current_boundary_length - Boundary0)**2 /current_volume*dx
@@ -319,15 +399,15 @@ if d == 3:
     xdmffile_adjoints = XDMFFile(save_dir + '/adjoints.xdmf')
 
 # Initial mesh displacement to create tests
-def boundary(x, on_boundary):
-    return on_boundary
-initial_shape_BC = [DirichletBC(S, Expression(('0','x[0] < -0.1 && x[0] > -1.1 && x[1] < 0  ? -1*exp(-1/(1-pow((x[0]+0.6)/1,2))) : 0'), degree = 1), boundary)]
-displacement_initial = Function(S)
-solve(displacementInnerProduct == dot(Constant((0,0)), TrialFunction(S))*dx, displacement_initial, initial_shape_BC)
-# solve(dot(TrialFunction(S), TestFunction(S))*dx == dot(Constant((0,0)), TestFunction(S))*dx, displacement_initial, initial_shape_BC)
-File(save_dir + f"/displacement_initial.pvd") << displacement_initial
-ALE.move(mesh, displacement_initial)
-File(save_dir + f"/mesh_initial_deformed.pvd") << mesh
+# def boundary(x, on_boundary):
+#     return on_boundary
+# initial_shape_BC = [DirichletBC(S, Expression(('0','x[0] < -0.1 && x[0] > -1.1 && x[1] < 0  ? -1*exp(-1/(1-pow((x[0]+0.6)/1,2))) : 0'), degree = 1), boundary)]
+# displacement_initial = Function(S)
+# solve(displacementInnerProduct == dot(Constant((0,0)), TrialFunction(S))*dx, displacement_initial, initial_shape_BC)
+# # solve(dot(TrialFunction(S), TestFunction(S))*dx == dot(Constant((0,0)), TestFunction(S))*dx, displacement_initial, initial_shape_BC)
+# File(save_dir + f"/displacement_initial.pvd") << displacement_initial
+# # ALE.move(mesh, displacement_initial)
+# File(save_dir + f"/mesh_initial_deformed.pvd") << mesh
 
 
 # Run a shape gradient loop.
@@ -338,7 +418,9 @@ while iteration < maxIter:
     current_boundary_length.assign(assemble(1.0*ds_controlvariable))
     # Solve the forward PDE.
     # compute initial guess
-    initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
+    # initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
+    initial_guess = q_target_proj
+
     assign(q_, initial_guess)
     assign(p_, initial_guess)
 
@@ -407,7 +489,8 @@ while iteration < maxIter:
     neg_shape_gradient = Function(S)
     neg_shape_gradient.assign(-shapeGradient)
     File(save_dir + f"/neg_shape_gradient_{iteration}.pvd") << neg_shape_gradient
-
+    if d == 2 and config['bc_smoothing'] == True:
+        File(save_dir + f"/bc_strength_{iteration}.pvd") << bc_strength_func
     # Printing information
     terms = [
     ("objective_main", objective_main, dJds_main, 1.0),
@@ -454,7 +537,8 @@ while iteration < maxIter:
         current_boundary_length.assign(assemble(1.0*ds_controlvariable))
 
         # Solve the forward PDE.
-        assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
+        # assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
+        assign(q_, q_target_proj)
         # Solve the forward PDE with the updated mesh.
         solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
