@@ -128,3 +128,5 @@ The first test does not yield good results. The shape derivative looks fine, but
     - Added a regularize method, to smooth out spikes of the shape derivative at the interface of anchoring to non anchoring **TODO** Make the regularization function better (cleaner in a mathematical way, e.g. analyze the histogram of shape derivativevalues)
 - Tried only integrating on a sub area: No good results but **TODO** explore that more, to possible analyze the different components of the shape derivative and where they come from
     - Looking at the shape derivative you can see the effect of trying to shrink the integration area at the interface of the integration to non-integration, showing that the shape derivative wants to use non physical information to decrease the objective functional. 
+
+- *TODO* Standardize the physical group numbering
