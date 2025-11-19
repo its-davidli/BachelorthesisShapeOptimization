@@ -108,3 +108,23 @@ The first test does not yield good results. The shape derivative looks fine, but
 - Trying different Ellipses
 - **Problem:** Meshing wide Ellipse does not work (e.g. radius 5 to 1)
 - Trying to implement perturbations of the initial domain 
+
+### Week of 10-14th November 2025
+
+- Implemented representation of Shape derivative
+- Tried to round the corners of the 3D Box --> No improvement
+- Tried to smooth out the transition from BC to no BC --> No improvment
+- Added Rectangle with only 2 Sides as BC, still same issue with spikes at the boundary of BC    to no BC
+
+### Meeting, Wednesday 12th of November 2025
+
+- For the 2D case, try to fix the non BC boundaries 
+
+### Tuesday, 18th of November 2025
+
+- First succesfull run of the 2D Two Sided BC Test Case (see Results/TestPrelim2WallsWithCut and Results/TestPrelim2WallsNoCut)
+    - Modified the objective function by a normalization of the area/volume of the integration area
+    - Added BCs on the shape gradient, so that the walls which fixes the non anchoring walls **TODO** To make this implementation and the implementation of the ds measures more elegent, make it necessary to put the non anchoring walls into a physical group at mesh generation
+    - Added a regularize method, to smooth out spikes of the shape derivative at the interface of anchoring to non anchoring **TODO** Make the regularization function better (cleaner in a mathematical way, e.g. analyze the histogram of shape derivativevalues)
+- Tried only integrating on a sub area: No good results but **TODO** explore that more, to possible analyze the different components of the shape derivative and where they come from
+    - Looking at the shape derivative you can see the effect of trying to shrink the integration area at the interface of the integration to non-integration, showing that the shape derivative wants to use non physical information to decrease the objective functional. 

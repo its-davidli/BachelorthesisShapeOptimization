@@ -144,7 +144,7 @@ ffc_options = {"optimize": True, \
 
 
 # Vector function space for the mesh deformation
-S = VectorFunctionSpace(mesh, "CG", 2)
+S = VectorFunctionSpace(mesh, "CG", 1)
 s = Function(S)
 
 current_volume = Constant(assemble(1.0*dx))
@@ -220,7 +220,8 @@ elif config['bc_smoothing'] == True and d == 2:
         # compute distance to nearest anchoring facet midpoint
         dmin = min([p[0] + 2 , 2 - p[0]])
         if dmin <= width:
-            val = 1- 0.5 * (1.0 + math.cos(math.pi * dmin / width))
+            # val = 1- 0.5 * (1.0 + math.cos(math.pi * dmin / width))
+            val = 0
         else:
             val = 1.0
         bc_strength[cell.index()] = float(val)
@@ -244,8 +245,9 @@ Dv_Energy= derivative(Energy, q_, p_)
 subdomainlist = []
 if d == 2 and target_geometry == "circle":
     X = SpatialCoordinate(mesh)
-    theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
-    q_target = Expression(('S0*(cos(theta)*cos(theta)-0.5)', 'S0*sin(theta)*cos(theta)'), theta = theta, S0 = S0, degree = 1)
+    # theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
+    theta = atan_2((X[1]),(X[0]))
+    q_target = as_vector((S0*(cos(theta)*cos(theta)-0.5), S0*sin(theta)*cos(theta)))
     q_target_proj = project(q_target, W)
     # q_target0, q_target1 = q_target.split()
 
@@ -256,13 +258,33 @@ elif d == 2 and target_geometry == "half_of_circle":
     q_target_proj = project(q_target, W)
     class Charged(SubDomain):
         def inside(self, x, on_boundary):
-            return x[0] <= 0.3
+            return x[0] <= 0
+    Charged_Domain = Charged()
+    Charged_Domain.mark(domains, 1)
+    subdomainlist.append(1)
+
+elif d ==2 and target_geometry == "interior_of_circle":
+    X = SpatialCoordinate(mesh)
+    theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
+    q_target = Expression(('S0*(cos(theta)*cos(theta)-0.5)', 'S0*sin(theta)*cos(theta)'), theta = theta, S0 = S0, degree = 1)
+    q_target_proj = project(q_target, W)
+    class Charged(SubDomain):
+        def inside(self, x, on_boundary):
+            return x[0]**2 + x[1]**2 <= 0.5
     Charged_Domain = Charged()
     Charged_Domain.mark(domains, 1)
     subdomainlist.append(1)
 
 elif d == 2 and target_geometry == "uniform_vertical":
+    X = SpatialCoordinate(mesh)
     q_target = Expression(('-S0*(0.5)', 'eps'), S0 = S0, eps=tol, degree = 1)
+    q_target_proj = project(q_target, W)
+    # class Charged(SubDomain):
+    #     def inside(self, x, on_boundary):
+    #         return x[1] <= 1.5 and x[1] >= -1.5
+    # Charged_Domain = Charged()
+    # Charged_Domain.mark(domains, 100)
+    # subdomainlist.append(100)    
     q_target_proj = project(q_target, W)
 
 elif d == 3 and target_geometry == "sphere":
@@ -333,9 +355,19 @@ File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order para
 # and a regularization term for the mesh quality.
 # TODO Subtract forms
 if not subdomainlist:
-    objective_main = (dot(q_ - q_target, q_ - q_target))*dx
+    objective_main = (dot(q_ - q_target, q_ - q_target))/(assemble(1*dx))*dx
 else:
-    objective_main = (dot(q_ - q_target, q_ - q_target))*dx(subdomainlist[0])
+    objective_main = (dot(q_ - q_target, q_ - q_target))/(assemble(1*dx(subdomainlist[0])))*dx(subdomainlist[0])
+    asd = assemble(1*dx(subdomainlist[0]))
+    print("Initial area charged domain:", asd)
+    area_marked = MeshFunction("size_t", mesh, mesh.topology().dim())
+    area_marked.set_all(0)
+    for facet in facets(mesh):
+        if domains[facet.index()] == subdomainlist[0]:
+            area_marked[facet.index()] = 1
+    File(save_dir + "/area_subdomain.pvd") << area_marked
+
+
 objective_volume = ((current_volume - Vol0)**2)/current_volume*dx
 objective_center_of_mass = ((assemble(x*dx)-c_x0)**2 + (assemble(y*dx)-c_y0)**2)*dx
 objective_boundary_length = (current_boundary_length - Boundary0)**2 /current_volume*dx
@@ -386,13 +418,24 @@ objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives
 bc_shapegradient = []
 if config['boundary_conditions_shapegradient'] == 'None':
     pass
-elif config['boundary_conditions_shapegradient'] == 'fixed_bottom':
+elif d == 3 and config['boundary_conditions_shapegradient'] == 'fixed_bottom':
     def boundary(x):
         return near(x[2], 0, tol)
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
+elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries,2)]
 # Run a shape gradient loop.
 iteration = 0
 
+def regularize_solution(u):
+    u_array = u.vector().get_local()
+    u_max = 5e-3
+    for i,element in enumerate(u_array):
+        if abs(element) > u_max: 
+            u_array[i]*=1e-2
+            print(i)
+    u.vector()[:] = u_array
+    return u
 
 if d == 3:
     xdmffile_results = XDMFFile(save_dir + '/results.xdmf')
@@ -444,6 +487,20 @@ while iteration < maxIter:
 
     dJds = dJds_main
 
+    # Riesz representation on the interior: find dJds_1 in S s.t.
+    # ∫_∂Ω <dJds_1, v> dx = dJds(v) for all v in S
+    u_b = TrialFunction(S)
+    v_b = TestFunction(S)
+    a_b = inner(u_b, v_b) * dx
+    L_b = dJds
+    A_b = assemble(a_b, keep_diagonal=True)
+    b_b = assemble(L_b)
+    # Ensure interior dofs get identity to avoid singular system
+    A_b.ident_zeros()
+    dJds_rep = Function(S)
+    solve(A_b, dJds_rep.vector(), b_b)
+
+
     # Riesz representation on the boundary: find dJds_1 in S s.t.
     # ∫_∂Ω <dJds_1, v> ds = dJds(v) for all v in S
     u_b = TrialFunction(S)
@@ -460,6 +517,8 @@ while iteration < maxIter:
     # Use only the normal component of this boundary vector as BC
     N_vec = CGNormal(mesh)
     dJds_1_n = project(inner(dJds_1, N_vec) * N_vec, S)
+    dJds_1_n = regularize_solution(dJds_1_n)
+    File(save_dir + f"/dJds_rep_{iteration}.pvd") << dJds_rep
     File(save_dir + f"/dJds_boundary_{iteration}.pvd") << dJds_1
     File(save_dir + f"/dJds_1_normal_{iteration}.pvd") << dJds_1_n
     File(save_dir + f"/N_vec_{iteration}.pvd") << N_vec

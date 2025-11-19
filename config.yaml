@@ -15,11 +15,12 @@ inner_product: "elasticity"
 anchoring: "vertical"
 tangential_smoothing: True
 use_normal_dJds_projection: True
-boundary_conditions_shapegradient: "None"
-sigma: 1e-5
+boundary_conditions_shapegradient: "fixed_sides"
+boundary_conditions_shapegradient_markers: [2]
+sigma: 1e-6
 beta: 0.5
 stepsize_method: "constant"
-alphaInit: 7e3
+alphaInit: 2e5
 alphaMin: 1e-8
 k_vol: 0.0
 k_com: 0.0
@@ -36,5 +37,5 @@ L_c: 2e-6
 beta_param: 5.0
 x0: 1.5
 delta: 0.5
-delta_beltrami: 0.5
-bc_smoothing: True
+delta_beltrami: 3
+bc_smoothing: False

@@ -27,4 +27,4 @@ Physical Curve(10) = {1};
 //+
 Physical Surface(11) = {1};
 //+
-Show "*";
+MeshSize { PointsOf{ Surface{1}; } } = 0.03;
