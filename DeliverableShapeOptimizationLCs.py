@@ -110,7 +110,7 @@ alphaMin = float(config['alphaMin'])    # Fallback minimal step size to terminat
 k_vol = Constant(float(config['k_vol']))                                    # Penalty constant for volume constraint
 k_com = Constant(float(config['k_com']))                                    # Penalty constant for center of mass constraint
 k_bc = Constant(float(config['k_bc']))                                      # Penalty constant for the anchoring term 
-k_boundarylength = Constant(float(config['k_boundarylength']))                          # Penalty constant for the boundary length constraint
+k_boundarylength = Constant(float(config['k_boundarylength']))              # Penalty constant for the boundary length constraint
 k_meshquality = Constant(float(config['k_meshquality']))                    # Penalty constant for the mesh quality penalty
 eps_meshquality = Constant(float(config['eps_meshquality']))                # Regularize the meshquality term
 k_edge = Constant(float(config['k_edge']))                                  # Penalty constant for the maximum cell edge length constraint
@@ -292,7 +292,7 @@ elif d == 3 and target_geometry == "sphere":
     theta = Expression('acos(x[2]/std::sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]+1e-20))', degree = 1)
     q_target = Expression(('S0*(cos(phi)*cos(phi)*sin(theta)*sin(theta)-0.5)','S0*sin(theta)*sin(theta)*cos(phi)*sin(phi)','S0*sin(theta)*cos(phi)*cos(theta)','S0*(sin(theta)*sin(theta)*sin(phi)*sin(phi) - 0.5)', 'S0*sin(theta)*sin(phi)*cos(theta)'), theta = theta,phi = phi, S0 = S0, degree = 1)
     q_target_proj = project(q_target, W)
-    q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
+    # q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
 
 elif d == 2 and target_geometry == "circle_planar":
     theta = Expression('atan2((x[1]),(x[0]))', degree = 1)
@@ -413,7 +413,7 @@ else:
 if config['tangential_smoothing']:
     displacementInnerProduct += delta_beltrami*inner(tang_grad(TrialFunction(S), normals), tang_grad(TestFunction(S), normals)) * ds_controlvariable
 
-objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, volumes, variances_radius = [], [], [], [], [], [], []
+objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, volumes, variances_radius, radii, center_of_masses = [], [], [], [], [], [], [], [], []
 
 bc_shapegradient = []
 if config['boundary_conditions_shapegradient'] == 'None':
@@ -461,8 +461,8 @@ while iteration < maxIter:
     current_boundary_length.assign(assemble(1.0*ds_controlvariable))
     # Solve the forward PDE.
     # compute initial guess
-    # initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
-    initial_guess = q_target_proj
+    initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
+    # initial_guess = q_target_proj
 
     assign(q_, initial_guess)
     assign(p_, initial_guess)
@@ -517,7 +517,7 @@ while iteration < maxIter:
     # Use only the normal component of this boundary vector as BC
     N_vec = CGNormal(mesh)
     dJds_1_n = project(inner(dJds_1, N_vec) * N_vec, S)
-    dJds_1_n = regularize_solution(dJds_1_n)
+    # dJds_1_n = regularize_solution(dJds_1_n)
     File(save_dir + f"/dJds_rep_{iteration}.pvd") << dJds_rep
     File(save_dir + f"/dJds_boundary_{iteration}.pvd") << dJds_1
     File(save_dir + f"/dJds_1_normal_{iteration}.pvd") << dJds_1_n
@@ -562,7 +562,9 @@ while iteration < maxIter:
     shape_gradient_norms.append(normShapeGradient2)
     objectives_main.append(assemble(objective_main))
     objectives_meshquality.append(assemble(objective_mesh_quality))
-    # variances_radius.append(variance_radius(mesh, surf_markers, boundaries, dx))
+    center_of_masses.append(center_of_mass(mesh, d, dx))
+    radii.append(norm_variance_radius(mesh, surf_markers, boundaries, d, dx)[0])
+    variances_radius.append(norm_variance_radius(mesh, surf_markers, boundaries, d, dx)[1])
     volumes.append(current_volume.values()[0])
     # Store the mesh associated with the current iterate, as well as its objective value.
     referenceMeshCoordinates = mesh.coordinates().copy()
@@ -596,8 +598,8 @@ while iteration < maxIter:
         current_boundary_length.assign(assemble(1.0*ds_controlvariable))
 
         # Solve the forward PDE.
-        # assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
-        assign(q_, q_target_proj)
+        assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
+        # assign(q_, q_target_proj)
         # Solve the forward PDE with the updated mesh.
         solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
@@ -631,12 +633,16 @@ while iteration < maxIter:
         if rel_change < float(config['rel_change_stopping_value']):
             print(f"Stopping: Relative change in objective ({rel_change:.2e}) is below threshold.")
             break
+        if trialJ> objective_values[-1]:
+            print(f"Stopping: Objective functional increased: {objective_values[-1]} > {objective_values[-2]}.")
+            break
 
     # Increment the iteration counter.
     iteration += 1
 
 write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'objectives_main': objectives_main, 'objectives_meshquality': objectives_meshquality})
 plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, k_meshquality)
+plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
 
 
 

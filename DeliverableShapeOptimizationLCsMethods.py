@@ -409,12 +409,80 @@ def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, o
     plt.savefig(save_dir + "/Figures/objective_components_log.png")
     plt.close()
 
-def variance_radius(mesh, surf_markers, boundaries, dx):
+def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_masses):
+    iterations = np.arange(len(radii))
+
+    # Plot radii
+    plt.figure()
+    plt.plot(iterations, radii, label="Radii")
+    plt.xlabel("Iteration")
+    plt.legend()
+    plt.xticks(iterations)
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    plt.savefig(save_dir + "/Figures/radii.png")
+    plt.close()
+
+    # Plot variances of radii
+    plt.figure()
+    plt.plot(iterations, variances_radius, label="Variances of Radii")
+    plt.plot(iterations, variances_radius/(np.square(radii)), label="Variances of Radii/radii^2")
+    plt.xlabel("Iteration")
+    plt.legend()
+    plt.xticks(iterations)
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    plt.savefig(save_dir + "/Figures/var_of_radii.png")
+    plt.close()
+
+    
+    # Plot Center of masses
+    center_of_masses = np.array(center_of_masses)
+    if np.shape(center_of_masses)[1] == 3:
+        x, y, z = center_of_masses[:,0], center_of_masses[:,1], center_of_masses[:,2]
+        ax = plt.figure().add_subplot(projection='3d')
+        ax.plot(x, y, z, marker='o')
+        # Plot arrows
+        u = np.diff(x)
+        v = np.diff(y)
+        w = np.diff(z)
+        pos_x = x[:-1] + u/2
+        pos_y = y[:-1] + v/2
+        pos_z = z[:-1] + w/2
+
+        norm = np.sqrt(u**2+v**2 + w**2) 
+
+        # ax.quiver(pos_x, pos_y, pos_z, u/norm, v/norm, w/norm, zorder=5, pivot="middle")
+        plt.savefig(save_dir + "/Figures/center_of_masses.png")
+
+    if np.shape(center_of_masses)[1] == 2:
+        x, y= center_of_masses[:,0], center_of_masses[:,1]
+        fig, ax = plt.subplots()
+        ax.plot(x, y, marker='o')
+        # Plot arrows
+        u = np.diff(x)
+        v = np.diff(y)
+        pos_x = x[:-1] + u/2
+        pos_y = y[:-1] + v/2
+
+        norm = np.sqrt(u**2+v**2) 
+
+        ax.quiver(pos_x, pos_y, u/norm, v/norm, zorder=5, pivot="middle")
+        plt.savefig(save_dir + "/Figures/center_of_masses.png")
+
+def center_of_mass(mesh, d, dx):
     x = Expression('x[0]', degree = 1)
     y = Expression('x[1]', degree = 1)
     x_coord = assemble(x * dx) / assemble(1.0 * dx)
     y_coord = assemble(y * dx) / assemble(1.0 * dx)
-    center_of_mass = np.array([x_coord, y_coord])
+    center_of_mass = [x_coord, y_coord]
+    if d == 3: 
+        z = Expression('x[2]', degree = 1)
+        z_coord = assemble(z * dx) / assemble(1.0 * dx)
+        center_of_mass = [x_coord, y_coord, z_coord]
+    return center_of_mass
+
+
+def norm_variance_radius(mesh, surf_markers, boundaries,d, dx):
+    com = center_of_mass(mesh, d, dx)
     # Compute variance of the radius from the center of mass
     # Only consider boundary points for variance calculation
     boundary_indices = []
@@ -425,5 +493,5 @@ def variance_radius(mesh, surf_markers, boundaries, dx):
     boundary_indices = np.unique(boundary_indices)
     coords = mesh.coordinates()
     boundary_coords = coords[boundary_indices]
-    radii = np.linalg.norm(boundary_coords - center_of_mass, axis=1)
-    return np.var(radii)
+    radii = np.linalg.norm(boundary_coords - com, axis=1)
+    return np.mean(radii), np.var(radii)

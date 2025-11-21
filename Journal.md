@@ -130,3 +130,12 @@ The first test does not yield good results. The shape derivative looks fine, but
     - Looking at the shape derivative you can see the effect of trying to shrink the integration area at the interface of the integration to non-integration, showing that the shape derivative wants to use non physical information to decrease the objective functional. 
 
 - *TODO* Standardize the physical group numbering
+
+### Friday, 21st of November 2025
+
+- Successfull run with a 3D Ellipsioid deforming into a sphere (see Results/TestEllipsiod3D)
+    - Initial Stepsize need to be large enough to deform the sharp ends into round caps
+    - Added the PlotGeometricalInformation method to plot radii etc.
+    - The variance of the radius goes down significantly
+    - The center of mass has some unwanted movement
+    - The Beltrami Smoothing needed to be turned up in order to avoid spikes
