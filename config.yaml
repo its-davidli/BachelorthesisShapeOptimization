@@ -1,5 +1,5 @@
-mesh_name: Ellipse3D
-subfolder: Ellipse3D
+mesh_name: OneSidedWallBox
+subfolder: OneSidedWallBox
 save_fold: Results
 geom_folder: ./Geometries/
 surf_markers: [1]
@@ -8,7 +8,7 @@ dimensions: 3
 rel_change_stopping_value: 1e-3
 finite_element: "CG"
 finite_element_degree: 1
-target_geometry: "sphere"
+target_geometry: "pseudoChiral"
 top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
 inner_product: "elasticity"
@@ -17,10 +17,10 @@ tangential_smoothing: True
 use_normal_dJds_projection: True
 boundary_conditions_shapegradient: "None"
 boundary_conditions_shapegradient_markers: [2]
-sigma: 1e-6
+sigma: 1e-3
 beta: 0.5
 stepsize_method: "constant"
-alphaInit: 2e3
+alphaInit: 1e3
 alphaMin: 1e-4
 k_vol: 0.0
 k_com: 0.0
@@ -30,12 +30,12 @@ k_bc: 1e4
 eps_meshquality: 1e-12
 k_boundarylength: 0
 k_edge: 0
-E: 1
+E: 100
 nu: 0.4
 a_B: 0.1
 L_c: 2e-6
 beta_param: 5.0
 x0: 1.5
-delta: 2
-delta_beltrami: 3
+delta: 10
+delta_beltrami: 1
 bc_smoothing: False

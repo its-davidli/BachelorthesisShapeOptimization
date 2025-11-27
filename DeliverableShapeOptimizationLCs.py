@@ -121,6 +121,7 @@ nu = Constant(float(config['nu'])) # Poisson's ratio
 lmbda = nu*E/((1+nu)*(1-2*nu))
 mu = E/(2*(1+nu))
 def strain(u): return sym(nabla_grad(u))
+# def strain(u): return sym(nabla_grad(u)) - (1.0/3.0)*tr(sym(nabla_grad(u)))*Identity(d)
 def C(epsilon): return lmbda * epsilon + 2 * mu * tr(epsilon) * Identity(d)
 
 
@@ -319,8 +320,10 @@ elif d == 2 and target_geometry == "defect":
 
 elif d == 3 and target_geometry == "pseudoChiral":
     X = SpatialCoordinate(mesh)
-
-    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 0), degree = 1)
+    phi = pi/4*0.2*X[2]
+    eps = Constant(1e-10)
+    q_target = as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
+    # q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 0), degree = 1)
     q_target_proj = project(q_target, W)
     # q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
 
@@ -461,8 +464,8 @@ while iteration < maxIter:
     current_boundary_length.assign(assemble(1.0*ds_controlvariable))
     # Solve the forward PDE.
     # compute initial guess
-    initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
-    # initial_guess = q_target_proj
+    # initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
+    initial_guess = q_target_proj
 
     assign(q_, initial_guess)
     assign(p_, initial_guess)
@@ -598,8 +601,8 @@ while iteration < maxIter:
         current_boundary_length.assign(assemble(1.0*ds_controlvariable))
 
         # Solve the forward PDE.
-        assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
-        # assign(q_, q_target_proj)
+        # assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
+        assign(q_, q_target_proj)
         # Solve the forward PDE with the updated mesh.
         solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 

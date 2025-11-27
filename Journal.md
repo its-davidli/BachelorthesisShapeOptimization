@@ -129,7 +129,7 @@ The first test does not yield good results. The shape derivative looks fine, but
 - Tried only integrating on a sub area: No good results but **TODO** explore that more, to possible analyze the different components of the shape derivative and where they come from
     - Looking at the shape derivative you can see the effect of trying to shrink the integration area at the interface of the integration to non-integration, showing that the shape derivative wants to use non physical information to decrease the objective functional. 
 
-- *TODO* Standardize the physical group numbering
+- **TODO** Standardize the physical group numbering
 
 ### Friday, 21st of November 2025
 
@@ -139,3 +139,20 @@ The first test does not yield good results. The shape derivative looks fine, but
     - The variance of the radius goes down significantly
     - The center of mass has some unwanted movement
     - The Beltrami Smoothing needed to be turned up in order to avoid spikes
+
+### Thursday, 27th of November 2025
+
+- Succesfull run with the rigid rotation test case
+    - First tried with the standard LET Parameter (*E = 1, nu = 0.4*): Good Results, but the volume is getting compressed (see *Results/TestRigidRotationNormalElasticity*)
+    - Then tried to subtract the compression part of the strain tensor, but that did not change much (see *Results/TestRigidRotationOnlyShear*)
+    - Then increased the Youngs Modulus from *1* to *100* to make the volume less compressable, that yielded very good results (see *Results/TestRigidRotationGoodResult*) Note that in order to remove the rigid motions, one also has to increase the delta paremeter
+    - **Question:** Does the subtraction of the trace do anything in LET Theory?
+    - **Question:** Here we used the target Alignment as initial guess, and one can see, that the Energy cost ist not strong enough to align the LCs in the middle
+
+- Revisited the pseudo chiral LC Case:
+    - Used Same parameters as in the prior test case. Results look promising (see *Results/TestPseudoChiralPrelim*), further investigations needed, e.g.:
+        - Fix the bottom boundary
+        - Different LET Parameters and deltas
+        - Center the box around the origin
+        - Rewrite the target function without the Expression (Already implemented, need to run it as next step)
+    
