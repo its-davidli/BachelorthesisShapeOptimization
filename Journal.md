@@ -156,3 +156,10 @@ The first test does not yield good results. The shape derivative looks fine, but
         - Center the box around the origin
         - Rewrite the target function without the Expression (Already implemented, need to run it as next step)
     
+
+### Tuesday, 2nd December 2025
+
+- Succesfull pseudo chiral LC Case, see *Results/TestChiralSuccess*:
+    - With the Expression Method in the target function
+    - Both deltas set to 0
+    - Changed the forword solver, adding a relaxation step

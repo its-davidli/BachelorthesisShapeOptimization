@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import scipy
 import yaml # For reading configuration files
 from DeliverableShapeOptimizationLCsMethods import *
-set_log_level(LogLevel.WARNING)
+# set_log_level(LogLevel.WARNING)
     
 # Load configuration from YAML file
 with open("config.yaml", 'r') as stream:
@@ -322,8 +322,8 @@ elif d == 3 and target_geometry == "pseudoChiral":
     X = SpatialCoordinate(mesh)
     phi = pi/4*0.2*X[2]
     eps = Constant(1e-10)
-    q_target = as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
-    # q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 0), degree = 1)
+    # q_target = as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
+    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 1), degree = 1)
     q_target_proj = project(q_target, W)
     # q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
 
@@ -470,7 +470,7 @@ while iteration < maxIter:
     assign(q_, initial_guess)
     assign(p_, initial_guess)
 
-    solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+    solveMultRelaxation([[0.8,1e-3], [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
     
     J = assemble(objective)
 
@@ -601,8 +601,8 @@ while iteration < maxIter:
         current_boundary_length.assign(assemble(1.0*ds_controlvariable))
 
         # Solve the forward PDE.
-        # assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
-        assign(q_, q_target_proj)
+        assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
+        # assign(q_, q_target_proj)
         # Solve the forward PDE with the updated mesh.
         solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
