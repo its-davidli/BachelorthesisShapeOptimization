@@ -332,6 +332,10 @@ elif d == 3 and target_geometry == "uniform_horizontal":
     azimuth_angle = Constant(np.pi/6)
     q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = azimuth_angle , S0 = S0, eps= tol, degree = 1)
     q_target_proj = project(q_target, W)
+
+elif d == 3 and target_geometry == "saturnring_defect":
+    X = SpatialCoordinate(mesh)
+    
 else:
     q_target = Expression(('0', '0'), degree = 1)
     if d == 3:
@@ -427,6 +431,8 @@ elif d == 3 and config['boundary_conditions_shapegradient'] == 'fixed_bottom':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
 elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries,2)]
+elif d==3 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries,config['boundary_conditions_shapegradient_markers'][0])]
 # Run a shape gradient loop.
 iteration = 0
 

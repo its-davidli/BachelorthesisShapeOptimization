@@ -163,3 +163,11 @@ The first test does not yield good results. The shape derivative looks fine, but
     - With the Expression Method in the target function
     - Both deltas set to 0
     - Changed the forword solver, adding a relaxation step
+
+### Thursday, 4th December 2025
+
+- To improve the result from Tuesday, ran it with delta = 0.2, which makes the result better, since it removes rigid movements better see *Results/TestChiralSuccessWithDelta*
+- Started to work on Saturn Ring defect
+    - Found analytical expression in *AlamaSaturnDefect*
+    - Tested forward solution: Looks alright
+    - **TODO:** Implement objective

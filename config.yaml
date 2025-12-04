@@ -1,5 +1,5 @@
-mesh_name: OneSidedWallBox
-subfolder: OneSidedWallBox
+mesh_name: SaturnDefectCentered
+subfolder: SaturnDefectCentered
 save_fold: Results
 geom_folder: ./Geometries/
 surf_markers: [1]
@@ -8,14 +8,14 @@ dimensions: 3
 rel_change_stopping_value: 1e-3
 finite_element: "CG"
 finite_element_degree: 1
-target_geometry: "pseudoChiral"
+target_geometry: "sphere"
 top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
 inner_product: "elasticity"
 anchoring: "vertical"
 tangential_smoothing: True
 use_normal_dJds_projection: True
-boundary_conditions_shapegradient: "fixed_bottom"
+boundary_conditions_shapegradient: "fix"
 boundary_conditions_shapegradient_markers: [2]
 sigma: 1e-5
 beta: 0.5
@@ -36,6 +36,6 @@ a_B: 0.1
 L_c: 2e-6
 beta_param: 5.0
 x0: 1.5
-delta: 0
+delta: 0.2
 delta_beltrami: 0
 bc_smoothing: False
