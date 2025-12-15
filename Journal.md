@@ -171,3 +171,9 @@ The first test does not yield good results. The shape derivative looks fine, but
     - Found analytical expression in *AlamaSaturnDefect*
     - Tested forward solution: Looks alright
     - **TODO:** Implement objective
+
+### Monday. 15th Decemember 2025
+
+- New *Results/TestRigidRotationVeryGoodResult*, where I removed the Laplace Beltrami smoothing, which is has better results.
+- Started with the Saturn Defect
+    - In 2D everything is running, but there is a problem in the forward solution, since it introduces additional defects. Needs more analyzing

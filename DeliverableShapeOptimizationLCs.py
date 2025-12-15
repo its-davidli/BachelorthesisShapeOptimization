@@ -330,12 +330,38 @@ elif d == 3 and target_geometry == "pseudoChiral":
 elif d == 3 and target_geometry == "uniform_horizontal":
     X = SpatialCoordinate(mesh)
     azimuth_angle = Constant(np.pi/6)
-    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = azimuth_angle , S0 = S0, eps= tol, degree = 1)
+    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*(sin(phi)*sin(phi) - 1/3)', 'eps'), phi = azimuth_angle , S0 = S0, eps= tol, degree = 1)
     q_target_proj = project(q_target, W)
 
 elif d == 3 and target_geometry == "saturnring_defect":
     X = SpatialCoordinate(mesh)
-    
+    radius_circle = 0.05
+    phi = Expression('atan2((x[1]),(x[0]))', degree = 1)
+    theta = Expression('acos(x[2]/std::sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]+1e-20))', degree = 1)
+    Q_h = Expression(('S0*(cos(phi)*cos(phi)*sin(theta)*sin(theta)-0.5)','S0*sin(theta)*sin(theta)*cos(phi)*sin(phi)','S0*sin(theta)*cos(phi)*cos(theta)','S0*(sin(theta)*sin(theta)*sin(phi)*sin(phi) - 0.5)', 'S0*sin(theta)*sin(phi)*cos(theta)'), theta = theta,phi = phi, S0 = S0, degree = 1)
+    Q_inf = Expression(('-S0*(1.0/3.0)', 'eps', 'eps', '-S0*(1.0/3.0)', 'eps'), S0 = S0, eps= 0.0, degree = 1)
+    rescaled_radius = Expression('sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]) / R', R = radius_circle, degree = 1)
+    w = Constant(radius_circle*k_bc/L_c)
+    q_target  = w/(3+w)/rescaled_radius**3*Q_h + (1 - w/(1+w)/rescaled_radius)*Q_inf
+    q_target_proj = project(q_target, W)
+
+
+elif d == 2 and target_geometry == "saturnring_defect":
+    radius_circle = 0.025
+    phi = Expression('atan2((x[1]),(x[0]))', degree = 1)
+    Q_h = Expression(('S0*(cos(phi)*cos(phi)-0.5)', 'S0*sin(phi)*cos(phi)'), phi = phi, S0 = S0, degree = 1)
+    Q_inf = Expression(('-S0*(0.5)', 'eps'), S0 = S0, eps= 0.0, degree = 1)
+    rescaled_radius = Expression('sqrt(x[0]*x[0] + x[1]*x[1]) / R', R = radius_circle, degree = 1)
+    w = Constant(radius_circle*k_bc/L_c)
+    q_target  = w/(3+w)/rescaled_radius**2*Q_h + (1 - w/(1+w)/rescaled_radius)*Q_inf
+    class Charged(SubDomain):
+        def inside(self, x, on_boundary):
+            return x[1] <= 0.0 - radius_circle
+    Charged_Domain = Charged()
+    Charged_Domain.mark(domains, 10)
+    subdomainlist.append(10)
+    q_target_proj = project(q_target, W)
+
 else:
     q_target = Expression(('0', '0'), degree = 1)
     if d == 3:
@@ -430,7 +456,14 @@ elif d == 3 and config['boundary_conditions_shapegradient'] == 'fixed_bottom':
         return near(x[2], 0, tol)
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
 elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
-    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries,2)]
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries, 2)]
+    asd = assemble(1*ds_controlvariable(2))
+    print("Length of fixed side boundary:", asd)
+
+elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_square':
+    def boundary(x):
+        return near(abs(x[0]), 0.5, tol) or near(abs(x[1]), 0.5, tol)
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundary)]
 elif d==3 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries,config['boundary_conditions_shapegradient_markers'][0])]
 # Run a shape gradient loop.
@@ -470,13 +503,13 @@ while iteration < maxIter:
     current_boundary_length.assign(assemble(1.0*ds_controlvariable))
     # Solve the forward PDE.
     # compute initial guess
-    # initial_guess = compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
-    initial_guess = q_target_proj
+    initial_guess =  compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
+    # initial_guess = q_target_proj
 
     assign(q_, initial_guess)
     assign(p_, initial_guess)
 
-    solveMultRelaxation([[0.8,1e-3], [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+    solveMultRelaxation([ [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
     
     J = assemble(objective)
 
@@ -610,7 +643,7 @@ while iteration < maxIter:
         assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
         # assign(q_, q_target_proj)
         # Solve the forward PDE with the updated mesh.
-        solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+        solveMultRelaxation([ [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
         trialJ = assemble(objective)
 
