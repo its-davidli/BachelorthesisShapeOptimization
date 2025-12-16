@@ -14,7 +14,7 @@ Physical Curve(3) = {5};
 BooleanDifference(3) = { Surface{1}; Delete; }{ Surface{2}; Delete; };
 Physical Surface(1) = {3};
 
-lc = 0.05;
+lc = 0.03;
 Point(100) = {0, 0.025, 0, lc};
 
 // Say we would like to obtain mesh elements with size lc/30 near curve 2 and

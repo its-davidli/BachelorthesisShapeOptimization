@@ -356,7 +356,7 @@ elif d == 2 and target_geometry == "saturnring_defect":
     q_target  = w/(3+w)/rescaled_radius**2*Q_h + (1 - w/(1+w)/rescaled_radius)*Q_inf
     class Charged(SubDomain):
         def inside(self, x, on_boundary):
-            return x[1] <= 0.0 - radius_circle
+            return x[1] <= 0.0 - 1.5 *radius_circle
     Charged_Domain = Charged()
     Charged_Domain.mark(domains, 10)
     subdomainlist.append(10)
@@ -466,6 +466,9 @@ elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_square':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundary)]
 elif d==3 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries,config['boundary_conditions_shapegradient_markers'][0])]
+
+else:
+    raise ValueError("Boundary condition for shape gradient not supported")
 # Run a shape gradient loop.
 iteration = 0
 
@@ -482,6 +485,12 @@ def regularize_solution(u):
 if d == 3:
     xdmffile_results = XDMFFile(save_dir + '/results.xdmf')
     xdmffile_adjoints = XDMFFile(save_dir + '/adjoints.xdmf')
+
+
+# Define initial guess for the forward solver
+X = SpatialCoordinate(mesh)
+q_initial = as_vector((-S0*(0.5), tol))
+
 
 # Initial mesh displacement to create tests
 # def boundary(x, on_boundary):
@@ -503,13 +512,13 @@ while iteration < maxIter:
     current_boundary_length.assign(assemble(1.0*ds_controlvariable))
     # Solve the forward PDE.
     # compute initial guess
-    initial_guess =  compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
-    # initial_guess = q_target_proj
+    # initial_guess =  compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring'])
+    initial_guess = project(q_initial , W)
 
     assign(q_, initial_guess)
     assign(p_, initial_guess)
 
-    solveMultRelaxation([ [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+    solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
     
     J = assemble(objective)
 
@@ -640,10 +649,11 @@ while iteration < maxIter:
         current_boundary_length.assign(assemble(1.0*ds_controlvariable))
 
         # Solve the forward PDE.
-        assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
+        # assign(q_, compute_initial_guess(mesh, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, config['anchoring']))
         # assign(q_, q_target_proj)
+        assign(q_, initial_guess)
         # Solve the forward PDE with the updated mesh.
-        solveMultRelaxation([ [1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
+        solveMultRelaxation([[1.0,1e-8]], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
         trialJ = assemble(objective)
 

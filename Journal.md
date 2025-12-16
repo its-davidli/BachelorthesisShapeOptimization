@@ -7,11 +7,10 @@
 
 ## Questions (to Roland and Stephan)
 
-- Behavior of derivatives of DG Elements, see 2nd point 10th october 
 - Spikes at the 3D Boundary
-- Behavior of defect location? (see last point in Saturday, 11th October 2025)
-- How to shape optimize for only a local objective
+- Behavior of defect location? (see last point in Saturday, 11th October 2025 and Tuesday, 16th December 2025)
 - Initial Stepsize determination
+- Criterion to reject Stepsize because of intersecting mesh cells
 
 ## Log book
 
@@ -172,8 +171,15 @@ The first test does not yield good results. The shape derivative looks fine, but
     - Tested forward solution: Looks alright
     - **TODO:** Implement objective
 
-### Monday. 15th Decemember 2025
+### Monday, 15th Decemember 2025
 
 - New *Results/TestRigidRotationVeryGoodResult*, where I removed the Laplace Beltrami smoothing, which is has better results.
 - Started with the Saturn Defect
     - In 2D everything is running, but there is a problem in the forward solution, since it introduces additional defects. Needs more analyzing
+
+### Tuesday, 16th December 2025
+
+- Got a good result for the saturn ring defect *Results/TestSaturnGood*
+    - The forward solution looks good. The initialization of the forward solver is important! Otherwise there might be other defects introduces, see the 0-th iteration of *Results/TestSaturnMultDefects*
+    - In the iteration 9 the stepsize is too large, such that the mesh intercepts itself, which makes the iterations after it invalid.
+    - Mesh size is really important! Take care of the Choose of *L_c*, which influences the coherence length and thus the minimum mesh size 
