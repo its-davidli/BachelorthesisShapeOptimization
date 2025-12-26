@@ -3,7 +3,7 @@ SetFactory("OpenCASCADE");
 //+
 Rectangle(1) = {-0.5, -0.5, 0, 1.0, 1.0, 0};
 //+
-Circle(5) = {0, 0.025, 0, 0.025, 0, 2*Pi};
+Circle(5) = {0, 0.2, 0, 0.025, 0, 2*Pi};
 Line Loop(6) = {5};
 Plane Surface(2) = {6};
 

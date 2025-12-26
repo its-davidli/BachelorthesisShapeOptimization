@@ -1,9 +1,6 @@
 from fenics import *
 from dolfin import *
 from dolfin_adjoint import *
-#from create_mesh import c_x, c_y
-# import moola
-#from scipy.optimize import minimize
 import numpy as np
 from ufl_legacy import nabla_div, nabla_grad, VectorElement, FiniteElement, MixedElement, split, atan_2, replace, Jacobian
 import math 
@@ -635,7 +632,7 @@ while iteration < maxIter:
                 alpha = 1/sqrt(normShapeGradient2)
         if config['stepsize_method'] == "constant":
             alpha = min(alphaInit, 1000* alpha / beta)
-
+    # alpha = 1.25 * alpha
     while (lineSearchSuccessful == False) and (alpha > alphaMin):
         # Assign the mesh displacement vector field.
         mesh.coordinates()[:] = referenceMeshCoordinates

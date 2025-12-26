@@ -1,17 +1,17 @@
-mesh_name: SaturnDefectShifted2DAlt
-subfolder: SaturnDefectShifted2DAlt
+mesh_name: SaturnDefectShifted2DAlt3
+subfolder: SaturnDefectShifted2DAlt3
 save_fold: Results
 geom_folder: ./Geometries/
 surf_markers: [1]
 maxIter: 1000
 dimensions: 2
-rel_change_stopping_value: 1e-3
+rel_change_stopping_value: 1e-7
 finite_element: "CG"
 finite_element_degree: 1
 target_geometry: "saturnring_defect"
 top_charge: [0.5, 0.5]
 position_defect: [[-0.5,0],[0.5,0]]
-inner_product: "elasticity"
+inner_product: "H1"
 anchoring: "vertical"
 tangential_smoothing: True
 use_normal_dJds_projection: True
@@ -19,8 +19,8 @@ boundary_conditions_shapegradient: "fixed_square"
 boundary_conditions_shapegradient_markers: [2]
 sigma: 1e-5
 beta: 0.5
-stepsize_method: "herzog_meshquality"
-alphaInit: 1e5
+stepsize_method: "constant"
+alphaInit: 1e6
 alphaMin: 1e-4
 k_vol: 0.0
 k_com: 0.0
