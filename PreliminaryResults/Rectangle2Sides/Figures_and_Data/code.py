@@ -109,7 +109,7 @@ n_indep_comp = int(d*(d+1)/2 - 1) #Number of independent components for a symmet
 L_c = float(config["L_c"])
 a_B = float(config["a_B"])
 if d==2: S0 = np.sqrt(2.0*a_B) # Corresponding LdG S eigenvalue
-if d==3: S0 = 1/4*(np.sqrt(24.0*a_B + 1)+1) # Corresponding LdG S eigenvalue
+if d==3: S0 = 1/4*(math.sqrt(24.0*a_B + 1)+1) # Corresponding LdG S eigenvalue
 
 # Set default algorithmic parameters (Armijo line search)
 maxIter = int(config['maxIter'])        # Maximum number of shape gradient steps.
@@ -131,7 +131,7 @@ if config['inner_product'] == "elasticity":
         lmbda = 2*mu*lmbda/(lmbda + 2*mu) # Plane stress condition
     def strain(u): return sym(nabla_grad(u))
     # def strain(u): return sym(nabla_grad(u)) - (1.0/3.0)*tr(sym(nabla_grad(u)))*Identity(d)
-    def C(epsilon): return 2 * mu * epsilon + lmbda * tr(epsilon) * Identity(d)
+    def C(epsilon): return 2* mu * epsilon + lmbda * tr(epsilon) * Identity(d)
 
 x = Expression('x[0]', degree = 1)
 y = Expression('x[1]', degree = 1)
@@ -402,9 +402,9 @@ while iteration < maxIter:
 
     # Solve the forward PDE.
     # compute initial guess
-    # initial_guess =  compute_initial_guess(mesh, W, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
-    # assign(q_, initial_guess)
-    # assign(p_, initial_guess)
+    initial_guess =  compute_initial_guess(mesh, W, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
+    assign(q_, initial_guess)
+    assign(p_, initial_guess)
 
     # Solve the forward PDE with relaxation paramaters in the Newton solver
     solveMultRelaxation(config['forward_solver_relaxations'], forwardPDE,0, q_, None, forwardJacobian, ffc_options)

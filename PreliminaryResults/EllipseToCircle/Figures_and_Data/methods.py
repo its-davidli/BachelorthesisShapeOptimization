@@ -3,7 +3,6 @@ from dolfin import *
 from dolfin_adjoint import *
 from ufl_legacy import nabla_div, nabla_grad, VectorElement, FiniteElement, MixedElement, split, atan_2, replace, Jacobian,  tr, variable, shape, Max, sqrt, Min, det, Identity, max_value, min_value
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 
 def LG_energy(q,a_B,L_c, d): #Landau de Gennes energy functional with a single elastic constant L
@@ -30,14 +29,11 @@ def LG_boundaryPenalty(q, Q_b, k_bc, d): # Penalty Term in the LdG energy functi
         raise ValueError("Dimension not supported")
     return 0.5*k_bc*inner(Q - Q_b, Q - Q_b)
 
-def compute_initial_guess(mesh, W, type, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, anchoring): # Compute initial guess by minimizing the Frank energy functional
+def compute_initial_guess(mesh, type, S0, boundaries, surf_markers, finite_element, finite_element_degree, d, anchoring): # Compute initial guess by minimizing the Frank energy functional
 
     if type == "uniform" and d == 2:
-        return project(as_vector((-S0*(0.5), 1e-14)), W)
+        return as_vector((-S0*(0.5), 1e-14))
 
-    if type == "uniform" and d == 3:
-        # return project(as_vector((S0*(2/3),1e-14, 1e-14, -S0*(1/3), 1e-14)), W)
-        return project(as_vector((S0*(math.cos(np.pi/6)**2- 1/3),S0*math.cos(np.pi/6)*math.sin(np.pi/6), 1e-14, S0*(math.sin(np.pi/6)*math.sin(np.pi/6)-1/3), 1e-14)), W)
 
     if type == "Frank":
         # Define suitable vector, tensor and scalar spaces
@@ -303,24 +299,15 @@ def CGNormal(mesh, FacetMarker = None, Region = None):
 
     return N
 
-def regularize_solution(u, u_max=0, i_list = None):
+def regularize_solution(u, u_max):
     u_array = u.vector().get_local()
-    
-    if i_list is None:
-        i_list = []
-
-        for i,element in enumerate(u_array):
-            if abs(element) > u_max: 
-                u_array[i]=0
-                i_list.append(i)
-        u.vector()[:] = u_array
-        return u, i_list
-    else:
-        for i in i_list:
-            u_array[i]=0
+    for i,element in enumerate(u_array):
+        if abs(element) > u_max: 
+            u_array[i]*=1e-2
             print(i)
-        u.vector()[:] = u_array
-        return u
+    u.vector()[:] = u_array
+    return u
+
 def print_objective_and_gradient_terms(terms):
     print("\n{:35s} {:>20s} {:>20s} {:>15s} {:>25s} {:>25s}".format("Term Name", "Objective Value", "dJdS Value", "Coeff", "Coeff*Objective", "Coeff*dJdS"))
     print("-"*145)
@@ -402,17 +389,6 @@ def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes):
     plt.xticks(iterations)
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
     plt.savefig(save_dir + "/Figures_and_Data/rel_changes.png")
-    plt.close()
-
-    # plot rel_changes with log scale
-    plt.figure()
-    plt.plot(iterations[1:], rel_changes, label="Relative Change in Objective")
-    plt.yscale('log')
-    plt.xlabel("Iteration")
-    plt.legend()
-    plt.xticks(iterations)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
-    plt.savefig(save_dir + "/Figures_and_Data/rel_changes_log.png")
     plt.close()
 
 

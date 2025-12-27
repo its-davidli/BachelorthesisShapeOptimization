@@ -183,3 +183,9 @@ The first test does not yield good results. The shape derivative looks fine, but
     - The forward solution looks good. The initialization of the forward solver is important! Otherwise there might be other defects introduces, see the 0-th iteration of *Results/TestSaturnMultDefects*
     - In the iteration 9 the stepsize is too large, such that the mesh intercepts itself, which makes the iterations after it invalid.
     - Mesh size is really important! Take care of the Choose of *L_c*, which influences the coherence length and thus the minimum mesh size 
+
+### Friday, 26th December 2025
+
+- Major Code Changes
+- Collecting Final Results in *PreliminaryResults/*
+- In 3D the S0 parameter still is unclear??? 

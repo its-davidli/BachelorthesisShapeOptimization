@@ -4,3 +4,7 @@ __pycache__/
 jitfailure*/
 Papers/
 Bachelorthesis/figures
+PreliminaryResults/*/*.pvd
+PreliminaryResults/*/*.vtu
+PreliminaryResults/*/*.xdmf
+PreliminaryResults/*/*.h5

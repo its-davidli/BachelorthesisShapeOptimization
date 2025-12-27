@@ -109,7 +109,7 @@ n_indep_comp = int(d*(d+1)/2 - 1) #Number of independent components for a symmet
 L_c = float(config["L_c"])
 a_B = float(config["a_B"])
 if d==2: S0 = np.sqrt(2.0*a_B) # Corresponding LdG S eigenvalue
-if d==3: S0 = 1/4*(np.sqrt(24.0*a_B + 1)+1) # Corresponding LdG S eigenvalue
+if d==3: S0 = 1/4*(math.sqrt(24.0*a_B + 1)+1) # Corresponding LdG S eigenvalue
 
 # Set default algorithmic parameters (Armijo line search)
 maxIter = int(config['maxIter'])        # Maximum number of shape gradient steps.
@@ -131,7 +131,7 @@ if config['inner_product'] == "elasticity":
         lmbda = 2*mu*lmbda/(lmbda + 2*mu) # Plane stress condition
     def strain(u): return sym(nabla_grad(u))
     # def strain(u): return sym(nabla_grad(u)) - (1.0/3.0)*tr(sym(nabla_grad(u)))*Identity(d)
-    def C(epsilon): return 2 * mu * epsilon + lmbda * tr(epsilon) * Identity(d)
+    def C(epsilon): return 2* mu * epsilon + lmbda * tr(epsilon) * Identity(d)
 
 x = Expression('x[0]', degree = 1)
 y = Expression('x[1]', degree = 1)
@@ -330,9 +330,7 @@ adjointJacobian = derivative(adjointPDE, p_)
 
 
 # Compute and save initial guess for the state variable q
-initial_guess = compute_initial_guess(mesh, W,config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
-# if config['initial_guess'] != 'Frank':
-#     initial_guess = project(initial_guess, W)
+initial_guess = compute_initial_guess(mesh, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
 assign(q_, initial_guess)
 assign(p_, initial_guess)
 if d == 2:
@@ -376,7 +374,7 @@ elif d == 3 and config['boundary_conditions_shapegradient'] == 'fixed_bottom':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
 
 elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
-    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries, config['boundary_conditions_shapegradient_markers'][0])]
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries, 2)]
 
 
 elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_square':
@@ -385,7 +383,7 @@ elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_square':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundary)]
 
 elif d==3 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
-    bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries, tuple(config['boundary_conditions_shapegradient_markers']))]
+    bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries,config['boundary_conditions_shapegradient_markers'][0])]
 
 else:
     raise ValueError("Boundary condition for shape gradient not supported")
@@ -402,9 +400,9 @@ while iteration < maxIter:
 
     # Solve the forward PDE.
     # compute initial guess
-    # initial_guess =  compute_initial_guess(mesh, W, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
-    # assign(q_, initial_guess)
-    # assign(p_, initial_guess)
+    initial_guess =  compute_initial_guess(mesh, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
+    assign(q_, initial_guess)
+    assign(p_, initial_guess)
 
     # Solve the forward PDE with relaxation paramaters in the Newton solver
     solveMultRelaxation(config['forward_solver_relaxations'], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
@@ -507,7 +505,7 @@ while iteration < maxIter:
     else:
         if config['stepsize_method'] == "herzog_meshquality":
             alpha = alpha*sqrt(shape_gradient_norms[-2]/normShapeGradient2)
-            if alpha * sqrt(normShapeGradient2) < config['herzog_meshquality_min']:
+            if alpha * sqrt(normShapeGradient2) < 1e-3:
                 alpha = 1/sqrt(normShapeGradient2)
         if config['stepsize_method'] == "constant":
             alpha = min(alphaInit, 1000* alpha / beta)
@@ -522,7 +520,7 @@ while iteration < maxIter:
         File(save_dir + f"/mesh_iter{iteration}_sub{sub_iteration}.pvd") << mesh
         
         # Solve the forward PDE.
-        assign(q_, compute_initial_guess(mesh,W, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring']))
+        assign(q_, compute_initial_guess(mesh, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring']))
         # Solve the forward PDE with the updated mesh.
         solveMultRelaxation(config['forward_solver_relaxations'], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
 
@@ -558,13 +556,11 @@ while iteration < maxIter:
             print(f"Stopping: Relative change in objective ({rel_change:.2e}) is below threshold.")
             break
         if trialJ> objective_values[-1]:
-            print(f"Stopping: Objective functional increased: {trialJ} > {objective_values[-1]}.")
+            print(f"Stopping: Objective functional increased: {objective_values[-1]} > {objective_values[-2]}.")
             break
 
     # Increment the iteration counter.
-    rel_changes_copy = rel_changes.copy()
-    rel_changes_copy.insert(0, 0.0) # Append dummy value for the last iteration
-    write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'alphas': alphas, 'rel_changes': rel_changes_copy})
+    write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'alphas': alphas})
     plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes)
     plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
     iteration += 1

@@ -3,7 +3,6 @@ from dolfin import *
 from dolfin_adjoint import *
 from ufl_legacy import nabla_div, nabla_grad, VectorElement, FiniteElement, MixedElement, split, atan_2, replace, Jacobian,  tr, variable, shape, Max, sqrt, Min, det, Identity, max_value, min_value
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 
 def LG_energy(q,a_B,L_c, d): #Landau de Gennes energy functional with a single elastic constant L
@@ -35,9 +34,6 @@ def compute_initial_guess(mesh, W, type, S0, boundaries, surf_markers, finite_el
     if type == "uniform" and d == 2:
         return project(as_vector((-S0*(0.5), 1e-14)), W)
 
-    if type == "uniform" and d == 3:
-        # return project(as_vector((S0*(2/3),1e-14, 1e-14, -S0*(1/3), 1e-14)), W)
-        return project(as_vector((S0*(math.cos(np.pi/6)**2- 1/3),S0*math.cos(np.pi/6)*math.sin(np.pi/6), 1e-14, S0*(math.sin(np.pi/6)*math.sin(np.pi/6)-1/3), 1e-14)), W)
 
     if type == "Frank":
         # Define suitable vector, tensor and scalar spaces
