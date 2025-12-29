@@ -1,6 +1,6 @@
 mesh_name: OneSidedWallBox
 subfolder: OneSidedWallBox
-save_fold: Results
+save_fold: PreliminaryResults
 geom_folder: ./Geometries/
 surf_markers_anchoring: [1]
 surf_markers_moving: [1]
@@ -28,6 +28,6 @@ k_bc: 1.e10
 E: 10
 nu: 0.4
 a_B: 0.1
-L_c: 2e-6
+L_c: 2e-1
 delta: 1
 delta_beltrami: 0

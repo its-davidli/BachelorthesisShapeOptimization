@@ -1,6 +1,6 @@
 mesh_name: OneSidedWallBox
 subfolder: OneSidedWallBox
-save_fold: Results
+save_fold: PreliminaryResults
 geom_folder: ./Geometries/
 surf_markers_anchoring: [1]
 surf_markers_moving: [1]
@@ -23,7 +23,7 @@ beta: 0.5
 stepsize_method: "constant"
 herzog_meshquality_min: 1.e-1
 alphaInit: 1.e0
-alphaMin: 1.e-10
+alphaMin: 1.e-4
 k_bc: 1.e10
 E: 10
 nu: 0.4

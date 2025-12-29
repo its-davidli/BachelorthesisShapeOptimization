@@ -187,5 +187,18 @@ The first test does not yield good results. The shape derivative looks fine, but
 ### Friday, 26th December 2025
 
 - Major Code Changes
-- Collecting Final Results in *PreliminaryResults/*
+- **Collecting Final Results in *PreliminaryResults/***
+    - 2D *EllipseToCircle/*
+    - 2D *Rectangle2Sides/*
 - In 3D the S0 parameter still is unclear??? 
+
+### Sunday, 28th December 2025
+
+- Tried to reproduce the Rigid Rotation result with new code, a bug appeared where the rotation is exactly the wrong direction
+- Found the Bug, it is due to the use of the normal projection, on the corners that is not well defined and causes this issue
+- Also because of Mesh Size, we increased L_c (Choosen the value *2e-1* arbitraraly, important that it is high enough!)
+- **Collected Final Results in *PreliminaryResults/***
+    - 3D *RigidRotation/*
+    - 3D *RigidRotationShowCaseLowYoungsModulus* Same paramters, just showing that role the Young's Modulus plays
+    - 3D *RigidRotationShowCaseProjectionGoneWrong/* Showcase of the Bug mentioned above
+    - 3D *RigidRotationShowCaseHighLc/* Showcase of why the higher L_c: Newtonsolver needs longer to converge and alignment not secured (but normally achieved through the initial guess)

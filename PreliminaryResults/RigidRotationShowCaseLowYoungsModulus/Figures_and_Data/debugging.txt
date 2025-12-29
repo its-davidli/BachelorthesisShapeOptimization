@@ -1,0 +1,22 @@
+It.: 0	Alpha (step size):  1.00e+00	Obj. (J):  1.33e-01	Trial Obj. (trialJ):  6.64e-02	Norm of Shape Gradient squared:     3.73e+02	Armijo Condition: True
+----------------------------------------
+It.: 1	Alpha (step size):  1.00e+00	Obj. (J):  6.64e-02	Trial Obj. (trialJ):  7.47e-02	Norm of Shape Gradient squared:     1.79e+02	Armijo Condition: False
+----------------------------------------
+It.: 1	Alpha (step size):  5.00e-01	Obj. (J):  6.64e-02	Trial Obj. (trialJ):  1.41e-02	Norm of Shape Gradient squared:     1.79e+02	Armijo Condition: True
+----------------------------------------
+It.: 2	Alpha (step size):  1.00e+00	Obj. (J):  1.41e-02	Trial Obj. (trialJ):  8.94e-03	Norm of Shape Gradient squared:     6.13e+00	Armijo Condition: True
+----------------------------------------
+It.: 3	Alpha (step size):  1.00e+00	Obj. (J):  8.94e-03	Trial Obj. (trialJ):  9.80e-03	Norm of Shape Gradient squared:     3.07e+00	Armijo Condition: False
+----------------------------------------
+It.: 3	Alpha (step size):  5.00e-01	Obj. (J):  8.94e-03	Trial Obj. (trialJ):  7.77e-03	Norm of Shape Gradient squared:     3.07e+00	Armijo Condition: True
+----------------------------------------
+It.: 4	Alpha (step size):  1.00e+00	Obj. (J):  7.77e-03	Trial Obj. (trialJ):  7.68e-03	Norm of Shape Gradient squared:     3.22e-01	Armijo Condition: True
+----------------------------------------
+It.: 5	Alpha (step size):  1.00e+00	Obj. (J):  7.68e-03	Trial Obj. (trialJ):  7.74e-03	Norm of Shape Gradient squared:     3.10e-01	Armijo Condition: False
+----------------------------------------
+It.: 5	Alpha (step size):  5.00e-01	Obj. (J):  7.68e-03	Trial Obj. (trialJ):  7.54e-03	Norm of Shape Gradient squared:     3.10e-01	Armijo Condition: True
+----------------------------------------
+It.: 6	Alpha (step size):  1.00e+00	Obj. (J):  7.54e-03	Trial Obj. (trialJ):  7.51e-03	Norm of Shape Gradient squared:     3.26e-02	Armijo Condition: True
+----------------------------------------
+It.: 7	Alpha (step size):  1.00e+00	Obj. (J):  7.51e-03	Trial Obj. (trialJ):  7.50e-03	Norm of Shape Gradient squared:     2.64e-02	Armijo Condition: True
+----------------------------------------

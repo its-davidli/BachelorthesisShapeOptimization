@@ -552,14 +552,14 @@ while iteration < maxIter:
     # Occasionally display some information.
 
 
-    rel_changes_copy = rel_changes.copy()
-    rel_changes_copy.insert(0, 0.0) # Append dummy value for the last iteration
-    write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'alphas': alphas, 'rel_changes': rel_changes_copy})
-    plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes)
-    plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
     if iteration > 0:
         rel_change = abs(objective_values[-1] - objective_values[-2]) / (abs(objective_values[-2]) + 1e-12)
         rel_changes.append(rel_change)
+        rel_changes_copy = rel_changes.copy()
+        rel_changes_copy.insert(0, 0.0) # Append dummy value for the last iteration
+        write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'alphas': alphas, 'rel_changes': rel_changes_copy})
+        plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes)
+        plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
 
         if rel_change < float(config['rel_change_stopping_value']):
             print(f"Stopping: Relative change in objective ({rel_change:.2e}) is below threshold.")
