@@ -12,6 +12,10 @@
 - Initial Stepsize determination
 - Criterion to reject Stepsize because of intersecting mesh cells
 
+## Things to discuss with Santiago
+
+- In [Instabilty Hedgehog](https://journals.aps.org/pre/pdf/10.1103/PhysRevE.59.563) and [scaling analysis](https://arxiv.org/pdf/1512.08164) they talk about the elastic parameter and how it affects the Ring Defect e.g., for our ellipse to circle example, this might be interesting. Also in the second paper, they divide by R^3 or the volume of the system. Should we do this too? In out examples, volume change was never a problem, so this should be fine
+
 ## Log book
 
 ### Thursday, 9th October 2025
@@ -202,3 +206,10 @@ The first test does not yield good results. The shape derivative looks fine, but
     - 3D *RigidRotationShowCaseLowYoungsModulus* Same paramters, just showing that role the Young's Modulus plays
     - 3D *RigidRotationShowCaseProjectionGoneWrong/* Showcase of the Bug mentioned above
     - 3D *RigidRotationShowCaseHighLc/* Showcase of why the higher L_c: Newtonsolver needs longer to converge and alignment not secured (but normally achieved through the initial guess)
+
+### Monday, 29th December 2025
+
+- **Collected Final Results in *PreliminaryResults/***
+    - 3D *Chiral/* 
+- Tried the 3D Ellipoid into circle for a little bit, but there is always an issue of meshquality and compression.
+- Re-Done the Armijo Linesearch reset of alpha after each iteration (small mistake before) and the relative error calculation (also small mistake before)

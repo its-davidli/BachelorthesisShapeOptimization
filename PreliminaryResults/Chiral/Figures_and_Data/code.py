@@ -490,7 +490,6 @@ while iteration < maxIter:
     objective_values.append(J)
     shape_gradient_norms.append(normShapeGradient2)
     objectives_main.append(assemble(objective_main))
-    objectives_meshquality.append(assemble((1/(CellVolume(mesh)+Constant(1e-10))**2)/assemble(1*dx)*dx))
     center_of_masses.append(center_of_mass(mesh, d, dx))
     radii.append(norm_variance_radius(mesh, surf_markers_anchoring, boundaries, d, dx)[0])
     variances_radius.append(norm_variance_radius(mesh, surf_markers_anchoring, boundaries, d, dx)[1])
@@ -512,11 +511,8 @@ while iteration < maxIter:
             if alpha * sqrt(normShapeGradient2) < config['herzog_meshquality_min']:
                 alpha = 1/sqrt(normShapeGradient2)
         if config['stepsize_method'] == "constant":
-            alpha = min(alphaInit, alpha / beta)
-        
-        if config['stepsize_method'] == "armijo_only":
-            alpha = alphaInit
-
+            alpha = min(alphaInit, 1000* alpha / beta)
+    # alpha = 1.25 * alpha
     while (lineSearchSuccessful == False) and (alpha > alphaMin):
         # Assign the mesh displacement vector field.
         mesh.coordinates()[:] = referenceMeshCoordinates
@@ -539,9 +535,6 @@ while iteration < maxIter:
             lineSearchSuccessful = True
             alphas.append(alpha)
         
-        else:
-            alpha *= beta
-            
         # Write debugging information to a file
         with open(save_dir + '/Figures_and_Data/debugging.txt', 'a') as debug_file:
             debug_file.write(f"It.: {iteration}\t")
@@ -552,13 +545,10 @@ while iteration < maxIter:
             debug_file.write(f"Armijo Condition: {lineSearchSuccessful}\n")
             debug_file.write("-" * 40 + "\n")
 
-            
+        alpha = beta * alpha
+
         # Increment the sub-iteration counter.
         sub_iteration += 1
-    if lineSearchSuccessful == False: 
-        print("Line search failed to find a suitable step size.")
-        alphas.append(0.0)
-        break
     # Occasionally display some information.
 
 
@@ -569,8 +559,8 @@ while iteration < maxIter:
         # Save intermediate results
         rel_changes_copy = rel_changes.copy()
         rel_changes_copy.insert(0, 0.0) # Append dummy value for the last iteration
-        write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'meshquality': objectives_meshquality, 'alphas': alphas, 'rel_changes': rel_changes_copy})
-        plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, alphas=alphas, meshqualities=objectives_meshquality, volumes=volumes)
+        write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'alphas': alphas, 'rel_changes': rel_changes_copy})
+        plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes)
         plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
 
         # Check stopping criteria (relative change in objective functional below threshold or objective functional increased)

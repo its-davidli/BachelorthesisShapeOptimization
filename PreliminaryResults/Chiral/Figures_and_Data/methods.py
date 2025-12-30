@@ -346,7 +346,7 @@ def write_objective_terms_to_file(save_dir, dic):
             row = [str(dic[key][i]) for key in keys]
             f.write(f"{i}\t" + "\t".join(row) + "\n")
 
-def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, **kwargs):
+def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes):
     
     iterations = np.arange(len(objective_values))
 
@@ -418,27 +418,6 @@ def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, *
     plt.savefig(save_dir + "/Figures_and_Data/rel_changes_log.png")
     plt.close()
 
-    for key, values in kwargs.items():
-        plt.figure()
-        plt.plot(iterations, values, label=key)
-        plt.xlabel("Iteration")
-        plt.legend()
-        plt.xticks(iterations)
-        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
-        plt.savefig(save_dir + f"/Figures_and_Data/{key}.png")
-        plt.close()
-
-        # plot with log scale
-        plt.figure()
-        plt.plot(iterations, values, label=key)
-        plt.yscale('log')
-        plt.xlabel("Iteration")
-        plt.legend()
-        plt.xticks(iterations)
-        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
-        plt.savefig(save_dir + f"/Figures_and_Data/{key}_log.png")
-        plt.close()
-
 
 def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_masses):
     iterations = np.arange(len(radii))
@@ -483,7 +462,6 @@ def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_mass
 
         # ax.quiver(pos_x, pos_y, pos_z, u/norm, v/norm, w/norm, zorder=5, pivot="middle")
         plt.savefig(save_dir + "/Figures_and_Data/center_of_masses.png")
-        plt.close()
 
     if np.shape(center_of_masses)[1] == 2:
         x, y= center_of_masses[:,0], center_of_masses[:,1]
@@ -499,7 +477,6 @@ def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_mass
 
         ax.quiver(pos_x, pos_y, u/norm, v/norm, zorder=5, pivot="middle")
         plt.savefig(save_dir + "/Figures_and_Data/center_of_masses.png")
-        plt.close()
 
 def center_of_mass(mesh, d, dx):
     x = Expression('x[0]', degree = 1)
