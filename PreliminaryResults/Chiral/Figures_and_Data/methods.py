@@ -39,6 +39,8 @@ def compute_initial_guess(mesh, W, type, S0, boundaries, surf_markers, finite_el
         # return project(as_vector((S0*(2/3),1e-14, 1e-14, -S0*(1/3), 1e-14)), W)
         phi = np.pi/6
         return project(as_vector((S0*(math.cos(phi)**2- 1/3),S0*math.cos(phi)*math.sin(phi), 1e-7, S0*(math.sin(phi)*math.sin(phi)-1/3), 1e-7)), W)
+    if type == "uniform_in_z" and d == 3:
+        return project(as_vector((-S0*(1/3),1e-14, 1e-14, -S0*(1/3), 1e-14)), W)
 
     if type == "Frank":
         # Define suitable vector, tensor and scalar spaces
@@ -346,7 +348,7 @@ def write_objective_terms_to_file(save_dir, dic):
             row = [str(dic[key][i]) for key in keys]
             f.write(f"{i}\t" + "\t".join(row) + "\n")
 
-def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes):
+def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, abs_changes, **kwargs):
     
     iterations = np.arange(len(objective_values))
 
@@ -397,26 +399,71 @@ def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes):
     plt.savefig(save_dir + "/Figures_and_Data/objective_and_gradient_norms_linear.png")
     plt.close()
 
-    # plot rel_changes 
-    plt.figure()
-    plt.plot(iterations[1:], rel_changes, label="Relative Change in Objective")
-    plt.xlabel("Iteration")
-    plt.legend()
-    plt.xticks(iterations)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    # plot rel_changes and abs_changes
+    fig_lin, ax1_lin = plt.subplots()
+    color1_lin = 'tab:blue'
+    ax1_lin.set_xlabel("Iteration")
+    ax1_lin.set_ylabel("Relative Change", color=color1_lin)
+    ax1_lin.plot(iterations, rel_changes, label="Relative Change in Objective", color=color1_lin)
+    ax1_lin.tick_params(axis='y', labelcolor=color1_lin)
+    ax1_lin.set_xticks(iterations)
+    ax1_lin.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
+    ax2_lin = ax1_lin.twinx()
+    color2_lin = 'tab:red'
+    ax2_lin.set_ylabel("Absolute Change", color=color2_lin)
+    ax2_lin.plot(iterations, abs_changes, label="Absolute Change in Objective", color=color2_lin)
+    ax2_lin.tick_params(axis='y', labelcolor=color2_lin)
+    ax2_lin.set_xticks(iterations)
+    ax2_lin.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
+    fig_lin.tight_layout()
     plt.savefig(save_dir + "/Figures_and_Data/rel_changes.png")
     plt.close()
 
-    # plot rel_changes with log scale
-    plt.figure()
-    plt.plot(iterations[1:], rel_changes, label="Relative Change in Objective")
-    plt.yscale('log')
-    plt.xlabel("Iteration")
-    plt.legend()
-    plt.xticks(iterations)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    # plot rel_changes and abs_changes with log scale
+    fig_log, ax1_log = plt.subplots()
+    color1_log = 'tab:blue'
+    ax1_log.set_xlabel("Iteration")
+    ax1_log.set_ylabel("Relative Change", color=color1_log)
+    ax1_log.plot(iterations, rel_changes, label="Relative Change in Objective", color=color1_log)
+    ax1_log.set_yscale('log')
+    ax1_log.tick_params(axis='y', labelcolor=color1_log)
+    ax1_log.set_xticks(iterations)
+    ax1_log.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax2_log = ax1_log.twinx()
+    color2_log = 'tab:red'
+    ax2_log.set_ylabel("Absolute Change", color=color2_log)
+    ax2_log.plot(iterations, abs_changes, label="Absolute Change in Objective", color=color2_log)
+    ax2_log.set_yscale('log')
+    ax2_log.tick_params(axis='y', labelcolor=color2_log)
+    ax2_log.set_xticks(iterations)
+    ax2_log.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    
+    fig_log.tight_layout()
     plt.savefig(save_dir + "/Figures_and_Data/rel_changes_log.png")
     plt.close()
+
+    for key, values in kwargs.items():
+        plt.figure()
+        plt.plot(iterations, values, label=key)
+        plt.xlabel("Iteration")
+        plt.legend()
+        plt.xticks(iterations)
+        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        plt.savefig(save_dir + f"/Figures_and_Data/{key}.png")
+        plt.close()
+
+        # plot with log scale
+        plt.figure()
+        plt.plot(iterations, values, label=key)
+        plt.yscale('log')
+        plt.xlabel("Iteration")
+        plt.legend()
+        plt.xticks(iterations)
+        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        plt.savefig(save_dir + f"/Figures_and_Data/{key}_log.png")
+        plt.close()
 
 
 def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_masses):
@@ -462,6 +509,7 @@ def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_mass
 
         # ax.quiver(pos_x, pos_y, pos_z, u/norm, v/norm, w/norm, zorder=5, pivot="middle")
         plt.savefig(save_dir + "/Figures_and_Data/center_of_masses.png")
+        plt.close()
 
     if np.shape(center_of_masses)[1] == 2:
         x, y= center_of_masses[:,0], center_of_masses[:,1]
@@ -477,6 +525,7 @@ def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_mass
 
         ax.quiver(pos_x, pos_y, u/norm, v/norm, zorder=5, pivot="middle")
         plt.savefig(save_dir + "/Figures_and_Data/center_of_masses.png")
+        plt.close()
 
 def center_of_mass(mesh, d, dx):
     x = Expression('x[0]', degree = 1)

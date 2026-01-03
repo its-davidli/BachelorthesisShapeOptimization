@@ -15,6 +15,8 @@
 ## Things to discuss with Santiago
 
 - In [Instabilty Hedgehog](https://journals.aps.org/pre/pdf/10.1103/PhysRevE.59.563) and [scaling analysis](https://arxiv.org/pdf/1512.08164) they talk about the elastic parameter and how it affects the Ring Defect e.g., for our ellipse to circle example, this might be interesting. Also in the second paper, they divide by R^3 or the volume of the system. Should we do this too? In out examples, volume change was never a problem, so this should be fine
+- Objective Functional inner product formulation 
+- Where to Mention change in L_c, should we choose L_c in general differently?
 
 ## Log book
 
@@ -213,3 +215,11 @@ The first test does not yield good results. The shape derivative looks fine, but
     - 3D *Chiral/* 
 - Tried the 3D Ellipoid into circle for a little bit, but there is always an issue of meshquality and compression.
 - Re-Done the Armijo Linesearch reset of alpha after each iteration (small mistake before) and the relative error calculation (also small mistake before)
+
+### Saturday, 3rd January 2026
+
+- Corrected Objective Calculation from only independent entries to whole Q-Tensor
+- Added a maximal alpha function
+- Added an absolute error tolerance stopping criterion
+- Tried 90 degree chiral, almost working perfectly
+    - Added to *PreliminaryResults/Chiral90Degrees* and *PreliminaryResults/Chiral90Degrees2* with the first being with alphaMaxFactor of 1 and the latter of 5

@@ -109,7 +109,7 @@ n_indep_comp = int(d*(d+1)/2 - 1) #Number of independent components for a symmet
 L_c = float(config["L_c"])
 a_B = float(config["a_B"])
 if d==2: S0 = np.sqrt(2.0*a_B) # Corresponding LdG S eigenvalue
-if d==3: S0 = 1/4*(math.sqrt(24.0*a_B + 1)+1) # Corresponding LdG S eigenvalue
+if d==3: S0 = 1/4*(np.sqrt(24.0*a_B + 1)+1) # Corresponding LdG S eigenvalue
 
 # Set default algorithmic parameters (Armijo line search)
 maxIter = int(config['maxIter'])        # Maximum number of shape gradient steps.
@@ -131,7 +131,7 @@ if config['inner_product'] == "elasticity":
         lmbda = 2*mu*lmbda/(lmbda + 2*mu) # Plane stress condition
     def strain(u): return sym(nabla_grad(u))
     # def strain(u): return sym(nabla_grad(u)) - (1.0/3.0)*tr(sym(nabla_grad(u)))*Identity(d)
-    def C(epsilon): return 2* mu * epsilon + lmbda * tr(epsilon) * Identity(d)
+    def C(epsilon): return 2 * mu * epsilon + lmbda * tr(epsilon) * Identity(d)
 
 x = Expression('x[0]', degree = 1)
 y = Expression('x[1]', degree = 1)
@@ -258,21 +258,30 @@ elif d == 3 and target_geometry == "pseudoChiral":
 
 elif d == 3 and target_geometry == "uniform_horizontal":
     X = SpatialCoordinate(mesh)
-    azimuth_angle = Constant(np.pi/6)
-    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*(sin(phi)*sin(phi) - 1/3)', 'eps'), phi = azimuth_angle , S0 = S0, eps= tol, degree = 1)
+    phi = Constant(np.pi/6)
+    # Here we dont use Expression since it is less accurate than as_vector. Both are equivalent, since the target field is constant throughout space, and both implementations have been tested to give the same result up to numerical precision.
+    q_target = as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), tol, S0*sin(phi)*sin(phi) - 1/3, tol))
+    # q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*(sin(phi)*sin(phi) - 1/3)', 'eps'), phi = phi , S0 = S0, eps= tol, degree = 1)
+
     q_target_proj = project(q_target, W)
 
 elif d == 3 and target_geometry == "saturnring_defect":
     X = SpatialCoordinate(mesh)
-    radius_circle = 0.05
+    radius_circle = 0.025
     phi = Expression('atan2((x[1]),(x[0]))', degree = 1)
     theta = Expression('acos(x[2]/std::sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]+1e-20))', degree = 1)
     Q_h = Expression(('S0*(cos(phi)*cos(phi)*sin(theta)*sin(theta)-0.5)','S0*sin(theta)*sin(theta)*cos(phi)*sin(phi)','S0*sin(theta)*cos(phi)*cos(theta)','S0*(sin(theta)*sin(theta)*sin(phi)*sin(phi) - 0.5)', 'S0*sin(theta)*sin(phi)*cos(theta)'), theta = theta,phi = phi, S0 = S0, degree = 1)
-    Q_inf = Expression(('-S0*(1.0/3.0)', 'eps', 'eps', '-S0*(1.0/3.0)', 'eps'), S0 = S0, eps= 0.0, degree = 1)
+    Q_inf = Expression(('-S0*(1.0/3.0)', 'eps', 'eps', '-S0*(1.0/3.0)', 'eps'), S0 = S0, eps= tol, degree = 1)
     rescaled_radius = Expression('sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]) / R', R = radius_circle, degree = 1)
     w = Constant(radius_circle*k_bc/L_c)
-    q_target  = w/(3+w)/rescaled_radius**3*Q_h + (1 - w/(1+w)/rescaled_radius)*Q_inf
+    q_target  = (w/(3+w))/rescaled_radius**3*Q_h + (1 - (w/(1+w))/rescaled_radius)*Q_inf
     q_target_proj = project(q_target, W)
+    class Charged(SubDomain):
+        def inside(self, x, on_boundary):
+            return x[0]*x[0] + x[1]*x[1] >= radius_circle*radius_circle or x[2] <= -1.5 *radius_circle or x[2] >= 0.02 + 1.5 *radius_circle
+    Charged_Domain = Charged()
+    Charged_Domain.mark(domains, 10)
+    subdomainlist.append(10)
 
 
 elif d == 2 and target_geometry == "saturnring_defect":
@@ -282,7 +291,7 @@ elif d == 2 and target_geometry == "saturnring_defect":
     Q_inf = Expression(('-S0*(0.5)', 'eps'), S0 = S0, eps= 0.0, degree = 1)
     rescaled_radius = Expression('sqrt(x[0]*x[0] + x[1]*x[1]) / R', R = radius_circle, degree = 1)
     w = Constant(radius_circle*k_bc/L_c)
-    q_target  = w/(3+w)/rescaled_radius**2*Q_h + (1 - w/(1+w)/rescaled_radius)*Q_inf
+    q_target  = (w/(3+w))/rescaled_radius**3*Q_h + (1 - (w/(1+w))/rescaled_radius)*Q_inf
     class Charged(SubDomain):
         def inside(self, x, on_boundary):
             return x[1] <= 0.0 - 1.5 *radius_circle
@@ -308,9 +317,11 @@ File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order para
 
 # The objective function is the sum of the squared difference between the state variable q_ and the target q_target
 if not subdomainlist:
-    objective_main = (dot(q_ - q_target, q_ - q_target))/(assemble(1*dx))*dx
+    if d == 2: objective_main = 2*(dot(q_ - q_target, q_ - q_target))/(assemble(1*dx))*dx
+    if d == 3: objective_main = ((dot(q_ - q_target, q_ - q_target)) + (q_[1]-q_target[1])*(q_[1]-q_target[1]) + (q_[2]-q_target[2])*(q_[2]-q_target[2]) + (q_[4]-q_target[4])*(q_[4]-q_target[4]) + (q_[0]+ q_[3]-q_target[0]-q_target[3])*(q_[0]+ q_[3]-q_target[0]-q_target[3]))/(assemble(1*dx))*dx
 else:
-    objective_main = (dot(q_ - q_target, q_ - q_target))/(assemble(1*dx(subdomainlist[0])))*dx(subdomainlist[0])
+    if d == 2: objective_main = 2*(dot(q_ - q_target, q_ - q_target))/(assemble(1*dx(subdomainlist[0])))*dx(subdomainlist[0])
+    if d == 3: objective_main = ((dot(q_ - q_target, q_ - q_target)) + (q_[1]-q_target[1])*(q_[1]-q_target[1]) + (q_[2]-q_target[2])*(q_[2]-q_target[2]) + (q_[4]-q_target[4])*(q_[4]-q_target[4]) + (q_[0]+ q_[3]-q_target[0]-q_target[3])*(q_[0]+ q_[3]-q_target[0]-q_target[3]))/(assemble(1*dx(subdomainlist[0])))*dx(subdomainlist[0])
     # Visualize subdomain where objective is evaluated
     area_marked = MeshFunction("size_t", mesh, mesh.topology().dim())
     area_marked.set_all(0)
@@ -331,8 +342,6 @@ adjointJacobian = derivative(adjointPDE, p_)
 
 # Compute and save initial guess for the state variable q
 initial_guess = compute_initial_guess(mesh, W,config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
-# if config['initial_guess'] != 'Frank':
-#     initial_guess = project(initial_guess, W)
 assign(q_, initial_guess)
 assign(p_, initial_guess)
 if d == 2:
@@ -363,7 +372,7 @@ displacementInnerProduct += delta*inner(TrialFunction(S), TestFunction(S)) * dx
 if config['tangential_smoothing']:
     displacementInnerProduct += delta_beltrami*inner(tang_grad(TrialFunction(S), normals), tang_grad(TestFunction(S), normals)) * ds_controlvariable
 
-objective_values, alphas, shape_gradient_norms, rel_changes, objectives_main, objectives_meshquality, volumes, variances_radius, radii, center_of_masses = [], [], [], [], [], [], [], [], [], []
+objective_values, alphas, shape_gradient_norms, rel_changes, abs_changes, objectives_main, objectives_meshquality, volumes, variances_radius, radii, center_of_masses = [], [], [], [], [], [], [], [], [], [] , []
 
 # Define boundary conditions for the shape gradient, if needed
 bc_shapegradient = []
@@ -376,16 +385,12 @@ elif d == 3 and config['boundary_conditions_shapegradient'] == 'fixed_bottom':
     bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundary)]
 
 elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
-    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundaries, config['boundary_conditions_shapegradient_markers'][0])]
-
-
-elif d==2 and config['boundary_conditions_shapegradient'] == 'fixed_square':
-    def boundary(x):
-        return near(abs(x[0]), 0.5, tol) or near(abs(x[1]), 0.5, tol)
-    bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1), boundary)]
+    for i in config['boundary_conditions_shapegradient_markers']:
+        bc_shapegradient += [DirichletBC(S, Expression(('0','0'), degree = 1) ,boundaries, i)]
 
 elif d==3 and config['boundary_conditions_shapegradient'] == 'fixed_sides':
-    bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries, tuple(config['boundary_conditions_shapegradient_markers']))]
+    for i in config['boundary_conditions_shapegradient_markers']:
+        bc_shapegradient += [DirichletBC(S, Expression(('0','0','0'), degree = 1), boundaries, i)]
 
 else:
     raise ValueError("Boundary condition for shape gradient not supported")
@@ -402,15 +407,15 @@ while iteration < maxIter:
 
     # Solve the forward PDE.
     # compute initial guess
-    initial_guess =  compute_initial_guess(mesh, W, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
-    assign(q_, initial_guess)
-    assign(p_, initial_guess)
+    if iteration != 0:
+        initial_guess =  compute_initial_guess(mesh, W, config['initial_guess'], S0, boundaries, surf_markers_anchoring, finite_element, finite_element_degree, d, config['anchoring'])
+        assign(q_, initial_guess)
+        assign(p_, initial_guess)
 
     # Solve the forward PDE with relaxation paramaters in the Newton solver
     solveMultRelaxation(config['forward_solver_relaxations'], forwardPDE,0, q_, None, forwardJacobian, ffc_options)
     
     J = assemble(objective)
-
     # Solve the adjoint PDE.
     solve(lhs(adjointPDE) == rhs(adjointPDE), p_, None)
 
@@ -489,13 +494,22 @@ while iteration < maxIter:
     objective_values.append(J)
     shape_gradient_norms.append(normShapeGradient2)
     objectives_main.append(assemble(objective_main))
+    objectives_meshquality.append(assemble((1/(CellVolume(mesh)+Constant(1e-10))**2)/assemble(1*dx)*dx))
     center_of_masses.append(center_of_mass(mesh, d, dx))
     radii.append(norm_variance_radius(mesh, surf_markers_anchoring, boundaries, d, dx)[0])
     variances_radius.append(norm_variance_radius(mesh, surf_markers_anchoring, boundaries, d, dx)[1])
     volumes.append(assemble(1*dx))
     # Store the mesh associated with the current iterate, as well as its objective value.
     referenceMeshCoordinates = mesh.coordinates().copy()
-
+    # Visualize boundary subdomain with subdomain_ids=surf_markers, for visual verification of anchoring boundary
+    # 0 corresponds to non-anchoring boundary facets, 1 to anchoring boundary facets
+    boundary_marked = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
+    boundary_marked.set_all(0)
+    for marker in surf_markers_anchoring:
+        for facet in facets(mesh):
+            if boundaries[facet.index()] == marker:
+                boundary_marked[facet.index()] = 1
+    File(save_dir + f"/boundary_subdomain_anchoring_{iteration}.pvd") << boundary_marked
     # Begin Armijo line search.
     lineSearchSuccessful = False
     sub_iteration = 0
@@ -510,8 +524,11 @@ while iteration < maxIter:
             if alpha * sqrt(normShapeGradient2) < config['herzog_meshquality_min']:
                 alpha = 1/sqrt(normShapeGradient2)
         if config['stepsize_method'] == "constant":
-            alpha = min(alphaInit, 1000* alpha / beta)
-    # alpha = 1.25 * alpha
+            alpha = min(alphaInit, alpha / beta)
+        
+        if config['stepsize_method'] == "armijo_only":
+            alpha = alphaInit
+
     while (lineSearchSuccessful == False) and (alpha > alphaMin):
         # Assign the mesh displacement vector field.
         mesh.coordinates()[:] = referenceMeshCoordinates
@@ -530,41 +547,54 @@ while iteration < maxIter:
 
 
         # Evaluate the Armijo condition and reduce the step size if necessary.
+            
+        # Write debugging information to a file
         if (trialJ <= J - sigma * alpha * normShapeGradient2):
             lineSearchSuccessful = True
             alphas.append(alpha)
         
-        # Write debugging information to a file
+        else:
+            alpha *= beta
         with open(save_dir + '/Figures_and_Data/debugging.txt', 'a') as debug_file:
             debug_file.write(f"It.: {iteration}\t")
-            debug_file.write(f"Alpha (step size): {alpha:9.2e}\t")
+            debug_file.write(f"Alpha (step size): {alpha/beta:9.2e}\t")
             debug_file.write(f"Obj. (J): {J:9.2e}\t")
             debug_file.write(f"Trial Obj. (trialJ): {trialJ:9.2e}\t")
             debug_file.write(f"Norm of Shape Gradient squared: {normShapeGradient2:12.2e}\t")
             debug_file.write(f"Armijo Condition: {lineSearchSuccessful}\n")
             debug_file.write("-" * 40 + "\n")
 
-        alpha = beta * alpha
-
+            
         # Increment the sub-iteration counter.
         sub_iteration += 1
+    if lineSearchSuccessful == False: 
+        print("Line search failed to find a suitable step size.")
+        alphas.append(0.0)
+        break
     # Occasionally display some information.
 
 
+    rel_change = abs(trialJ - objective_values[-1]) / (abs(objective_values[-1]) + 1e-12)
+    rel_changes.append(rel_change)
+    abs_change = abs(trialJ - objective_values[max(iteration-2,0)])/min(3.0, iteration+1)
+    abs_changes.append(abs_change)
+
     if iteration > 0:
-        rel_change = abs(objective_values[-1] - objective_values[-2]) / (abs(objective_values[-2]) + 1e-12)
-        rel_changes.append(rel_change)
+        # Save intermediate results
+        write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'meshquality': objectives_meshquality, 'alphas': alphas, 'rel_changes': rel_changes, 'abs_changes': abs_changes})
+        plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, abs_changes, alphas=alphas, meshqualities=objectives_meshquality, volumes=volumes)
+        plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
+
+        # Check stopping criteria (relative change in objective functional below threshold or objective functional increased)
         if rel_change < float(config['rel_change_stopping_value']):
             print(f"Stopping: Relative change in objective ({rel_change:.2e}) is below threshold.")
+            break
+        if abs_change < float(config['abs_change_stopping_value']):
+            print(f"Stopping: Absolute change in objective ({abs_change:.2e}) is below threshold.")
             break
         if trialJ> objective_values[-1]:
             print(f"Stopping: Objective functional increased: {trialJ} > {objective_values[-1]}.")
             break
 
     # Increment the iteration counter.
-    rel_changes_copy = rel_changes.copy()
-    rel_changes_copy.insert(0, 0.0) # Append dummy value for the last iteration
-    write_objective_terms_to_file(save_dir, {'objective_values': objective_values, 'shape_gradient_norms_squared': shape_gradient_norms, 'alphas': alphas, 'rel_changes': rel_changes_copy})
-    plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes)
-    plotGeometricalInformation(save_dir, radii,variances_radius, center_of_masses)
     iteration += 1

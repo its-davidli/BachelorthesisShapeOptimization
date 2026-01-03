@@ -3,6 +3,7 @@ from dolfin import *
 from dolfin_adjoint import *
 from ufl_legacy import nabla_div, nabla_grad, VectorElement, FiniteElement, MixedElement, split, atan_2, replace, Jacobian,  tr, variable, shape, Max, sqrt, Min, det, Identity, max_value, min_value
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 
 def LG_energy(q,a_B,L_c, d): #Landau de Gennes energy functional with a single elastic constant L
@@ -34,6 +35,12 @@ def compute_initial_guess(mesh, W, type, S0, boundaries, surf_markers, finite_el
     if type == "uniform" and d == 2:
         return project(as_vector((-S0*(0.5), 1e-14)), W)
 
+    if type == "uniform" and d == 3:
+        # return project(as_vector((S0*(2/3),1e-14, 1e-14, -S0*(1/3), 1e-14)), W)
+        phi = np.pi/6
+        return project(as_vector((S0*(math.cos(phi)**2- 1/3),S0*math.cos(phi)*math.sin(phi), 1e-7, S0*(math.sin(phi)*math.sin(phi)-1/3), 1e-7)), W)
+    if type == "uniform_in_z" and d == 3:
+        return project(as_vector((-S0*(1/3),1e-14, 1e-14, -S0*(1/3), 1e-14)), W)
 
     if type == "Frank":
         # Define suitable vector, tensor and scalar spaces
@@ -75,6 +82,8 @@ def compute_initial_guess(mesh, W, type, S0, boundaries, surf_markers, finite_el
         else:
             raise ValueError("Dimension not supported")
         return q_guess
+    else:
+        raise ValueError("Initial guess type not supported")
 
 def solveMultRelaxation(parameters, lhs, rhs,solFunc, bcs, J, form_compiler_parameters): # Function to solve the PDE with multiple relaxation parameters
     for arr in parameters:
@@ -138,7 +147,7 @@ def compute_orientation(q, mesh, d):
         Q = as_tensor(((q[0],q[1]),(q[1],-q[0])))
         lmbda1 = sqrt(-1*det(Q))
         M = as_vector(( q[0] + lmbda1, 1* q[1]))/((q[0] + lmbda1)**2 + q[1]**2 + eps)** 0.5
-        return project(M, VectorFunctionSpace(mesh, 'CG', 1)), project(lmbda1/2, FunctionSpace(mesh, 'DG', 0))
+        return project(M, VectorFunctionSpace(mesh, 'CG', 1)), project(2*lmbda1, FunctionSpace(mesh, 'DG', 0))
     elif d == 3:
         λ, E = eigenstate3_legacy(as_tensor([[q[0], q[1], q[2]],
                                                        [q[1], q[3], q[4]],
@@ -146,7 +155,7 @@ def compute_orientation(q, mesh, d):
 
     v = E[2] * as_vector([0, 0, 1]) 
     v = v / sqrt(inner(v, v))  # Normalize the eigenvector 
-    return project(v, VectorFunctionSpace(mesh, 'CG', 1), form_compiler_parameters={'quadrature_degree': 2}),  project(λ[2]/2, FunctionSpace(mesh, 'DG', 0),form_compiler_parameters={'quadrature_degree': 2})  # Return the principal eigenvector (v0 corresponds to the largest eigenvalue λ0)
+    return project(v, VectorFunctionSpace(mesh, 'CG', 1), form_compiler_parameters={'quadrature_degree': 2}),  project(3/2*λ[2], FunctionSpace(mesh, 'DG', 0),form_compiler_parameters={'quadrature_degree': 2})  # Return the principal eigenvector (v0 corresponds to the largest eigenvalue λ0)
 
 def compute_normals(mesh):
     n = FacetNormal(mesh)
@@ -339,7 +348,7 @@ def write_objective_terms_to_file(save_dir, dic):
             row = [str(dic[key][i]) for key in keys]
             f.write(f"{i}\t" + "\t".join(row) + "\n")
 
-def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes):
+def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes, abs_changes, **kwargs):
     
     iterations = np.arange(len(objective_values))
 
@@ -390,26 +399,71 @@ def plotResults(save_dir, objective_values, shape_gradient_norms, rel_changes):
     plt.savefig(save_dir + "/Figures_and_Data/objective_and_gradient_norms_linear.png")
     plt.close()
 
-    # plot rel_changes 
-    plt.figure()
-    plt.plot(iterations[1:], rel_changes, label="Relative Change in Objective")
-    plt.xlabel("Iteration")
-    plt.legend()
-    plt.xticks(iterations)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    # plot rel_changes and abs_changes
+    fig_lin, ax1_lin = plt.subplots()
+    color1_lin = 'tab:blue'
+    ax1_lin.set_xlabel("Iteration")
+    ax1_lin.set_ylabel("Relative Change", color=color1_lin)
+    ax1_lin.plot(iterations, rel_changes, label="Relative Change in Objective", color=color1_lin)
+    ax1_lin.tick_params(axis='y', labelcolor=color1_lin)
+    ax1_lin.set_xticks(iterations)
+    ax1_lin.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
+    ax2_lin = ax1_lin.twinx()
+    color2_lin = 'tab:red'
+    ax2_lin.set_ylabel("Absolute Change", color=color2_lin)
+    ax2_lin.plot(iterations, abs_changes, label="Absolute Change in Objective", color=color2_lin)
+    ax2_lin.tick_params(axis='y', labelcolor=color2_lin)
+    ax2_lin.set_xticks(iterations)
+    ax2_lin.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
+    fig_lin.tight_layout()
     plt.savefig(save_dir + "/Figures_and_Data/rel_changes.png")
     plt.close()
 
-    # plot rel_changes with log scale
-    plt.figure()
-    plt.plot(iterations[1:], rel_changes, label="Relative Change in Objective")
-    plt.yscale('log')
-    plt.xlabel("Iteration")
-    plt.legend()
-    plt.xticks(iterations)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    # plot rel_changes and abs_changes with log scale
+    fig_log, ax1_log = plt.subplots()
+    color1_log = 'tab:blue'
+    ax1_log.set_xlabel("Iteration")
+    ax1_log.set_ylabel("Relative Change", color=color1_log)
+    ax1_log.plot(iterations, rel_changes, label="Relative Change in Objective", color=color1_log)
+    ax1_log.set_yscale('log')
+    ax1_log.tick_params(axis='y', labelcolor=color1_log)
+    ax1_log.set_xticks(iterations)
+    ax1_log.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax2_log = ax1_log.twinx()
+    color2_log = 'tab:red'
+    ax2_log.set_ylabel("Absolute Change", color=color2_log)
+    ax2_log.plot(iterations, abs_changes, label="Absolute Change in Objective", color=color2_log)
+    ax2_log.set_yscale('log')
+    ax2_log.tick_params(axis='y', labelcolor=color2_log)
+    ax2_log.set_xticks(iterations)
+    ax2_log.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    
+    fig_log.tight_layout()
     plt.savefig(save_dir + "/Figures_and_Data/rel_changes_log.png")
     plt.close()
+
+    for key, values in kwargs.items():
+        plt.figure()
+        plt.plot(iterations, values, label=key)
+        plt.xlabel("Iteration")
+        plt.legend()
+        plt.xticks(iterations)
+        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        plt.savefig(save_dir + f"/Figures_and_Data/{key}.png")
+        plt.close()
+
+        # plot with log scale
+        plt.figure()
+        plt.plot(iterations, values, label=key)
+        plt.yscale('log')
+        plt.xlabel("Iteration")
+        plt.legend()
+        plt.xticks(iterations)
+        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        plt.savefig(save_dir + f"/Figures_and_Data/{key}_log.png")
+        plt.close()
 
 
 def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_masses):
@@ -455,6 +509,7 @@ def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_mass
 
         # ax.quiver(pos_x, pos_y, pos_z, u/norm, v/norm, w/norm, zorder=5, pivot="middle")
         plt.savefig(save_dir + "/Figures_and_Data/center_of_masses.png")
+        plt.close()
 
     if np.shape(center_of_masses)[1] == 2:
         x, y= center_of_masses[:,0], center_of_masses[:,1]
@@ -470,6 +525,7 @@ def plotGeometricalInformation(save_dir, radii, variances_radius, center_of_mass
 
         ax.quiver(pos_x, pos_y, u/norm, v/norm, zorder=5, pivot="middle")
         plt.savefig(save_dir + "/Figures_and_Data/center_of_masses.png")
+        plt.close()
 
 def center_of_mass(mesh, d, dx):
     x = Expression('x[0]', degree = 1)

@@ -7,6 +7,7 @@ surf_markers_moving: [1]
 maxIter: 100
 dimensions: 2
 rel_change_stopping_value: 1e-3
+abs_change_stopping_value: 1e-8
 finite_element: "CG"
 finite_element_degree: 1
 initial_guess: "uniform"

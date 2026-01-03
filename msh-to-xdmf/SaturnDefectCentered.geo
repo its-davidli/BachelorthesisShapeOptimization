@@ -2,19 +2,19 @@
 SetFactory("OpenCASCADE");
 //+
 //+
-Box(1) = {-0.5, -0.5, -0.5, 1.0, 1.0, 1.0};
+Box(1) = {-0.1, -0.1, -0.2, 0.2, 0.2, 0.4};
 //+
-Sphere(2) = {0, 0, 0, 0.05, -Pi/2, Pi/2, 2*Pi};
-Physical Surface(1) = {5,6,7};
-Physical Surface(2) = {1,2,3,4,5,6};
-Physical Surface(3) = {7};
+Sphere(2) = {0, 0, 0.02, 0.025, -Pi/2, Pi/2, 2*Pi};
+Physical Surface(1) = {7};
+Physical Surface(2) = {5,6};
+Physical Surface(3) = {1,2,3,4};
 Volume(3) = {1,2};
 Physical Volume(1) = {3};
 Delete { Volume{1,2}; }
-// MeshSize { PointsOf{ Volume{3}; } } = 0.05;
+//MeshSize { PointsOf{ Volume{3}; } } = 0.01;
 
 lc = 0.05;
-Point(100) = {0, 0, 0, lc};
+Point(100) = {0, 0, 0.02, lc};
 
 // Say we would like to obtain mesh elements with size lc/30 near curve 2 and
 // point 5, and size lc elsewhere. To achieve this, we can use two fields:
@@ -37,10 +37,10 @@ Field[1].PointsList = {100};
 //        Point         DistMin  DistMax
 Field[2] = Threshold;
 Field[2].InField = 1;
-Field[2].SizeMin = lc / 5;
+Field[2].SizeMin = lc / 7;
 Field[2].SizeMax = lc;
-Field[2].DistMin = 0.1;
-Field[2].DistMax = 0.2;
+Field[2].DistMin = 0.075;
+Field[2].DistMax = 0.15;
 
 Background Field = 2;
 

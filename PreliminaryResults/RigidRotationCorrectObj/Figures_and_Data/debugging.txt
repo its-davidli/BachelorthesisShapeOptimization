@@ -1,0 +1,14 @@
+It.: 0	Alpha (step size):  1.00e+00	Obj. (J):  2.37e-01	Trial Obj. (trialJ):  3.31e-01	Norm of Shape Gradient squared:     1.32e+03	Armijo Condition: False
+----------------------------------------
+It.: 0	Alpha (step size):  1.00e+00	Obj. (J):  2.37e-01	Trial Obj. (trialJ):  2.19e-02	Norm of Shape Gradient squared:     1.32e+03	Armijo Condition: True
+----------------------------------------
+It.: 1	Alpha (step size):  1.00e+00	Obj. (J):  2.19e-02	Trial Obj. (trialJ):  2.27e-02	Norm of Shape Gradient squared:     9.27e+00	Armijo Condition: False
+----------------------------------------
+It.: 1	Alpha (step size):  1.00e+00	Obj. (J):  2.19e-02	Trial Obj. (trialJ):  1.98e-02	Norm of Shape Gradient squared:     9.27e+00	Armijo Condition: True
+----------------------------------------
+It.: 2	Alpha (step size):  2.00e+00	Obj. (J):  1.98e-02	Trial Obj. (trialJ):  1.98e-02	Norm of Shape Gradient squared:     8.65e-02	Armijo Condition: True
+----------------------------------------
+It.: 3	Alpha (step size):  2.00e+00	Obj. (J):  1.98e-02	Trial Obj. (trialJ):  1.98e-02	Norm of Shape Gradient squared:     8.23e-02	Armijo Condition: True
+----------------------------------------
+It.: 4	Alpha (step size):  2.00e+00	Obj. (J):  1.98e-02	Trial Obj. (trialJ):  1.98e-02	Norm of Shape Gradient squared:     1.52e-01	Armijo Condition: True
+----------------------------------------
