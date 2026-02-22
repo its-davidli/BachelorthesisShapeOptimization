@@ -28,7 +28,7 @@ save_dir = "./"+save_fold + "/" + save_subdir
 os.system("mkdir "+" "+save_dir)
 os.system("mkdir "+" "+save_dir + "/Figures_and_Data")
 
-# Save the configuration file and code to the save directory
+# Save the configuration file in the save directory
 os.system("cp config.yaml " + save_dir + "/Figures_and_Data/config.yaml")
 os.system("cp "+ __file__ + " " + save_dir + "/Figures_and_Data/code.py")
 os.system("cp "+ 'DeliverableShapeOptimizationLCsMethods.py' + " " + save_dir + "/Figures_and_Data/methods.py")
@@ -38,7 +38,7 @@ subfolder = config['subfolder']
 geom_folder = config['geom_folder']
 mesh_name = config['mesh_name']
 
-# Clear (earlie) debugging file
+# Clear debugging file
 open(save_dir + '/Figures_and_Data/debugging.txt', 'w').close
 
 # Read finite element parameters from config
@@ -120,6 +120,18 @@ alphaMin = float(config['alphaMin'])    # Fallback minimal step size to terminat
 tol = 1E-12                             # General tolerance for floating point comparisons
 
 k_bc = Constant(float(config['k_bc']))  # Penalty constant for the (weak) anchoring term in the LdG energy functional 
+
+# Define data and auxiliary functions for the elasticity inner product.
+if config['inner_product'] == "elasticity":
+    E = Constant(float(config['E'])) # Young's modulus
+    nu = Constant(float(config['nu'])) # Poisson's ratio
+    lmbda = nu*E/((1+nu)*(1-2*nu))
+    mu = E/(2*(1+nu))
+    if d==2:
+        lmbda = 2*mu*lmbda/(lmbda + 2*mu) # Plane stress condition
+    def strain(u): return sym(nabla_grad(u))
+    # def strain(u): return sym(nabla_grad(u)) - (1.0/3.0)*tr(sym(nabla_grad(u)))*Identity(d)
+    def C(epsilon): return 2 * mu * epsilon + lmbda * tr(epsilon) * Identity(d)
 
 x = Expression('x[0]', degree = 1)
 y = Expression('x[1]', degree = 1)
@@ -239,7 +251,7 @@ elif d == 3 and target_geometry == "pseudoChiral":
     X = SpatialCoordinate(mesh)
     eps = Constant(1e-10)
     # q_target = as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
-    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/4*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 1), degree = 1)
+    q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('pi/2*0.2*x[2]', degree = 1) , S0 = S0, eps= Expression('pow(10,-10)', degree = 1), degree = 1)
     q_target_proj = project(q_target, W)
     # q_target0, q_target1, q_target2, q_target3, q_target4 = q_target_proj.split()
 
@@ -304,7 +316,7 @@ File(save_dir + '/target_S.pvd') << target_S # Save the target scalar order para
 
 # The objective function is the sum of the squared difference between the state variable q_ and the target q_target
 if not subdomainlist:
-    if d == 2: objective_main = 2*(dot(q_ - q_target, q_ - q_target))/(assemble(1*dx))*dx
+    if d == 2: objective_main = (dot(q_ - q_target, q_ - q_target))/(assemble(1*dx))*dx
     if d == 3: objective_main = ((dot(q_ - q_target, q_ - q_target)) + (q_[1]-q_target[1])*(q_[1]-q_target[1]) + (q_[2]-q_target[2])*(q_[2]-q_target[2]) + (q_[4]-q_target[4])*(q_[4]-q_target[4]) + (q_[0]+ q_[3]-q_target[0]-q_target[3])*(q_[0]+ q_[3]-q_target[0]-q_target[3]))/(assemble(1*dx))*dx
 else:
     if d == 2: objective_main = 2*(dot(q_ - q_target, q_ - q_target))/(assemble(1*dx(subdomainlist[0])))*dx(subdomainlist[0])
@@ -348,8 +360,7 @@ displacement = Function(S)
 # Setup the elasticity inner product.
 if config['inner_product'] == "H1":
     displacementInnerProduct = inner(grad(TrialFunction(S)), grad(TestFunction(S))) * dx  
-elif config['inner_product'] == "elasticity" or config['inner_product'] == "elasticity_trace_free":
-    strain, C = get_elasticity_operators(config)
+elif config['inner_product'] == "elasticity":
     displacementInnerProduct = inner(C(strain(TrialFunction(S))),strain(TestFunction(S))) * dx 
 else: 
     raise ValueError("Inner product not supported")
@@ -453,6 +464,7 @@ while iteration < maxIter:
     else:
         solve(displacementInnerProduct == dJds, shapeGradient, bc_shapegradient)
 
+
     # Evaluate the squared norm of the shape gradient induced by the (regularized)
     # elasticity inner product.
     normShapeGradient2 = sum(shapeGradient.vector() * shapeGradient.vector())
@@ -494,7 +506,7 @@ while iteration < maxIter:
     boundary_marked = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
     boundary_marked.set_all(0)
     for marker in surf_markers_anchoring:
-        for facet in facets(mesh):
+        for facet in facets(mesh):  
             if boundaries[facet.index()] == marker:
                 boundary_marked[facet.index()] = 1
     File(save_dir + f"/boundary_subdomain_anchoring_{iteration}.pvd") << boundary_marked

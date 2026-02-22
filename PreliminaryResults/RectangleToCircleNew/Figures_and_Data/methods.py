@@ -91,29 +91,6 @@ def solveMultRelaxation(parameters, lhs, rhs,solFunc, bcs, J, form_compiler_para
                                     {"relative_tolerance": arr[1],"absolute_tolerance": 1.0e-7, 'maximum_iterations': 500, "relaxation_parameter":arr[0], "linear_solver":"mumps"}})
         
 
-def get_elasticity_operators(config):
-    E = Constant(float(config['E']))  # Young's modulus
-    nu = Constant(float(config['nu']))  # Poisson's ratio
-    d = int(config['dimensions'])  # Dimension of the problem
-    lmbda = nu * E / ((1 + nu) * (1 - 2 * nu)) # Lame's first parameter
-    mu = E / (2 * (1 + nu)) # Lame's second parameter
-
-    if d == 2:
-        # Plane stress condition
-        lmbda = 2 * mu * lmbda / (lmbda + 2 * mu)
-
-    def strain(u):
-        eps = sym(nabla_grad(u))
-        if config['inner_product'] == 'elasticity_trace_free':
-            return eps - (1.0 / d) * tr(eps) * Identity(d)
-        else:
-            return eps
-
-    def C(epsilon):
-        return 2 * mu * epsilon + lmbda * tr(epsilon) * Identity(d)
-
-    return strain, C
-
 def eigenstate3_legacy(A):
     # https://github.com/michalhabera/dolfiny/blob/master/src/dolfiny/invariants.py
     """Eigenvalues and eigenprojectors of the 3x3 (real-valued) tensor A.

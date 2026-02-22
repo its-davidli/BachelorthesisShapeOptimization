@@ -7,10 +7,9 @@
 
 ## Questions (to Roland and Stephan)
 
-- Spikes at the 3D Boundary
-- Behavior of defect location? (see last point in Saturday, 11th October 2025 and Tuesday, 16th December 2025)
 - Initial Stepsize determination
 - Criterion to reject Stepsize because of intersecting mesh cells
+- Bias by choice where the objecive is evaluated?
 
 ## Things to discuss with Santiago
 
@@ -223,3 +222,10 @@ The first test does not yield good results. The shape derivative looks fine, but
 - Added an absolute error tolerance stopping criterion
 - Tried 90 degree chiral, almost working perfectly
     - Added to *PreliminaryResults/Chiral90Degrees* and *PreliminaryResults/Chiral90Degrees2* with the first being with alphaMaxFactor of 1 and the latter of 5
+
+
+### Wednesday, 
+
+- Saturn
+    - Multimesh Fenics
+    - Remeshing
