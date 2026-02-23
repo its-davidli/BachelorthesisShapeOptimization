@@ -357,18 +357,18 @@ def get_objective(target_geometry, mesh, S0, d):
         return Expression(('S0*(cos(theta)*cos(theta)-0.5)', 'S0*sin(theta)*cos(theta)'), theta = theta, S0 = S0, degree = 1)
 
     elif d == 2 and target_geometry == "uniform_vertical":
-        return Expression(('-S0*(0.5)', 'eps'), S0 = S0, eps=eps, degree = 1)
+        q_target = Expression(('-S0*(0.5)', 'eps'), S0 = S0, eps=eps, degree = 1)
    
 
     elif d == 3 and target_geometry == "pseudoChiral":
         alpha = np.pi/4 # The angle of the director at the top of the domain
         h = 5 # The height of the domain
-        return Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('alpha*x[2]/h', alpha=alpha, h=h, degree = 1) , S0 = S0, eps= eps, degree = 1)
+        q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('alpha*x[2]/h', alpha=alpha, h=h, degree = 1) , S0 = S0, eps= eps, degree = 1)
 
     elif d == 3 and target_geometry == "uniform_horizontal":
         phi = Constant(np.pi/6)
         # Here we dont use Expression since it is less accurate than as_vector. Both are equivalent, since the target field is constant throughout space, and both implementations have been tested to give the same result up to numerical precision.
-        return as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
+        q_target = as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
         # q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*(sin(phi)*sin(phi) - 1/3)', 'eps'), phi = phi , S0 = S0, eps= eps, degree = 1)
 
 

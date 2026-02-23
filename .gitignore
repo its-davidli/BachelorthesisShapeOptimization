@@ -8,3 +8,7 @@ PreliminaryResults/*/*.pvd
 PreliminaryResults/*/*.vtu
 PreliminaryResults/*/*.xdmf
 PreliminaryResults/*/*.h5
+FinalResults/*/*.pvd
+FinalResults/*/*.vtu
+FinalResults/*/*.xdmf
+FinalResults/*/*.h5

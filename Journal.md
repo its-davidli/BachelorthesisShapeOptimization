@@ -224,8 +224,10 @@ The first test does not yield good results. The shape derivative looks fine, but
     - Added to *PreliminaryResults/Chiral90Degrees* and *PreliminaryResults/Chiral90Degrees2* with the first being with alphaMaxFactor of 1 and the latter of 5
 
 
-### Wednesday, 
+### Sunday, 22nd February 2026
 
-- Saturn
-    - Multimesh Fenics
-    - Remeshing
+- Shifted many functionalities into ...Methods.py and ...Misc.py file
+- Deleted All objective Functions not used in the Final Paper, including objectives only defined on subdomains  
+- Deleted a few obsolete File saves (e.g. Saving the initial guess)
+- Deleted feature of shape gradient boundary conditions
+- Deleted different Armijo Linesearch options for the initial stepsize of each linesearch
