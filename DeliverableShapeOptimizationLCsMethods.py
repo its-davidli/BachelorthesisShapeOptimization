@@ -366,7 +366,7 @@ def get_objective(target_geometry, mesh, S0, d):
         return Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*sin(phi)*sin(phi) - 1/3', 'eps'), phi = Expression('alpha*x[2]/h', alpha=alpha, h=h, degree = 1) , S0 = S0, eps= eps, degree = 1)
 
     elif d == 3 and target_geometry == "uniform_horizontal":
-        phi = Constant(np.pi/6)
+        phi = Constant(np.pi/4)
         # Here we dont use Expression since it is less accurate than as_vector. Both are equivalent, since the target field is constant throughout space, and both implementations have been tested to give the same result up to numerical precision.
         return as_vector((S0*(cos(phi)*cos(phi)-1/3), S0*sin(phi)*cos(phi), eps, S0*sin(phi)*sin(phi) - 1/3, eps))
         # q_target = Expression(('S0*(cos(phi)*cos(phi)-1/3)', 'S0*sin(phi)*cos(phi)', 'eps', 'S0*(sin(phi)*sin(phi) - 1/3)', 'eps'), phi = phi , S0 = S0, eps= eps, degree = 1)
